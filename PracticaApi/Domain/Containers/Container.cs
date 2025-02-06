@@ -18,8 +18,8 @@ public class Container
     public UserId? ModifiedBy { get; private set; }
     public DateTime? ModifiedAt { get; private set; }
     public ICollection<ContainerHistory> Histories { get; private set; } = new List<ContainerHistory>();
-    public ContainerType Type { get; private set; } // Тип тари
-    public string UniqueCode { get; private set; }  // Унікальний код тари
+    public ContainerType Type { get; private set; } 
+    public string UniqueCode { get; private set; } 
 
     private Container(
         ContainerId id,
