@@ -4,8 +4,8 @@ using Optional;
 namespace Application.Common.Interfaces.Repositories;
 public interface IProductRepository
 {
-    Task<Product> Create(Product product, CancellationToken cancellationToken);
-    Task<Product> Update(Product product, CancellationToken cancellationToken);
-    Task<Product> Delete(Product product, CancellationToken cancellationToken);
-    Task<Option<Product>> GetById(ProductId id, CancellationToken cancellationToken);
+    Task<ProductEntity> Create(ProductEntity productEntity, CancellationToken cancellationToken);
+    Task<ProductEntity> Update(ProductEntity productEntity, CancellationToken cancellationToken);
+    Task<ProductEntity> Delete(ProductEntity productEntity, CancellationToken cancellationToken);
+    Task<Option<ProductEntity>> GetById(ProductId id, CancellationToken cancellationToken);
 }

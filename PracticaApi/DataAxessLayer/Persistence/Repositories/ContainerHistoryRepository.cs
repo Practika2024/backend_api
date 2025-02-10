@@ -10,28 +10,28 @@ using Optional;
 namespace Infrastructure.Persistence.Repositories;
 public class ContainerHistoryRepository(ApplicationDbContext _context) : IContainerHistoryRepository, IContainerHistoryQueries
 {
-    public async Task<ContainerHistory> Create(ContainerHistory history, CancellationToken cancellationToken)
+    public async Task<ContainerHistoryEntity> Create(ContainerHistoryEntity historyEntity, CancellationToken cancellationToken)
     {
-        await _context.ContainerHistories.AddAsync(history, cancellationToken);
+        await _context.ContainerHistories.AddAsync(historyEntity, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
-        return history;
+        return historyEntity;
     }
 
-    public async Task<ContainerHistory> Update(ContainerHistory history, CancellationToken cancellationToken)
+    public async Task<ContainerHistoryEntity> Update(ContainerHistoryEntity historyEntity, CancellationToken cancellationToken)
     {
-        _context.ContainerHistories.Update(history);
+        _context.ContainerHistories.Update(historyEntity);
         await _context.SaveChangesAsync(cancellationToken);
-        return history;
+        return historyEntity;
     }
 
-    public async Task<ContainerHistory> Delete(ContainerHistory history, CancellationToken cancellationToken)
+    public async Task<ContainerHistoryEntity> Delete(ContainerHistoryEntity historyEntity, CancellationToken cancellationToken)
     {
-        _context.ContainerHistories.Remove(history);
+        _context.ContainerHistories.Remove(historyEntity);
         await _context.SaveChangesAsync(cancellationToken);
-        return history;
+        return historyEntity;
     }
 
-    public async Task<IReadOnlyList<ContainerHistory>> GetAll(CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<ContainerHistoryEntity>> GetAll(CancellationToken cancellationToken)
     {
         return await _context.ContainerHistories
             .AsNoTracking()
@@ -40,13 +40,13 @@ public class ContainerHistoryRepository(ApplicationDbContext _context) : IContai
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<Option<ContainerHistory>> GetById(ContainerHistoryId id, CancellationToken cancellationToken)
+    public async Task<Option<ContainerHistoryEntity>> GetById(ContainerHistoryId id, CancellationToken cancellationToken)
     {
         var entity = await GetHistoryAsync(x => x.Id == id, cancellationToken);
-        return entity == null ? Option.None<ContainerHistory>() : Option.Some(entity);
+        return entity == null ? Option.None<ContainerHistoryEntity>() : Option.Some(entity);
     }
 
-    public async Task<IReadOnlyList<ContainerHistory>> GetByContainerId(ContainerId containerId, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<ContainerHistoryEntity>> GetByContainerId(ContainerId containerId, CancellationToken cancellationToken)
     {
         return await _context.ContainerHistories
             .Where(h => h.ContainerId == containerId)
@@ -55,7 +55,7 @@ public class ContainerHistoryRepository(ApplicationDbContext _context) : IContai
             .ToListAsync(cancellationToken);
     }
 
-    private async Task<ContainerHistory?> GetHistoryAsync(Expression<Func<ContainerHistory, bool>> predicate, CancellationToken cancellationToken,
+    private async Task<ContainerHistoryEntity?> GetHistoryAsync(Expression<Func<ContainerHistoryEntity, bool>> predicate, CancellationToken cancellationToken,
         bool asNoTracking = false)
     {
         if (asNoTracking)

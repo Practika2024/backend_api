@@ -37,7 +37,7 @@ public class AddReminderToContainerService : IAddReminderToContainerService
                 try
                 {
                     var reminderId = ReminderId.New();
-                    var reminder = Reminder.New(reminderId, containerIdObj, title, dueDate, type, UserId.Empty);
+                    var reminder = ReminderEntity.New(reminderId, containerIdObj, title, dueDate, type, UserId.Empty);
 
                     var createdReminder = await _reminderRepository.Create(reminder, cancellationToken);
                     return new ReminderVM(createdReminder);

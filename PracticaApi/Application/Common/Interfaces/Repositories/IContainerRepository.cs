@@ -4,10 +4,10 @@ using Optional;
 
 public interface IContainerRepository
 {
-    Task<Container> Create(Container container, CancellationToken cancellationToken);
-    Task<Container> Update(Container container, CancellationToken cancellationToken);
-    Task<Container> Delete(Container container, CancellationToken cancellationToken);
-    Task<Option<Container>> GetById(ContainerId id, CancellationToken cancellationToken);
-    Task<Option<Container>> SearchByUniqueCode(string uniqueCode, CancellationToken cancellationToken);
-    Task<Option<Container>> SearchByName(string name, CancellationToken cancellationToken);
+    Task<ContainerEntity> Create(ContainerEntity containerEntity, CancellationToken cancellationToken);
+    Task<ContainerEntity> Update(ContainerEntity containerEntity, CancellationToken cancellationToken);
+    Task<ContainerEntity> Delete(ContainerEntity containerEntity, CancellationToken cancellationToken);
+    Task<Option<ContainerEntity>> GetById(ContainerId id, CancellationToken cancellationToken);
+    Task<Option<ContainerEntity>> SearchByUniqueCode(string uniqueCode, CancellationToken cancellationToken);
+    Task<Option<ContainerEntity>> SearchByName(string name, CancellationToken cancellationToken);
 }

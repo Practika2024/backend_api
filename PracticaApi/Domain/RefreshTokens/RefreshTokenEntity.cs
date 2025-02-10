@@ -2,7 +2,7 @@
 
 namespace Domain.RefreshTokens
 {
-    public class RefreshToken
+    public class RefreshTokenEntity
     {
         public Guid Id { get; }
         public string Token { get; private set; }
@@ -11,9 +11,9 @@ namespace Domain.RefreshTokens
         public DateTime CreateDate { get; private set; }
         public DateTime ExpiredDate { get; private set; }
         public UserId UserId { get; private set; }
-        public User? User { get; private set; }
+        public UserEntity? User { get; private set; }
 
-        private RefreshToken(Guid id, string token, string jwtId, DateTime createDate, DateTime expiredDate,
+        private RefreshTokenEntity(Guid id, string token, string jwtId, DateTime createDate, DateTime expiredDate,
             UserId userId)
         {
             Id = id;
@@ -24,7 +24,7 @@ namespace Domain.RefreshTokens
             UserId = userId;
         }
 
-        public static RefreshToken New(Guid id, string token, string jwtId, DateTime createDate, DateTime expiredDate,
+        public static RefreshTokenEntity New(Guid id, string token, string jwtId, DateTime createDate, DateTime expiredDate,
             UserId userId)
             => new(id, token, jwtId, createDate, expiredDate, userId);
     }

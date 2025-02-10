@@ -7,9 +7,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Infrastructure.Persistence.Configurations;
 
-public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
+public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshTokenEntity>
 {
-    public void Configure(EntityTypeBuilder<RefreshToken> builder)
+    public void Configure(EntityTypeBuilder<RefreshTokenEntity> builder)
     {
         builder.HasKey(x => x.Id);
         

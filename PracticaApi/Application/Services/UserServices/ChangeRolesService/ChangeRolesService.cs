@@ -18,7 +18,7 @@ public class ChangeRolesService : IChangeRolesService
         _roleQueries = roleQueries;
     }
 
-    public async Task<Result<User, UserException>> ChangeRolesForUserAsync(
+    public async Task<Result<UserEntity, UserException>> ChangeRolesForUserAsync(
         Guid userId,
         List<string> roles,
         CancellationToken cancellationToken)
@@ -26,18 +26,18 @@ public class ChangeRolesService : IChangeRolesService
         var userIdObj = new UserId(userId);
         var existingUser = await _userRepository.GetById(userIdObj, cancellationToken);
 
-        var rolesList = new List<Role>();
+        var rolesList = new List<RoleEntity>();
         foreach (var role in roles)
         {
             var existingRole = await _roleQueries.GetByName(role, cancellationToken);
 
-            var roleResult = await existingRole.Match<Task<Result<Role, UserException>>>(
+            var roleResult = await existingRole.Match<Task<Result<RoleEntity, UserException>>>(
                 async r =>
                 {
                     rolesList.Add(r);
                     return r;
                 },
-                () => Task.FromResult<Result<Role, UserException>>(new RoleNotFoundException(role))
+                () => Task.FromResult<Result<RoleEntity, UserException>>(new RoleNotFoundException(role))
             );
 
             if (roleResult.IsError)
@@ -46,25 +46,25 @@ public class ChangeRolesService : IChangeRolesService
             }
         }
 
-        return await existingUser.Match<Task<Result<User, UserException>>>(
+        return await existingUser.Match<Task<Result<UserEntity, UserException>>>(
             async user => await ChangeRolesForUser(user, rolesList, cancellationToken),
-            () => Task.FromResult<Result<User, UserException>>(new UserNotFoundException(userIdObj))
+            () => Task.FromResult<Result<UserEntity, UserException>>(new UserNotFoundException(userIdObj))
         );
     }
 
-    private async Task<Result<User, UserException>> ChangeRolesForUser(
-        User user,
-        List<Role> roles,
+    private async Task<Result<UserEntity, UserException>> ChangeRolesForUser(
+        UserEntity userEntity,
+        List<RoleEntity> roles,
         CancellationToken cancellationToken)
     {
         try
         {
-            user.SetRoles(roles);
-            return await _userRepository.Update(user, cancellationToken);
+            userEntity.SetRoles(roles);
+            return await _userRepository.Update(userEntity, cancellationToken);
         }
         catch (Exception exception)
         {
-            return new UserUnknownException(user.Id, exception);
+            return new UserUnknownException(userEntity.Id, exception);
         }
     }
 }

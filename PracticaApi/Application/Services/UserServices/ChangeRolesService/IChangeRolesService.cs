@@ -6,5 +6,5 @@ namespace Application.Services.UserServices.ChangeRolesService;
 
 public interface IChangeRolesService
 {
-    Task<Result<User, UserException>> ChangeRolesForUserAsync(Guid userId, List<string> roles, CancellationToken cancellationToken);
+    Task<Result<UserEntity, UserException>> ChangeRolesForUserAsync(Guid userId, List<string> roles, CancellationToken cancellationToken);
 }

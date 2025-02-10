@@ -9,12 +9,12 @@ public class ReminderVM
     public DateTime DueDate { get; set; }
     public ReminderType Type { get; set; }
 
-    public ReminderVM(Reminder reminder)
+    public ReminderVM(ReminderEntity reminderEntity)
     {
-        Id = reminder.Id.Value;
-        ContainerId = reminder.ContainerId.Value;
-        Title = reminder.Title;
-        DueDate = reminder.DueDate;
-        Type = reminder.Type;
+        Id = reminderEntity.Id.Value;
+        ContainerId = reminderEntity.ContainerId.Value;
+        Title = reminderEntity.Title;
+        DueDate = reminderEntity.DueDate;
+        Type = reminderEntity.Type;
     }
 }

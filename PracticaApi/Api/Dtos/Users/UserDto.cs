@@ -9,11 +9,11 @@ public record UserDto(
     UserImageDto? Image,
     List<RoleDto>? Roles) 
 {
-    public static UserDto FromDomainModel(User user)
+    public static UserDto FromDomainModel(UserEntity userEntity)
         => new(
-            user.Id.Value,
-            user.Email, 
-            user.Name,
-            user.UserImage != null ? UserImageDto.FromDomainModel(user.UserImage) : null,
-            user.Roles.Select(RoleDto.FromDomainModel).ToList()); 
+            userEntity.Id.Value,
+            userEntity.Email, 
+            userEntity.Name,
+            userEntity.UserImage != null ? UserImageDto.FromDomainModel(userEntity.UserImage) : null,
+            userEntity.Roles.Select(RoleDto.FromDomainModel).ToList()); 
 }

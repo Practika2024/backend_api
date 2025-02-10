@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Persistence.Configurations;
-public class ContainerHistoryConfiguration : IEntityTypeConfiguration<ContainerHistory>
+public class ContainerHistoryConfiguration : IEntityTypeConfiguration<ContainerHistoryEntity>
 {
-    public void Configure(EntityTypeBuilder<ContainerHistory> builder)
+    public void Configure(EntityTypeBuilder<ContainerHistoryEntity> builder)
     {
         builder.HasKey(ch => ch.Id);
         builder.Property(ch => ch.Id).HasConversion(ch => ch.Value, x => new ContainerHistoryId(x));

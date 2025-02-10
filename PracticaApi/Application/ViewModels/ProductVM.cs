@@ -9,12 +9,12 @@ public class ProductVM
     public DateTime ManufactureDate { get; set; }
     public ProductType Type { get; set; }
 
-    public ProductVM(Product product)
+    public ProductVM(ProductEntity productEntity)
     {
-        Id = product.Id.Value;
-        Name = product.Name;
-        Description = product.Description;
-        ManufactureDate = product.ManufactureDate;
-        Type = product.Type;
+        Id = productEntity.Id.Value;
+        Name = productEntity.Name;
+        Description = productEntity.Description;
+        ManufactureDate = productEntity.ManufactureDate;
+        Type = productEntity.Type;
     }
 }

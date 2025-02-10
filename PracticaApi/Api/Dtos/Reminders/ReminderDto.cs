@@ -10,15 +10,15 @@ public class ReminderDto
     public DateTime DueDate { get; set; }
     public ReminderType Type { get; set; }
 
-    public static ReminderDto FromDomainModel(Reminder reminder)
+    public static ReminderDto FromDomainModel(ReminderEntity reminderEntity)
     {
         return new ReminderDto
         {
-            Id = reminder.Id.Value,
-            ContainerId = reminder.ContainerId.Value,
-            Title = reminder.Title,
-            DueDate = reminder.DueDate,
-            Type = reminder.Type
+            Id = reminderEntity.Id.Value,
+            ContainerId = reminderEntity.ContainerId.Value,
+            Title = reminderEntity.Title,
+            DueDate = reminderEntity.DueDate,
+            Type = reminderEntity.Type
         };
     }
     public static ReminderDto FromDomainModel(ReminderVM reminder)

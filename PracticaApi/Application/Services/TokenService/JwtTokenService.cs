@@ -14,7 +14,7 @@ namespace Application.Services.TokenService
 {
     public class JwtTokenService(IConfiguration configuration, IRefreshTokenRepository refreshTokenRepository) : IJwtTokenService
     {
-        private JwtSecurityToken GenerateAccessToken(User user)
+        private JwtSecurityToken GenerateAccessToken(UserEntity userEntity)
         {
             var issuer = configuration["AuthSettings:issuer"];
             var audience = configuration["AuthSettings:audience"];
@@ -24,15 +24,15 @@ namespace Application.Services.TokenService
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim("id", user.Id.Value.ToString()),
-                new Claim("email", user.Email!),
-                new Claim("name", user.Name ?? "N/A"),
-                new Claim("image", user.UserImage?.FilePath ?? "N/A"),
+                new Claim("id", userEntity.Id.Value.ToString()),
+                new Claim("email", userEntity.Email!),
+                new Claim("name", userEntity.Name ?? "N/A"),
+                new Claim("image", userEntity.UserImage?.FilePath ?? "N/A"),
             };
 
-            if (user.Roles.Count() > 0)
+            if (userEntity.Roles.Count() > 0)
             {
-                var roleClaims = user.Roles.Select(ur => new Claim(
+                var roleClaims = userEntity.Roles.Select(ur => new Claim(
                     "role",
                     ur.Name
                 )).ToArray();
@@ -66,13 +66,13 @@ namespace Application.Services.TokenService
             }
         }
 
-        private async Task<RefreshToken?> SaveRefreshTokenAsync(User user, string refreshToken, string jwtId, CancellationToken cancellationToken)
+        private async Task<RefreshTokenEntity?> SaveRefreshTokenAsync(UserEntity userEntity, string refreshToken, string jwtId, CancellationToken cancellationToken)
         {
-            var token = RefreshToken.New(Guid.NewGuid(),
+            var token = RefreshTokenEntity.New(Guid.NewGuid(),
                 refreshToken,
                 jwtId, DateTime.UtcNow,
                 DateTime.UtcNow.AddDays(7),
-                user.Id);
+                userEntity.Id);
 
             try
             {
@@ -113,14 +113,14 @@ namespace Application.Services.TokenService
             return principals;
         }
         
-        public async Task<JwtVM> GenerateTokensAsync(User user, CancellationToken cancellationToken)
+        public async Task<JwtVM> GenerateTokensAsync(UserEntity userEntity, CancellationToken cancellationToken)
         {
-            var accessToken = GenerateAccessToken(user);
+            var accessToken = GenerateAccessToken(userEntity);
             var refreshToken = GenerateRefreshToken();
 
-            await refreshTokenRepository.MakeAllRefreshTokensExpiredForUser(user.Id, cancellationToken);
+            await refreshTokenRepository.MakeAllRefreshTokensExpiredForUser(userEntity.Id, cancellationToken);
             
-            var saveResult = await SaveRefreshTokenAsync(user, refreshToken, accessToken.Id, cancellationToken);
+            var saveResult = await SaveRefreshTokenAsync(userEntity, refreshToken, accessToken.Id, cancellationToken);
 
             var tokens = new JwtVM
             {

@@ -8,21 +8,21 @@ namespace Infrastructure.Persistence.Repositories;
 
 public class RoleRepository(ApplicationDbContext _context) : IRoleQueries
 {
-    public async Task<IReadOnlyList<Role>> GetAll(CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<RoleEntity>> GetAll(CancellationToken cancellationToken)
     {
         return await _context.Roles
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<Option<Role>> GetByName(string name, CancellationToken cancellationToken)
+    public async Task<Option<RoleEntity>> GetByName(string name, CancellationToken cancellationToken)
     {
         var entity = await GetRoleAsync(r => r.Name == name, cancellationToken, false);
         
-        return entity == null ? Option.None<Role>() : Option.Some(entity);
+        return entity == null ? Option.None<RoleEntity>() : Option.Some(entity);
     }
     
-    public async Task<Role?> GetRoleAsync(Expression<Func<Role, bool>> predicate, CancellationToken cancellationToken, bool asNoTracking = true)
+    public async Task<RoleEntity?> GetRoleAsync(Expression<Func<RoleEntity, bool>> predicate, CancellationToken cancellationToken, bool asNoTracking = true)
     {
         if (asNoTracking)
         {

@@ -9,47 +9,47 @@ using Optional;
 namespace Infrastructure.Persistence.Repositories;
 public class ProductRepository(ApplicationDbContext _context) : IProductRepository, IProductQueries
 {
-    public async Task<Product> Create(Product product, CancellationToken cancellationToken)
+    public async Task<ProductEntity> Create(ProductEntity productEntity, CancellationToken cancellationToken)
     {
-        await _context.Products.AddAsync(product, cancellationToken);
+        await _context.Products.AddAsync(productEntity, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
-        return product;
+        return productEntity;
     }
 
-    public async Task<Product> Update(Product product, CancellationToken cancellationToken)
+    public async Task<ProductEntity> Update(ProductEntity productEntity, CancellationToken cancellationToken)
     {
-        _context.Products.Update(product);
+        _context.Products.Update(productEntity);
         await _context.SaveChangesAsync(cancellationToken);
-        return product;
+        return productEntity;
     }
 
-    public async Task<Product> Delete(Product product, CancellationToken cancellationToken)
+    public async Task<ProductEntity> Delete(ProductEntity productEntity, CancellationToken cancellationToken)
     {
-        _context.Products.Remove(product);
+        _context.Products.Remove(productEntity);
         await _context.SaveChangesAsync(cancellationToken);
-        return product;
+        return productEntity;
     }
 
-    public async Task<IReadOnlyList<Product>> GetAll(CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<ProductEntity>> GetAll(CancellationToken cancellationToken)
     {
         return await _context.Products
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<Option<Product>> GetById(ProductId id, CancellationToken cancellationToken)
+    public async Task<Option<ProductEntity>> GetById(ProductId id, CancellationToken cancellationToken)
     {
         var entity = await GetProductAsync(x => x.Id == id, cancellationToken);
-        return entity == null ? Option.None<Product>() : Option.Some(entity);
+        return entity == null ? Option.None<ProductEntity>() : Option.Some(entity);
     }
 
-    public async Task<Option<Product>> SearchByName(string name, CancellationToken cancellationToken)
+    public async Task<Option<ProductEntity>> SearchByName(string name, CancellationToken cancellationToken)
     {
         var entity = await GetProductAsync(x => x.Name == name, cancellationToken);
-        return entity == null ? Option.None<Product>() : Option.Some(entity);
+        return entity == null ? Option.None<ProductEntity>() : Option.Some(entity);
     }
 
-    private async Task<Product?> GetProductAsync(Expression<Func<Product, bool>> predicate, CancellationToken cancellationToken,
+    private async Task<ProductEntity?> GetProductAsync(Expression<Func<ProductEntity, bool>> predicate, CancellationToken cancellationToken,
         bool asNoTracking = false)
     {
         if (asNoTracking)

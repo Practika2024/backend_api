@@ -5,6 +5,6 @@ namespace Api.Dtos.Users;
 
 public record UserImageDto(Guid? Id, string FilePath)
 {
-    public static UserImageDto FromDomainModel(UserImage userImage)
-    => new(userImage.Id.Value, userImage.FilePath);
+    public static UserImageDto FromDomainModel(UserImageEntity userImageEntity)
+    => new(userImageEntity.Id.Value, userImageEntity.FilePath);
 }

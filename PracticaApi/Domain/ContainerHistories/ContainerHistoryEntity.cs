@@ -4,19 +4,19 @@ using Domain.Products;
 
 namespace Domain.ContainerHistories;
 
-public class ContainerHistory
+public class ContainerHistoryEntity
 {
     public ContainerHistoryId Id { get; }
     public ContainerId ContainerId { get; private set; }
-    public Container? Container { get; private set; }
+    public ContainerEntity? Container { get; private set; }
     public ProductId ProductId { get; private set; } 
-    public Product? Product { get; private set; }
+    public ProductEntity? Product { get; private set; }
     public DateTime StartDate { get; }
     public DateTime? EndDate { get; private set; }
     public UserId CreatedBy { get; private set; }
-    public User? CreatedByNavigation { get; private set; }
+    public UserEntity? CreatedByNavigation { get; private set; }
 
-    private ContainerHistory(
+    private ContainerHistoryEntity(
         ContainerHistoryId id,
         ContainerId containerId,
         ProductId productId,
@@ -30,7 +30,7 @@ public class ContainerHistory
         CreatedBy = createdBy;
     }
 
-    public static ContainerHistory New(
+    public static ContainerHistoryEntity New(
         ContainerHistoryId id,
         ContainerId containerId,
         ProductId productId,

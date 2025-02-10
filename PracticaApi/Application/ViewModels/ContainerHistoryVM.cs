@@ -9,12 +9,12 @@ public class ContainerHistoryVM
     public DateTime StartDate { get; set; }
     public DateTime? EndDate { get; set; }
 
-    public ContainerHistoryVM(ContainerHistory history)
+    public ContainerHistoryVM(ContainerHistoryEntity historyEntity)
     {
-        Id = history.Id.Value;
-        ContainerId = history.ContainerId.Value;
-        ProductId = history.ProductId.Value;
-        StartDate = history.StartDate;
-        EndDate = history.EndDate;
+        Id = historyEntity.Id.Value;
+        ContainerId = historyEntity.ContainerId.Value;
+        ProductId = historyEntity.ProductId.Value;
+        StartDate = historyEntity.StartDate;
+        EndDate = historyEntity.EndDate;
     }
 }

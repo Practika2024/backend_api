@@ -30,9 +30,9 @@ public class RefreshTokenService : IRefreshTokenService
         );
     }
 
-    private async Task<Result<JwtVM, AuthenticationException>> VerifyRefreshToken(RefreshToken storedToken, string accessToken, CancellationToken cancellationToken)
+    private async Task<Result<JwtVM, AuthenticationException>> VerifyRefreshToken(RefreshTokenEntity storedTokenEntity, string accessToken, CancellationToken cancellationToken)
     {
-        if (storedToken.IsUsed || storedToken.ExpiredDate < DateTime.UtcNow)
+        if (storedTokenEntity.IsUsed || storedTokenEntity.ExpiredDate < DateTime.UtcNow)
         {
             return new InvalidTokenException();
         }
@@ -40,16 +40,16 @@ public class RefreshTokenService : IRefreshTokenService
         var principals = _jwtTokenService.GetPrincipals(accessToken);
         var accessTokenId = principals.Claims.Single(c => c.Type == "jti").Value;
 
-        if (storedToken.JwtId != accessTokenId)
+        if (storedTokenEntity.JwtId != accessTokenId)
         {
             return new InvalidAccessTokenException();
         }
 
-        var existingUser = await _userRepository.GetById(storedToken.UserId, cancellationToken);
+        var existingUser = await _userRepository.GetById(storedTokenEntity.UserId, cancellationToken);
 
         return await existingUser.Match<Task<Result<JwtVM, AuthenticationException>>>(
             async user => await _jwtTokenService.GenerateTokensAsync(user, cancellationToken),
-            () => Task.FromResult<Result<JwtVM, AuthenticationException>>(new UserNorFoundException(storedToken.UserId))
+            () => Task.FromResult<Result<JwtVM, AuthenticationException>>(new UserNorFoundException(storedTokenEntity.UserId))
         );
     }
 }

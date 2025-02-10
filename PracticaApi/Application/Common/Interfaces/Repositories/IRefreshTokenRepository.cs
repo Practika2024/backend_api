@@ -6,7 +6,7 @@ namespace Application.Common.Interfaces.Repositories;
 
 public interface IRefreshTokenRepository
 {
-    Task<Option<RefreshToken>> GetRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken);
-    Task<RefreshToken> Create(RefreshToken refreshToken, CancellationToken cancellationToken);
+    Task<Option<RefreshTokenEntity>> GetRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken);
+    Task<RefreshTokenEntity> Create(RefreshTokenEntity refreshTokenEntity, CancellationToken cancellationToken);
     Task MakeAllRefreshTokensExpiredForUser(UserId userId, CancellationToken cancellationToken);
 }

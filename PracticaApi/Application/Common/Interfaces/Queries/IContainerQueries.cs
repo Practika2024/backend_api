@@ -5,7 +5,7 @@ namespace Application.Common.Interfaces.Queries;
 
 public interface IContainerQueries
 {
-    Task<IReadOnlyList<Container>> GetAll(CancellationToken cancellationToken);
-    Task<Option<Container>> GetById(ContainerId id, CancellationToken cancellationToken);
+    Task<IReadOnlyList<ContainerEntity>> GetAll(CancellationToken cancellationToken);
+    Task<Option<ContainerEntity>> GetById(ContainerId id, CancellationToken cancellationToken);
  
 }

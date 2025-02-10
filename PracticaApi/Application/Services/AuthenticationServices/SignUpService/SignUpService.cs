@@ -45,7 +45,7 @@ public class SignUpService : ISignUpService
         {
             var userId = UserId.New();
             var hashedPassword = _hashPasswordService.HashPassword(password);
-            var user = User.New(userId, email, name, surname, patronymic, hashedPassword);
+            var user = UserEntity.New(userId, email, name, surname, patronymic, hashedPassword);
 
             await _userRepository.Create(user, cancellationToken);
 

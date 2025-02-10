@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 
 namespace Infrastructure.Persistence.Configurations;
-public class ReminderConfiguration : IEntityTypeConfiguration<Reminder>
+public class ReminderConfiguration : IEntityTypeConfiguration<ReminderEntity>
 {
-    public void Configure(EntityTypeBuilder<Reminder> builder)
+    public void Configure(EntityTypeBuilder<ReminderEntity> builder)
     {
         builder.HasKey(r => r.Id);
         builder.Property(r => r.Id).HasConversion(r => r.Value, x => new ReminderId(x));

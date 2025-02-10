@@ -17,24 +17,24 @@ public class DeleteUserService : IDeleteUserService
         _webHostEnvironment = webHostEnvironment;
     }
 
-    public async Task<Result<User, UserException>> DeleteUserAsync(Guid userId, CancellationToken cancellationToken)
+    public async Task<Result<UserEntity, UserException>> DeleteUserAsync(Guid userId, CancellationToken cancellationToken)
     {
         var userIdObj = new UserId(userId);
         var existingUser = await _userRepository.GetById(userIdObj, cancellationToken);
 
-        return await existingUser.Match<Task<Result<User, UserException>>>(
+        return await existingUser.Match<Task<Result<UserEntity, UserException>>>(
             async user =>
             {
                 DeleteImageByUser(user);
                 return await _userRepository.Delete(user, cancellationToken);
             },
-            () => Task.FromResult<Result<User, UserException>>(new UserNotFoundException(userIdObj))
+            () => Task.FromResult<Result<UserEntity, UserException>>(new UserNotFoundException(userIdObj))
         );
     }
 
-    private void DeleteImageByUser(User user)
+    private void DeleteImageByUser(UserEntity userEntity)
     {
-        var userImage = user.UserImage?.FilePath;
+        var userImage = userEntity.UserImage?.FilePath;
         if (!string.IsNullOrEmpty(userImage))
         {
             var fullPath = Path.Combine(_webHostEnvironment.ContentRootPath, ImagePaths.UserImagePath, userImage);

@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Persistence.Configurations;
 
-public class UserConfiguration : IEntityTypeConfiguration<User>
+public class UserConfiguration : IEntityTypeConfiguration<UserEntity>
 {
-    public void Configure(EntityTypeBuilder<User> builder)
+    public void Configure(EntityTypeBuilder<UserEntity> builder)
     {
         builder.HasKey(p => p.Id);
         builder.Property(p => p.Id).HasConversion(p => p.Value, x => new UserId(x));
@@ -23,8 +23,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .UsingEntity(x => x.ToTable("user_roles"));
         
         builder.HasOne(x => x.UserImage)
-            .WithOne(x => x.User)
-            .HasForeignKey<UserImage>(x => x.UserId)
+            .WithOne(x => x.UserEntity)
+            .HasForeignKey<UserImageEntity>(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);
         
         builder.HasMany(u => u.CreatedContainers)

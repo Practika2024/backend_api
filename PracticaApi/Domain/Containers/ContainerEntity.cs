@@ -3,7 +3,7 @@ using Domain.ContainerHistories;
 using Domain.Products;
 
 namespace Domain.Containers;
-public class Container
+public class ContainerEntity
 {
     public ContainerId Id { get; }
     public string Name { get; private set; }
@@ -11,17 +11,17 @@ public class Container
     public string? Notes { get; private set; }
     public bool IsEmpty { get; private set; }
     public ProductId? CurrentProductId { get; private set; }
-    public Product? CurrentProduct { get; private set; }
+    public ProductEntity? CurrentProduct { get; private set; }
     public UserId CreatedBy { get; private set; }
-    public User? CreatedByNavigation { get; private set; }
+    public UserEntity? CreatedByNavigation { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public UserId? ModifiedBy { get; private set; }
     public DateTime? ModifiedAt { get; private set; }
-    public ICollection<ContainerHistory> Histories { get; private set; } = new List<ContainerHistory>();
+    public ICollection<ContainerHistoryEntity> Histories { get; private set; } = new List<ContainerHistoryEntity>();
     public ContainerType Type { get; private set; } 
     public string UniqueCode { get; private set; } 
 
-    private Container(
+    private ContainerEntity(
         ContainerId id,
         string name,
         decimal volume,
@@ -42,7 +42,7 @@ public class Container
         UniqueCode = uniqueCode;
     }
 
-    public static Container New(
+    public static ContainerEntity New(
         ContainerId id,
         string name,
         decimal volume,
@@ -72,10 +72,10 @@ public class Container
         UniqueCode = uniqueCode;
     }
 
-    public void SetCurrentProduct(Product product, UserId modifiedBy)
+    public void SetCurrentProduct(ProductEntity productEntity, UserId modifiedBy)
     {
-        CurrentProduct = product;
-        CurrentProductId = product.Id;
+        CurrentProduct = productEntity;
+        CurrentProductId = productEntity.Id;
         IsEmpty = false;
         ModifiedBy = modifiedBy;
         ModifiedAt = DateTime.UtcNow;

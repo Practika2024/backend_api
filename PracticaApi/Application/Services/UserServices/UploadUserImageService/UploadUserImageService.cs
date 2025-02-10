@@ -33,19 +33,19 @@ public class UploadUserImageService : IUploadUserImageService
         );
     }
 
-    private async Task<Result<JwtVM, UserException>> UploadOrReplaceImage(User user, IFormFile imageFile, CancellationToken cancellationToken)
+    private async Task<Result<JwtVM, UserException>> UploadOrReplaceImage(UserEntity userEntity, IFormFile imageFile, CancellationToken cancellationToken)
     {
-        var imageSaveResult = await _imageService.SaveImageFromFileAsync(ImagePaths.UserImagePath, imageFile, user.UserImage?.FilePath);
+        var imageSaveResult = await _imageService.SaveImageFromFileAsync(ImagePaths.UserImagePath, imageFile, userEntity.UserImage?.FilePath);
 
         return await imageSaveResult.Match<Task<Result<JwtVM, UserException>>>(
             async imageName =>
             {
-                var imageEntity = UserImage.New(UserImageId.New(), user.Id, imageName);
-                user.UpdateUserImage(imageEntity);
-                var userWithNewImage = await _userRepository.Update(user, cancellationToken);
+                var imageEntity = UserImageEntity.New(UserImageId.New(), userEntity.Id, imageName);
+                userEntity.UpdateUserImage(imageEntity);
+                var userWithNewImage = await _userRepository.Update(userEntity, cancellationToken);
                 return await _jwtTokenService.GenerateTokensAsync(userWithNewImage, cancellationToken);
             },
-            () => Task.FromResult<Result<JwtVM, UserException>>(new ImageSaveException(user.Id))
+            () => Task.FromResult<Result<JwtVM, UserException>>(new ImageSaveException(userEntity.Id))
         );
     }
 }

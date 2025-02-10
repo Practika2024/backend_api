@@ -7,5 +7,5 @@ namespace Application.Services.UserServices.DeleteUserService;
 
 public interface IDeleteUserService
 {
-    Task<Result<User, UserException>> DeleteUserAsync(Guid userId, CancellationToken cancellationToken);
+    Task<Result<UserEntity, UserException>> DeleteUserAsync(Guid userId, CancellationToken cancellationToken);
 }

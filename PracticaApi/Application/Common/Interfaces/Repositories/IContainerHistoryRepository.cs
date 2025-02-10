@@ -4,8 +4,8 @@ using Optional;
 namespace Application.Common.Interfaces.Repositories;
 public interface IContainerHistoryRepository
 {
-    Task<ContainerHistory> Create(ContainerHistory history, CancellationToken cancellationToken);
-    Task<ContainerHistory> Update(ContainerHistory history, CancellationToken cancellationToken);
-    Task<ContainerHistory> Delete(ContainerHistory history, CancellationToken cancellationToken);
-    Task<Option<ContainerHistory>> GetById(ContainerHistoryId id, CancellationToken cancellationToken);
+    Task<ContainerHistoryEntity> Create(ContainerHistoryEntity historyEntity, CancellationToken cancellationToken);
+    Task<ContainerHistoryEntity> Update(ContainerHistoryEntity historyEntity, CancellationToken cancellationToken);
+    Task<ContainerHistoryEntity> Delete(ContainerHistoryEntity historyEntity, CancellationToken cancellationToken);
+    Task<Option<ContainerHistoryEntity>> GetById(ContainerHistoryId id, CancellationToken cancellationToken);
 }

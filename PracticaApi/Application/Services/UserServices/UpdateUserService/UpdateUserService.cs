@@ -37,17 +37,17 @@ public class UpdateUserService : IUpdateUserService
         );
     }
 
-    private async Task<Result<JwtVM, UserException>> UpdateEntity(User user, string email, string userName, CancellationToken cancellationToken)
+    private async Task<Result<JwtVM, UserException>> UpdateEntity(UserEntity userEntity, string email, string userName, CancellationToken cancellationToken)
     {
         try
         {
-            user.UpdateUser(email, userName);
-            var updatedUser = await _userRepository.Update(user, cancellationToken);
+            userEntity.UpdateUser(email, userName);
+            var updatedUser = await _userRepository.Update(userEntity, cancellationToken);
             return await _jwtTokenService.GenerateTokensAsync(updatedUser, cancellationToken);
         }
         catch (Exception exception)
         {
-            return new UserUnknownException(user.Id, exception);
+            return new UserUnknownException(userEntity.Id, exception);
         }
     }
 }

@@ -5,7 +5,7 @@ using Optional;
 namespace Application.Common.Interfaces.Queries;
 public interface IContainerHistoryQueries
 {
-    Task<IReadOnlyList<ContainerHistory>> GetAll(CancellationToken cancellationToken);
-    Task<Option<ContainerHistory>> GetById(ContainerHistoryId id, CancellationToken cancellationToken);
-    Task<IReadOnlyList<ContainerHistory>> GetByContainerId(ContainerId containerId, CancellationToken cancellationToken);
+    Task<IReadOnlyList<ContainerHistoryEntity>> GetAll(CancellationToken cancellationToken);
+    Task<Option<ContainerHistoryEntity>> GetById(ContainerHistoryId id, CancellationToken cancellationToken);
+    Task<IReadOnlyList<ContainerHistoryEntity>> GetByContainerId(ContainerId containerId, CancellationToken cancellationToken);
 }

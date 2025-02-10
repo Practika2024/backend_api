@@ -11,14 +11,14 @@ public class ContainerVM
     public string UniqueCode { get; set; }
     public ContainerType Type { get; set; }
 
-    public ContainerVM(Container container)
+    public ContainerVM(ContainerEntity containerEntity)
     {
-        Id = container.Id.Value;
-        Name = container.Name;
-        Volume = container.Volume;
-        Notes = container.Notes;
-        IsEmpty = container.IsEmpty;
-        UniqueCode = container.UniqueCode;
-        Type = container.Type;
+        Id = containerEntity.Id.Value;
+        Name = containerEntity.Name;
+        Volume = containerEntity.Volume;
+        Notes = containerEntity.Notes;
+        IsEmpty = containerEntity.IsEmpty;
+        UniqueCode = containerEntity.UniqueCode;
+        Type = containerEntity.Type;
     }
 }

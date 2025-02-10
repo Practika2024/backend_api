@@ -31,21 +31,21 @@ public class SignInService : ISignInService
         );
     }
 
-    private async Task<Result<JwtVM, AuthenticationException>> VerifyPassword(User user, string password, CancellationToken cancellationToken)
+    private async Task<Result<JwtVM, AuthenticationException>> VerifyPassword(UserEntity userEntity, string password, CancellationToken cancellationToken)
     {
-        if (!_hashPasswordService.VerifyPassword(password, user.PasswordHash))
+        if (!_hashPasswordService.VerifyPassword(password, userEntity.PasswordHash))
         {
             return new EmailOrPasswordAreIncorrectException();
         }
 
         try
         {
-            var token = await _jwtTokenService.GenerateTokensAsync(user, cancellationToken);
+            var token = await _jwtTokenService.GenerateTokensAsync(userEntity, cancellationToken);
             return token;
         }
         catch (Exception exception)
         {
-            return new AuthenticationUnknownException(user.Id, exception);
+            return new AuthenticationUnknownException(userEntity.Id, exception);
         }
     }
 }

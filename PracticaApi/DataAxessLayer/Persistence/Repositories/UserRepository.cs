@@ -9,28 +9,28 @@ namespace Infrastructure.Persistence.Repositories;
 
 public class UserRepository(ApplicationDbContext _context) : IUserRepository, IUserQueries
 {
-    public async Task<User> Create(User user, CancellationToken cancellationToken)
+    public async Task<UserEntity> Create(UserEntity userEntity, CancellationToken cancellationToken)
     {
-        await _context.Users.AddAsync(user, cancellationToken);
+        await _context.Users.AddAsync(userEntity, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
-        return user;
+        return userEntity;
     }
 
-    public async Task<User> Update(User user, CancellationToken cancellationToken)
+    public async Task<UserEntity> Update(UserEntity userEntity, CancellationToken cancellationToken)
     {
-        _context.Users.Update(user);
+        _context.Users.Update(userEntity);
         await _context.SaveChangesAsync(cancellationToken);
-        return user;
+        return userEntity;
     }
 
-    public async Task<User> Delete(User user, CancellationToken cancellationToken)
+    public async Task<UserEntity> Delete(UserEntity userEntity, CancellationToken cancellationToken)
     {
-        _context.Users.Remove(user);
+        _context.Users.Remove(userEntity);
         await _context.SaveChangesAsync(cancellationToken);
-        return user;
+        return userEntity;
     }
 
-    public async Task<IReadOnlyList<User>> GetAll(CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<UserEntity>> GetAll(CancellationToken cancellationToken)
     {
         return await _context.Users
             .AsNoTracking()
@@ -40,29 +40,29 @@ public class UserRepository(ApplicationDbContext _context) : IUserRepository, IU
             .ToListAsync(cancellationToken);
     }
     
-    public async Task<Option<User>> GetById(UserId id, CancellationToken cancellationToken)
+    public async Task<Option<UserEntity>> GetById(UserId id, CancellationToken cancellationToken)
     {
         var entity = await GetUserAsync(x => x.Id == id, cancellationToken);
 
-        return entity == null ? Option.None<User>() : Option.Some(entity);
+        return entity == null ? Option.None<UserEntity>() : Option.Some(entity);
     }
     
-    public async Task<Option<User>> SearchByEmail(string email, CancellationToken cancellationToken)
+    public async Task<Option<UserEntity>> SearchByEmail(string email, CancellationToken cancellationToken)
     {
         var entity = await GetUserAsync(x => x.Email == email, cancellationToken);
 
-        return entity == null ? Option.None<User>() : Option.Some(entity);
+        return entity == null ? Option.None<UserEntity>() : Option.Some(entity);
     }
 
-    public async Task<Option<User>> SearchByEmailForUpdate(UserId userId, string email,
+    public async Task<Option<UserEntity>> SearchByEmailForUpdate(UserId userId, string email,
         CancellationToken cancellationToken)
     {
         var entity = await GetUserAsync(x => x.Email == email && x.Id != userId, cancellationToken);
 
-        return entity == null ? Option.None<User>() : Option.Some(entity);
+        return entity == null ? Option.None<UserEntity>() : Option.Some(entity);
     }
 
-    public async Task<User> AddRole(UserId userId, string idRole, CancellationToken cancellationToken)
+    public async Task<UserEntity> AddRole(UserId userId, string idRole, CancellationToken cancellationToken)
     {
         var entity = await GetUserAsync(x => x.Id == userId, cancellationToken);
 
@@ -72,7 +72,7 @@ public class UserRepository(ApplicationDbContext _context) : IUserRepository, IU
         return entity;
     }
 
-    public async Task<User?> GetUserAsync(Expression<Func<User, bool>> predicate, CancellationToken cancellationToken,
+    public async Task<UserEntity?> GetUserAsync(Expression<Func<UserEntity, bool>> predicate, CancellationToken cancellationToken,
         bool asNoTracking = false)
     {
         if (asNoTracking)

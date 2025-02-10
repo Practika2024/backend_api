@@ -47,7 +47,7 @@ public class AddContainerService : IAddContainerService
             var uniqueCode = await GenerateUniqueCodeAsync(cancellationToken);
 
             var containerId = ContainerId.New();
-            var newContainer = Container.New(
+            var newContainer = ContainerEntity.New(
                 containerId,
                 name,
                 volume,

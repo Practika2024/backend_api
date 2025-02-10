@@ -2,19 +2,19 @@
 using Domain.Containers;
 
 namespace Domain.Reminders;
-public class Reminder
+public class ReminderEntity
 {
     public ReminderId Id { get; }
     public ContainerId ContainerId { get; private set; }
-    public Container? Container { get; private set; }
+    public ContainerEntity? Container { get; private set; }
     public string Title { get; private set; }
     public DateTime DueDate { get; private set; }
     public ReminderType Type { get; private set; }
     public UserId CreatedBy { get; private set; }
-    public User? CreatedByNavigation { get; private set; }
+    public UserEntity? CreatedByNavigation { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
-    private Reminder(
+    private ReminderEntity(
         ReminderId id,
         ContainerId containerId,
         string title,
@@ -31,7 +31,7 @@ public class Reminder
         CreatedAt = DateTime.UtcNow;
     }
 
-    public static Reminder New(
+    public static ReminderEntity New(
         ReminderId id,
         ContainerId containerId,
         string title,

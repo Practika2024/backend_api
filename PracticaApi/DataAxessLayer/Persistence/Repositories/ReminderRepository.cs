@@ -10,28 +10,28 @@ using Optional;
 namespace Infrastructure.Persistence.Repositories;
 public class ReminderRepository(ApplicationDbContext _context) : IReminderRepository, IReminderQueries
 {
-    public async Task<Reminder> Create(Reminder reminder, CancellationToken cancellationToken)
+    public async Task<ReminderEntity> Create(ReminderEntity reminderEntity, CancellationToken cancellationToken)
     {
-        await _context.Reminders.AddAsync(reminder, cancellationToken);
+        await _context.Reminders.AddAsync(reminderEntity, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
-        return reminder;
+        return reminderEntity;
     }
 
-    public async Task<Reminder> Update(Reminder reminder, CancellationToken cancellationToken)
+    public async Task<ReminderEntity> Update(ReminderEntity reminderEntity, CancellationToken cancellationToken)
     {
-        _context.Reminders.Update(reminder);
+        _context.Reminders.Update(reminderEntity);
         await _context.SaveChangesAsync(cancellationToken);
-        return reminder;
+        return reminderEntity;
     }
 
-    public async Task<Reminder> Delete(Reminder reminder, CancellationToken cancellationToken)
+    public async Task<ReminderEntity> Delete(ReminderEntity reminderEntity, CancellationToken cancellationToken)
     {
-        _context.Reminders.Remove(reminder);
+        _context.Reminders.Remove(reminderEntity);
         await _context.SaveChangesAsync(cancellationToken);
-        return reminder;
+        return reminderEntity;
     }
 
-    public async Task<IReadOnlyList<Reminder>> GetAll(CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<ReminderEntity>> GetAll(CancellationToken cancellationToken)
     {
         return await _context.Reminders
             .AsNoTracking()
@@ -39,13 +39,13 @@ public class ReminderRepository(ApplicationDbContext _context) : IReminderReposi
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<Option<Reminder>> GetById(ReminderId id, CancellationToken cancellationToken)
+    public async Task<Option<ReminderEntity>> GetById(ReminderId id, CancellationToken cancellationToken)
     {
         var entity = await GetReminderAsync(x => x.Id == id, cancellationToken);
-        return entity == null ? Option.None<Reminder>() : Option.Some(entity);
+        return entity == null ? Option.None<ReminderEntity>() : Option.Some(entity);
     }
 
-    public async Task<IReadOnlyList<Reminder>> GetByContainerId(ContainerId containerId, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<ReminderEntity>> GetByContainerId(ContainerId containerId, CancellationToken cancellationToken)
     {
         return await _context.Reminders
             .Where(r => r.ContainerId == containerId)
@@ -53,7 +53,7 @@ public class ReminderRepository(ApplicationDbContext _context) : IReminderReposi
             .ToListAsync(cancellationToken);
     }
 
-    private async Task<Reminder?> GetReminderAsync(Expression<Func<Reminder, bool>> predicate, CancellationToken cancellationToken,
+    private async Task<ReminderEntity?> GetReminderAsync(Expression<Func<ReminderEntity, bool>> predicate, CancellationToken cancellationToken,
         bool asNoTracking = false)
     {
         if (asNoTracking)

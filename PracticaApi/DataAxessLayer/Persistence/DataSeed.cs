@@ -19,31 +19,31 @@ public static class DataSeed
   
     private static void _seedRoles(ModelBuilder modelBuilder)
     {
-        var roles = new List<Role>();
+        var roles = new List<RoleEntity>();
 
         foreach (var role in AuthSettings.ListOfRoles)
         {
-            roles.Add(Role.New(role));
+            roles.Add(RoleEntity.New(role));
         }
 
-        modelBuilder.Entity<Role>()
+        modelBuilder.Entity<RoleEntity>()
             .HasData(roles);
     }
     
     private static void _seedUsers(ModelBuilder modelBuilder, IHashPasswordService hashPasswordService)
     {
-        var adminRole = Role.New(AuthSettings.AdminRole);
-        var operatorRole = Role.New(AuthSettings.OperatorRole);
+        var adminRole = RoleEntity.New(AuthSettings.AdminRole);
+        var operatorRole = RoleEntity.New(AuthSettings.OperatorRole);
     
         var adminId = UserId.New();
         var operatorId = UserId.New();
     
-        var admin = User.New(adminId, "admin@example.com", "admin","admin" ,"admin", hashPasswordService.HashPassword("123456"));
-        var operatorUser = User.New(operatorId, "operator@example.com", "operator", "operator","operator",hashPasswordService.HashPassword("123456"));
+        var admin = UserEntity.New(adminId, "admin@example.com", "admin","admin" ,"admin", hashPasswordService.HashPassword("123456"));
+        var operatorUser = UserEntity.New(operatorId, "operator@example.com", "operator", "operator","operator",hashPasswordService.HashPassword("123456"));
     
-        modelBuilder.Entity<User>().HasData(admin, operatorUser);
+        modelBuilder.Entity<UserEntity>().HasData(admin, operatorUser);
         
-        modelBuilder.Entity<User>()
+        modelBuilder.Entity<UserEntity>()
             .HasMany(u => u.Roles)
             .WithMany(r => r.Users)
             .UsingEntity(j => j.HasData(

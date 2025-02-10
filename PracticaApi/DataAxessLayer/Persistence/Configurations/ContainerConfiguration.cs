@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Persistence.Configurations;
-public class ContainerConfiguration : IEntityTypeConfiguration<Container>
+public class ContainerConfiguration : IEntityTypeConfiguration<ContainerEntity>
 {
-    public void Configure(EntityTypeBuilder<Container> builder)
+    public void Configure(EntityTypeBuilder<ContainerEntity> builder)
     {
         builder.HasKey(c => c.Id);
         builder.Property(c => c.Id).HasConversion(c => c.Value, x => new ContainerId(x));

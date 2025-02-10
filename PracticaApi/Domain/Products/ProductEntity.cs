@@ -2,21 +2,21 @@
 using Domain.ContainerHistories;
 
 namespace Domain.Products;
-public class Product
+public class ProductEntity
 {
     public ProductId Id { get; }
     public string Name { get; private set; }
     public string? Description { get; private set; }
     public DateTime ManufactureDate { get; private set; }
     public UserId CreatedBy { get; private set; }
-    public User? CreatedByNavigation { get; private set; }
+    public UserEntity? CreatedByNavigation { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public UserId? ModifiedBy { get; private set; }
     public DateTime? ModifiedAt { get; private set; }
-    public ICollection<ContainerHistory> Histories { get; private set; } = new List<ContainerHistory>();
+    public ICollection<ContainerHistoryEntity> Histories { get; private set; } = new List<ContainerHistoryEntity>();
     public ProductType Type { get; private set; }
 
-    private Product(
+    private ProductEntity(
         ProductId id,
         string name,
         string? description,
@@ -33,7 +33,7 @@ public class Product
         Type = type;
     }
 
-    public static Product New(
+    public static ProductEntity New(
         ProductId id,
         string name,
         string? description,

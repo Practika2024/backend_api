@@ -8,20 +8,20 @@ namespace Infrastructure.Persistence.Repositories;
 
 public class RefreshTokenRepository(ApplicationDbContext context) : IRefreshTokenRepository
 {
-    public async Task<Option<RefreshToken>> GetRefreshTokenAsync(string refreshToken,
+    public async Task<Option<RefreshTokenEntity>> GetRefreshTokenAsync(string refreshToken,
         CancellationToken cancellationToken)
     {
         var entity = await context.RefreshTokens
             .FirstOrDefaultAsync(t => t.Token == refreshToken, cancellationToken);
 
-        return entity == null ? Option.None<RefreshToken>() : Option.Some(entity);
+        return entity == null ? Option.None<RefreshTokenEntity>() : Option.Some(entity);
     }
 
-    public async Task<RefreshToken> Create(RefreshToken refreshToken, CancellationToken cancellationToken)
+    public async Task<RefreshTokenEntity> Create(RefreshTokenEntity refreshTokenEntity, CancellationToken cancellationToken)
     {
-        await context.RefreshTokens.AddAsync(refreshToken, cancellationToken);
+        await context.RefreshTokens.AddAsync(refreshTokenEntity, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
-        return refreshToken;
+        return refreshTokenEntity;
     }
 
     public async Task MakeAllRefreshTokensExpiredForUser(UserId userId, CancellationToken cancellationToken)

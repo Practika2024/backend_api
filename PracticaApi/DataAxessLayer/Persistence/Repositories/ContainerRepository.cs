@@ -9,28 +9,28 @@ using Optional;
 namespace Infrastructure.Persistence.Repositories;
 public class ContainerRepository(ApplicationDbContext _context) : IContainerRepository, IContainerQueries
 {
-    public async Task<Container> Create(Container container, CancellationToken cancellationToken)
+    public async Task<ContainerEntity> Create(ContainerEntity containerEntity, CancellationToken cancellationToken)
     {
-        await _context.Containers.AddAsync(container, cancellationToken);
+        await _context.Containers.AddAsync(containerEntity, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
-        return container;
+        return containerEntity;
     }
 
-    public async Task<Container> Update(Container container, CancellationToken cancellationToken)
+    public async Task<ContainerEntity> Update(ContainerEntity containerEntity, CancellationToken cancellationToken)
     {
-        _context.Containers.Update(container);
+        _context.Containers.Update(containerEntity);
         await _context.SaveChangesAsync(cancellationToken);
-        return container;
+        return containerEntity;
     }
 
-    public async Task<Container> Delete(Container container, CancellationToken cancellationToken)
+    public async Task<ContainerEntity> Delete(ContainerEntity containerEntity, CancellationToken cancellationToken)
     {
-        _context.Containers.Remove(container);
+        _context.Containers.Remove(containerEntity);
         await _context.SaveChangesAsync(cancellationToken);
-        return container;
+        return containerEntity;
     }
 
-    public async Task<IReadOnlyList<Container>> GetAll(CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<ContainerEntity>> GetAll(CancellationToken cancellationToken)
     {
         return await _context.Containers
             .AsNoTracking()
@@ -39,19 +39,19 @@ public class ContainerRepository(ApplicationDbContext _context) : IContainerRepo
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<Option<Container>> GetById(ContainerId id, CancellationToken cancellationToken)
+    public async Task<Option<ContainerEntity>> GetById(ContainerId id, CancellationToken cancellationToken)
     {
         var entity = await GetContainerAsync(x => x.Id == id, cancellationToken);
-        return entity == null ? Option.None<Container>() : Option.Some(entity);
+        return entity == null ? Option.None<ContainerEntity>() : Option.Some(entity);
     }
 
-    public async Task<Option<Container>> SearchByName(string name, CancellationToken cancellationToken)
+    public async Task<Option<ContainerEntity>> SearchByName(string name, CancellationToken cancellationToken)
     {
         var entity = await GetContainerAsync(x => x.Name == name, cancellationToken);
-        return entity == null ? Option.None<Container>() : Option.Some(entity);
+        return entity == null ? Option.None<ContainerEntity>() : Option.Some(entity);
     }
 
-    private async Task<Container?> GetContainerAsync(Expression<Func<Container, bool>> predicate, CancellationToken cancellationToken,
+    private async Task<ContainerEntity?> GetContainerAsync(Expression<Func<ContainerEntity, bool>> predicate, CancellationToken cancellationToken,
         bool asNoTracking = false)
     {
         if (asNoTracking)
@@ -65,12 +65,12 @@ public class ContainerRepository(ApplicationDbContext _context) : IContainerRepo
             .Include(c => c.CurrentProduct)
             .FirstOrDefaultAsync(predicate, cancellationToken);
     }
-    public async Task<Option<Container>> SearchByUniqueCode(string uniqueCode, CancellationToken cancellationToken)
+    public async Task<Option<ContainerEntity>> SearchByUniqueCode(string uniqueCode, CancellationToken cancellationToken)
     {
         var container = await _context.Containers
             .AsNoTracking()
             .FirstOrDefaultAsync(c => c.UniqueCode == uniqueCode, cancellationToken);
 
-        return container == null ? Option.None<Container>() : Option.Some(container);
+        return container == null ? Option.None<ContainerEntity>() : Option.Some(container);
     }
 }

@@ -14,17 +14,17 @@ public class ApplicationDbContext(
     DbContextOptions<ApplicationDbContext> options,
     IHashPasswordService hashPasswordService) : DbContext(options)
 {
-    public DbSet<User> Users { get; set; }
-    public DbSet<Role> Roles { get; set; }
-    public DbSet<RefreshToken> RefreshTokens { get; set; }
+    public DbSet<UserEntity> Users { get; set; }
+    public DbSet<RoleEntity> Roles { get; set; }
+    public DbSet<RefreshTokenEntity> RefreshTokens { get; set; }
     
-    public DbSet<Container> Containers { get; set; }
+    public DbSet<ContainerEntity> Containers { get; set; }
 
-    public DbSet<Product> Products { get; set; }
+    public DbSet<ProductEntity> Products { get; set; }
 
-    public DbSet<ContainerHistory> ContainerHistories { get; set; }
+    public DbSet<ContainerHistoryEntity> ContainerHistories { get; set; }
 
-    public DbSet<Reminder> Reminders { get; set; }
+    public DbSet<ReminderEntity> Reminders { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
