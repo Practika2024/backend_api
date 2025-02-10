@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Persistence.Configurations;
+
 public class ContainerConfiguration : IEntityTypeConfiguration<ContainerEntity>
 {
     public void Configure(EntityTypeBuilder<ContainerEntity> builder)
@@ -13,13 +14,16 @@ public class ContainerConfiguration : IEntityTypeConfiguration<ContainerEntity>
         builder.Property(c => c.Name).HasMaxLength(100).IsRequired();
         builder.Property(c => c.Volume).HasColumnType("decimal(18,2)").IsRequired();
         builder.Property(c => c.Notes).HasMaxLength(500);
-        builder.Property(c => c.IsEmpty).IsRequired();
-        builder.Property(c => c.Type).HasConversion<int>();
         builder.Property(c => c.UniqueCode).HasMaxLength(50).IsRequired();
 
-        builder.HasOne(c => c.CurrentProduct)
+        builder.HasOne(c => c.Type)
             .WithMany()
-            .HasForeignKey("CurrentProductId")
+            .HasForeignKey("TypeId")
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(c => c.Content)
+            .WithOne()
+            .HasForeignKey<ContainerEntity>("ContentId")
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.Property(c => c.CreatedBy).HasConversion(c => c.Value, x => new UserId(x));

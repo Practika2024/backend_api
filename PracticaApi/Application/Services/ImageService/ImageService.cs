@@ -1,4 +1,5 @@
 ﻿using Application.Common;
+using Domain.Products;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Optional;

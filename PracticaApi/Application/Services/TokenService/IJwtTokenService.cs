@@ -6,7 +6,7 @@ namespace Application.Services.TokenService
 {
     public interface IJwtTokenService
     {
-        Task<JwtVM> GenerateTokensAsync(UserEntity userEntity, CancellationToken cancellationToken);
+        Task<JwtModel> GenerateTokensAsync(UserEntity userEntity, CancellationToken cancellationToken);
         ClaimsPrincipal GetPrincipals(string accessToken);
     }
 }

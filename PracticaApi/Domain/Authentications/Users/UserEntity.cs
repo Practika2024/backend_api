@@ -38,10 +38,12 @@ public class UserEntity
         string passwordHash)
         => new(id, email, name, surname, patronymic, passwordHash);
 
-    public void UpdateUser(string email, string? name)
+    public void UpdateUser(string email, string? name, string? surname, string? patronymic)
     {
         Email = email;
         Name = name;
+        Surname = surname;
+        Patronymic = patronymic;
     }
 
     public void UpdateUserImage(UserImageEntity userImageEntity)

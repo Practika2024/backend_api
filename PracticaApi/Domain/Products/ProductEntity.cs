@@ -8,13 +8,14 @@ public class ProductEntity
     public string Name { get; private set; }
     public string? Description { get; private set; }
     public DateTime ManufactureDate { get; private set; }
-    public UserId CreatedBy { get; private set; }
     public UserEntity? CreatedByNavigation { get; private set; }
+    public UserId CreatedBy { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public UserId? ModifiedBy { get; private set; }
     public DateTime? ModifiedAt { get; private set; }
+    public ProductTypeId? TypeId { get; private set; }
+    public ProductTypeEntity? Type { get; private set; }
     public ICollection<ContainerHistoryEntity> Histories { get; private set; } = new List<ContainerHistoryEntity>();
-    public ProductType Type { get; private set; }
 
     private ProductEntity(
         ProductId id,
@@ -22,7 +23,7 @@ public class ProductEntity
         string? description,
         DateTime manufactureDate,
         UserId createdBy,
-        ProductType type)
+        ProductTypeId typeId)
     {
         Id = id;
         Name = name;
@@ -30,7 +31,7 @@ public class ProductEntity
         ManufactureDate = manufactureDate;
         CreatedBy = createdBy;
         CreatedAt = DateTime.UtcNow;
-        Type = type;
+        TypeId = typeId;
     }
 
     public static ProductEntity New(
@@ -39,22 +40,22 @@ public class ProductEntity
         string? description,
         DateTime manufactureDate,
         UserId createdBy,
-        ProductType type)
-        => new(id, name, description, manufactureDate, createdBy, type);
+        ProductTypeId typeId)
+        => new(id, name, description, manufactureDate, createdBy, typeId);
 
     public void Update(
         string name,
         string? description,
         DateTime manufactureDate,
         UserId modifiedBy,
-        ProductType type)
+        ProductTypeId typeId)
     {
         Name = name;
         Description = description;
         ManufactureDate = manufactureDate;
         ModifiedBy = modifiedBy;
         ModifiedAt = DateTime.UtcNow;
-        Type = type;
+        TypeId = typeId;
     }
 }
 

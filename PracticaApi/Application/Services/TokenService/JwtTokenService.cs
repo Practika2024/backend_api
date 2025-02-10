@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Application.Common.Interfaces.Repositories;
+using Application.Models.RefreshTokenModels;
 using Application.ViewModels;
 using Domain.Authentications;
 using Domain.Authentications.Users;
@@ -68,17 +69,20 @@ namespace Application.Services.TokenService
 
         private async Task<RefreshTokenEntity?> SaveRefreshTokenAsync(UserEntity userEntity, string refreshToken, string jwtId, CancellationToken cancellationToken)
         {
-            var token = RefreshTokenEntity.New(Guid.NewGuid(),
-                refreshToken,
-                jwtId, DateTime.UtcNow,
-                DateTime.UtcNow.AddDays(7),
-                userEntity.Id);
+            var model = new CreateRefreshTokenModel
+            {
+                Id = Guid.NewGuid(),
+                Token = refreshToken,
+                JwtId = jwtId,
+                CreateDate = DateTime.UtcNow,
+                ExpiredDate = DateTime.UtcNow.AddDays(7),
+                UserId = userEntity.Id
+            };
 
             try
             {
-                await refreshTokenRepository.Create(token, cancellationToken);
-                
-                return token;
+                var tokenEntity = await refreshTokenRepository.Create(model, cancellationToken);
+                return tokenEntity;
             }
             catch (Exception e)
             {
@@ -113,7 +117,7 @@ namespace Application.Services.TokenService
             return principals;
         }
         
-        public async Task<JwtVM> GenerateTokensAsync(UserEntity userEntity, CancellationToken cancellationToken)
+        public async Task<JwtModel> GenerateTokensAsync(UserEntity userEntity, CancellationToken cancellationToken)
         {
             var accessToken = GenerateAccessToken(userEntity);
             var refreshToken = GenerateRefreshToken();
@@ -122,7 +126,7 @@ namespace Application.Services.TokenService
             
             var saveResult = await SaveRefreshTokenAsync(userEntity, refreshToken, accessToken.Id, cancellationToken);
 
-            var tokens = new JwtVM
+            var tokens = new JwtModel
             {
                 AccessToken = new JwtSecurityTokenHandler().WriteToken(accessToken),
                 RefreshToken = refreshToken

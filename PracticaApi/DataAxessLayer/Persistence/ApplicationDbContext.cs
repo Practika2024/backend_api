@@ -25,6 +25,9 @@ public class ApplicationDbContext(
     public DbSet<ContainerHistoryEntity> ContainerHistories { get; set; }
 
     public DbSet<ReminderEntity> Reminders { get; set; }
+    public DbSet<ContainerContentEntity> ContainerContents { get; set; }
+    public DbSet<ContainerTypeEntity> ContainerTypes { get; set; }
+    public DbSet<ProductTypeEntity> ProductTypes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

@@ -7,9 +7,8 @@ public class ContainerVM
     public string Name { get; set; }
     public decimal Volume { get; set; }
     public string? Notes { get; set; }
-    public bool IsEmpty { get; set; }
     public string UniqueCode { get; set; }
-    public ContainerType Type { get; set; }
+    public ContainerTypeId TypeId { get; set; }
 
     public ContainerVM(ContainerEntity containerEntity)
     {
@@ -17,8 +16,7 @@ public class ContainerVM
         Name = containerEntity.Name;
         Volume = containerEntity.Volume;
         Notes = containerEntity.Notes;
-        IsEmpty = containerEntity.IsEmpty;
         UniqueCode = containerEntity.UniqueCode;
-        Type = containerEntity.Type;
+        TypeId = containerEntity.Type.Id;
     }
 }

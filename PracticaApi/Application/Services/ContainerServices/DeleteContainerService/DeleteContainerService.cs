@@ -1,6 +1,8 @@
 ﻿using Application.Common;
 using Application.Common.Interfaces.Repositories;
 using Application.Exceptions;
+using Application.Models;
+using Application.Models.ContainerModels;
 using Application.ViewModels;
 using Domain.Containers;
 using Optional;
@@ -28,7 +30,10 @@ public class DeleteContainerService : IDeleteContainerService
             {
                 try
                 {
-                    var deletedContainer = await _containerRepository.Delete(container, cancellationToken);
+                    var deletedContainer = await _containerRepository.Delete(new DeleteContainerModel
+                    {
+                        Id = container.Id
+                    }, cancellationToken);
                     return new ContainerVM(deletedContainer);
                 }
                 catch (ContainerException exception)

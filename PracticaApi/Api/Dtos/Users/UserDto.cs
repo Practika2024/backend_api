@@ -6,6 +6,8 @@ public record UserDto(
     Guid? Id, 
     string Email,
     string? Name, 
+    string? Surname, 
+    string? Patronymic, 
     UserImageDto? Image,
     List<RoleDto>? Roles) 
 {
@@ -14,6 +16,8 @@ public record UserDto(
             userEntity.Id.Value,
             userEntity.Email, 
             userEntity.Name,
+            userEntity.Surname,
+            userEntity.Patronymic,
             userEntity.UserImage != null ? UserImageDto.FromDomainModel(userEntity.UserImage) : null,
             userEntity.Roles.Select(RoleDto.FromDomainModel).ToList()); 
 }

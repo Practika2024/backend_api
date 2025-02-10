@@ -7,7 +7,7 @@ public class ProductVM
     public string Name { get; set; }
     public string? Description { get; set; }
     public DateTime ManufactureDate { get; set; }
-    public ProductType Type { get; set; }
+    public ProductTypeId TypeId { get; set; }
 
     public ProductVM(ProductEntity productEntity)
     {
@@ -15,6 +15,6 @@ public class ProductVM
         Name = productEntity.Name;
         Description = productEntity.Description;
         ManufactureDate = productEntity.ManufactureDate;
-        Type = productEntity.Type;
+        TypeId = productEntity.Type.Id;
     }
 }
