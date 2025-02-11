@@ -13,5 +13,7 @@ namespace Application.Common.Interfaces.Repositories
         Task<Option<ContainerEntity>> GetById(ContainerId id, CancellationToken cancellationToken);
         Task<Option<ContainerEntity>> SearchByUniqueCode(string uniqueCode, CancellationToken cancellationToken);
         Task<Option<ContainerEntity>> SearchByName(string name, CancellationToken cancellationToken);
+        Task<ContainerEntity> SetContainerContent(SetContainerContentModel model, CancellationToken cancellationToken);
+        Task<ContainerEntity> ClearContainerContent(ClearContainerContentModel model, CancellationToken cancellationToken);
     }
 }

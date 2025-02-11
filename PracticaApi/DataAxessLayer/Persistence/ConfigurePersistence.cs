@@ -1,19 +1,9 @@
 using System.Text;
 using Application.Common.Interfaces.Queries;
 using Application.Common.Interfaces.Repositories;
-// using Application.Services.ContainerServices.AddContainerService;
-using Application.Services.ContainerServices.AddReminderToContainerService;
-using Application.Services.ContainerServices.ClearProductService;
-using Application.Services.ContainerServices.DeleteContainerService;
-using Application.Services.ContainerServices.SetCurrentProductService;
-// using Application.Services.ContainerServices.UpdateContainerService;
 using Application.Services.HashPasswordService;
 using Application.Services.ImageService;
 using Application.Services.TokenService;
-// using Application.Services.UserServices.ChangeRolesService;
-// using Application.Services.UserServices.DeleteUserService;
-// using Application.Services.UserServices.UpdateUserService;
-// using Application.Services.UserServices.UploadUserImageService;
 using Infrastructure.Persistence.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -82,22 +72,6 @@ public static class ConfigurePersistence
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IHashPasswordService, HashPasswordService>();
         services.AddScoped<IImageService, ImageService>();
-        // services.AddScoped<IChangeRolesService, ChangeRolesService>();
-        // services.AddScoped<IDeleteUserService, DeleteUserService>();
-        // services.AddScoped<IUpdateUserService, UpdateUserService>();
-        // services.AddScoped<IUploadUserImageService, UploadUserImageService>();
-        
-        
-        // services.AddScoped<ISignUpService, SignUpService>();
-        // services.AddScoped<ISignInService, SignInService>();
-        // services.AddScoped<IRefreshTokenService, RefreshTokenService>();
-        // services.AddScoped<IAddContainerService, AddContainerService>();
-        // services.AddScoped<IClearProductService, ClearProductService>();
-        services.AddScoped<IDeleteContainerService, DeleteContainerService>();
-        // services.AddScoped<IAddReminderToContainerService, AddReminderToContainerService>();
-        // services.AddScoped<ISetCurrentProductService, SetCurrentProductService>();
-        // services.AddScoped<IUpdateContainerService, UpdateContainerService>();
-        // services.AddScoped<IUpdateContainerService, UpdateContainerService>();
 
         services.AddScoped<RefreshTokenRepository>();
         services.AddScoped<IRefreshTokenRepository>(provider => provider.GetRequiredService<RefreshTokenRepository>());

@@ -12,5 +12,5 @@ public class UpdateContainerModel
     public string? Notes { get; set; }
     public UserId ModifiedBy { get; set; }
     public ContainerTypeId TypeId { get; set; }
-    public string UniqueCode { get; set; }
+    // public string UniqueCode { get; set; }
 }

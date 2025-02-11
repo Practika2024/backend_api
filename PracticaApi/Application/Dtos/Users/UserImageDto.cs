@@ -1,7 +1,6 @@
-using System.Net.Mime;
 using Domain.Authentications.Users;
 
-namespace Api.Dtos.Users;
+namespace Application.Dtos.Users;
 
 public record UserImageDto(Guid? Id, string FilePath)
 {

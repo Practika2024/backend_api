@@ -1,6 +1,7 @@
 ﻿using Domain.Containers;
 
-namespace Application.Exceptions;
+namespace Application.Commands.Containers.Exceptions;
+
 public abstract class ContainerException(ContainerId id, string message, Exception innerException = null) : Exception(message, innerException)
 {
     public ContainerId ContainerId { get; } = id;

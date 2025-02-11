@@ -44,8 +44,8 @@ public class ContainerRepository(ApplicationDbContext _context) : IContainerRepo
             volume: model.Volume,
             notes: model.Notes,
             modifiedBy: model.ModifiedBy,
-            typeId: model.TypeId,
-            uniqueCode: model.UniqueCode
+            typeId: model.TypeId
+            // ,uniqueCode: model.UniqueCode
         );
 
         await _context.SaveChangesAsync(cancellationToken);
@@ -97,6 +97,44 @@ public class ContainerRepository(ApplicationDbContext _context) : IContainerRepo
 
         return container == null ? Option.None<ContainerEntity>() : Option.Some(container);
     }
+    
+    public async Task<ContainerEntity> SetContainerContent(SetContainerContentModel model, CancellationToken cancellationToken)
+    {
+        var containerEntity = await GetContainerAsync(x => x.Id == model.ContainerId, cancellationToken);
+
+        if (containerEntity == null)
+        {
+            throw new InvalidOperationException("Container not found.");
+        }
+
+        var contentEntity = ContainerContentEntity.New(
+            productId: model.ProductId,
+            isEmpty: model.IsEmpty,
+            modifiedBy: model.ModifiedBy
+        );
+
+        containerEntity.SetContent(contentEntity, model.ModifiedBy);
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return containerEntity;
+    }
+    
+    public async Task<ContainerEntity> ClearContainerContent(ClearContainerContentModel model, CancellationToken cancellationToken)
+    {
+        var containerEntity = await GetContainerAsync(x => x.Id == model.ContainerId, cancellationToken);
+
+        if (containerEntity == null)
+        {
+            throw new InvalidOperationException("Container not found.");
+        }
+
+        containerEntity.ClearContent(model.ModifiedBy);
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return containerEntity;
+    }
 
     private async Task<ContainerEntity?> GetContainerAsync(Expression<Func<ContainerEntity, bool>> predicate, CancellationToken cancellationToken,
         bool asNoTracking = false)
@@ -113,4 +151,7 @@ public class ContainerRepository(ApplicationDbContext _context) : IContainerRepo
             .Include(c => c.Content)
             .FirstOrDefaultAsync(predicate, cancellationToken);
     }
+
+
+
 }

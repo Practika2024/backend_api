@@ -56,8 +56,8 @@ public class ContainerEntity
         decimal volume,
         string? notes,
         UserId modifiedBy,
-        ContainerTypeId typeId,
-        string uniqueCode)
+        ContainerTypeId typeId
+        )
     {
         Name = name;
         Volume = volume;
@@ -65,7 +65,6 @@ public class ContainerEntity
         ModifiedBy = modifiedBy;
         ModifiedAt = DateTime.UtcNow;
         TypeId = typeId;
-        UniqueCode = uniqueCode;
     }
 
     public void SetContent(ContainerContentEntity content, UserId modifiedBy)

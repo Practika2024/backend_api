@@ -1,6 +1,6 @@
 ﻿using Domain.Authentications.Users;
 
-namespace Api.Dtos.Users;
+namespace Application.Dtos.Users;
 
 public record UserDto(
     Guid? Id, 

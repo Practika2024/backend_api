@@ -1,6 +1,6 @@
-﻿using Api.Dtos.Authentications;
-using Api.Modules.Errors;
+﻿using Api.Modules.Errors;
 using Application.Commands.Authentications.Commands;
+using Application.Dtos.Authentications;
 using Application.ViewModels;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

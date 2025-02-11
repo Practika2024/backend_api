@@ -1,7 +1,7 @@
 ﻿using Application.ViewModels;
 using Domain.Reminders;
 
-namespace Api.Dtos.Reminders;
+namespace Application.Dtos.Reminders;
 public class ReminderDto
 {
     public Guid Id { get; set; }

@@ -1,6 +1,6 @@
-﻿using Api.Dtos.Users;
-using Application.Commands.Users.Commands;
+﻿using Application.Commands.Users.Commands;
 using Application.Common.Interfaces.Queries;
+using Application.Dtos.Users;
 using Application.ViewModels;
 using Domain.Authentications;
 using Domain.Authentications.Users;
@@ -71,7 +71,7 @@ public class UsersController(ISender sender, IUserQueries userQueries) : Control
     [HttpPut("update/{userId:guid}")]
     public async Task<ActionResult<JwtModel>> UpdateUser(
         [FromRoute] Guid userId,
-        [FromBody] UserDto model,
+        [FromBody] UpdateUserDto model,
         CancellationToken cancellationToken)
     {
         var command = new UpdateUserCommand
