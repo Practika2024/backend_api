@@ -1,11 +1,12 @@
 ﻿using Domain.Authentications.Users;
 using Optional;
 
-namespace Application.Common.Interfaces.Queries;
-
-public interface IUserQueries
+namespace Application.Common.Interfaces.Queries
 {
-    Task<IReadOnlyList<User>> GetAll(CancellationToken cancellationToken);
-    Task<Option<User>> GetById(UserId id, CancellationToken cancellationToken);
-    Task<Option<User>> SearchByEmail(string email, CancellationToken cancellationToken);
+    public interface IUserQueries
+    {
+        Task<IReadOnlyList<UserEntity>> GetAll(CancellationToken cancellationToken);
+        Task<Option<UserEntity>> GetById(UserId id, CancellationToken cancellationToken);
+        Task<Option<UserEntity>> SearchByEmail(string email, CancellationToken cancellationToken);
+    }
 }

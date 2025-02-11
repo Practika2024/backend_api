@@ -1,11 +1,14 @@
-﻿using Domain.ContainerHistories;
+﻿using Application.Models.ContainerHistoryModels;
+using Domain.ContainerHistories;
 using Optional;
 
-namespace Application.Common.Interfaces.Repositories;
-public interface IContainerHistoryRepository
+namespace Application.Common.Interfaces.Repositories
 {
-    Task<ContainerHistory> Create(ContainerHistory history, CancellationToken cancellationToken);
-    Task<ContainerHistory> Update(ContainerHistory history, CancellationToken cancellationToken);
-    Task<ContainerHistory> Delete(ContainerHistory history, CancellationToken cancellationToken);
-    Task<Option<ContainerHistory>> GetById(ContainerHistoryId id, CancellationToken cancellationToken);
+    public interface IContainerHistoryRepository
+    {
+        Task<ContainerHistoryEntity> Create(CreateContainerHistoryModel model, CancellationToken cancellationToken);
+        Task<ContainerHistoryEntity> Update(UpdateContainerHistoryModel model, CancellationToken cancellationToken);
+        Task<ContainerHistoryEntity> Delete(DeleteContainerHistoryModel model, CancellationToken cancellationToken);
+        Task<Option<ContainerHistoryEntity>> GetById(ContainerHistoryId id, CancellationToken cancellationToken);
+    }
 }

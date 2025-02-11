@@ -1,4 +1,5 @@
-﻿using Application.Exceptions;
+﻿using Application.Authentications.Exceptions;
+using Application.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Modules.Errors;

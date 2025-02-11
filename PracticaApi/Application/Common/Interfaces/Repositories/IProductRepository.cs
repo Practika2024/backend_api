@@ -1,11 +1,14 @@
-﻿using Domain.Products;
+﻿using Application.Models.ProductModels;
+using Domain.Products;
 using Optional;
 
-namespace Application.Common.Interfaces.Repositories;
-public interface IProductRepository
+namespace Application.Common.Interfaces.Repositories
 {
-    Task<Product> Create(Product product, CancellationToken cancellationToken);
-    Task<Product> Update(Product product, CancellationToken cancellationToken);
-    Task<Product> Delete(Product product, CancellationToken cancellationToken);
-    Task<Option<Product>> GetById(ProductId id, CancellationToken cancellationToken);
+    public interface IProductRepository
+    {
+        Task<ProductEntity> Create(CreateProductModel model, CancellationToken cancellationToken);
+        Task<ProductEntity> Update(UpdateProductModel model, CancellationToken cancellationToken);
+        Task<ProductEntity> Delete(DeleteProductModel model, CancellationToken cancellationToken);
+        Task<Option<ProductEntity>> GetById(ProductId id, CancellationToken cancellationToken);
+    }
 }

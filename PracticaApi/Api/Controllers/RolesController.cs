@@ -1,5 +1,5 @@
-using Api.Dtos.Users;
 using Application.Common.Interfaces.Queries;
+using Application.Dtos.Users;
 using Domain.Authentications;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;

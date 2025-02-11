@@ -1,16 +1,19 @@
-﻿using System.Collections.ObjectModel;
+﻿using Application.Models.UserModels;
 using Domain.Authentications.Users;
 using Optional;
 
-namespace Application.Common.Interfaces.Repositories;
-
-public interface IUserRepository
+namespace Application.Common.Interfaces.Repositories
 {
-    Task<User> Create(User user, CancellationToken cancellationToken);
-    Task<User> Update(User user, CancellationToken cancellationToken);
-    Task<User> Delete(User user, CancellationToken cancellationToken);
-    Task<User> AddRole(UserId userId, string idRole, CancellationToken cancellationToken);
-    Task<Option<User>> GetById(UserId id, CancellationToken cancellationToken);
-    Task<Option<User>> SearchByEmail(string email, CancellationToken cancellationToken);
-    Task<Option<User>> SearchByEmailForUpdate(UserId userId, string email, CancellationToken cancellationToken);
+    public interface IUserRepository
+    {
+        Task<UserEntity> Create(CreateUserModel model, CancellationToken cancellationToken);
+        Task<UserEntity> Update(UpdateUserModel model, CancellationToken cancellationToken);
+        Task<UserEntity> Delete(DeleteUserModel model, CancellationToken cancellationToken);
+        Task<UserEntity> AddRole(AddRoleToUserModel model, CancellationToken cancellationToken);
+        Task<Option<UserEntity>> GetById(UserId id, CancellationToken cancellationToken);
+        Task<Option<UserEntity>> SearchByEmail(string email, CancellationToken cancellationToken);
+        Task<Option<UserEntity>> SearchByEmailForUpdate(UserId userId, string email, CancellationToken cancellationToken);
+        Task<UserEntity> UpdateRoles(UpdateRolesModel model, CancellationToken cancellationToken);
+        Task<UserEntity> UpdateUserImage(UpdateUserImageModel model, CancellationToken cancellationToken);
+    }
 }
