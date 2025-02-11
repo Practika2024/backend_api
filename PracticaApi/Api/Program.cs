@@ -1,6 +1,8 @@
+using Api.Controllers;
 using Api.Modules;
 using Application;
 using Application.Middlewares;
+using Carter;
 // using Application.Services.ContainerServices.AddContainerService;
 using Infrastructure;
 using Infrastructure.Persistence;
@@ -16,7 +18,7 @@ builder.Services.AddControllers();
 builder.Services.AddInfrastructure(builder);
 builder.Services.AddApplication();
 builder.Services.SetupServices();
-
+builder.Services.AddCarter();
 
 var app = builder.Build();
 
@@ -26,6 +28,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
 
 app.UseCors(options => options
     .WithOrigins(new[] { "http://localhost:5173" })
@@ -38,6 +41,7 @@ app.UseAuthorization();
 
 await app.InitialiseDb();
 app.MapControllers();
+app.MapCarter();
 
 
 var imagesPath = Path.Combine(builder.Environment.ContentRootPath, "data/images");
