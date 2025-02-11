@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Application.Common.Interfaces.Repositories;
 using Application.Models.RefreshTokenModels;
-using Application.ViewModels;
+using Application.Models.UserModels;
 using Domain.Authentications;
 using Domain.Authentications.Users;
 using Domain.RefreshTokens;

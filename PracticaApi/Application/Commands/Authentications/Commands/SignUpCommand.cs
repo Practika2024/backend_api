@@ -5,7 +5,6 @@ using Application.Exceptions;
 using Application.Models.UserModels;
 using Application.Services.HashPasswordService;
 using Application.Services.TokenService;
-using Application.ViewModels;
 using Domain.Authentications;
 using Domain.Authentications.Users;
 using MediatR;

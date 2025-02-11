@@ -2,7 +2,6 @@
 using Application.Commands.Containers.Commands;
 using Application.Common.Interfaces.Queries;
 using Application.Dtos.Containers;
-using Application.Services.ContainerServices.AddReminderToContainerService;
 using Domain.Authentications;
 using Domain.Authentications.Users;
 using Domain.Containers;

@@ -1,9 +1,9 @@
 ﻿using Application.Authentications.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
+using Application.Models.UserModels;
 using Application.Services.HashPasswordService;
 using Application.Services.TokenService;
-using Application.ViewModels;
 using Domain.Authentications.Users;
 using MediatR;
 

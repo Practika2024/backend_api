@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using Application.ViewModels;
+using Application.Models.UserModels;
 using Domain.Authentications.Users;
 
 namespace Application.Services.TokenService

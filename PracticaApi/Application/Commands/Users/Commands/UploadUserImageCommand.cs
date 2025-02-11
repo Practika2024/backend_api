@@ -4,7 +4,6 @@ using Application.Common.Interfaces.Repositories;
 using Application.Models.UserModels;
 using Application.Services.ImageService;
 using Application.Services.TokenService;
-using Application.ViewModels;
 using Domain.Authentications.Users;
 using MediatR;
 using Microsoft.AspNetCore.Http;

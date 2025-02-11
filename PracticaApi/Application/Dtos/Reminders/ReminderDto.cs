@@ -1,5 +1,4 @@
-﻿using Application.ViewModels;
-using Domain.Reminders;
+﻿using Domain.Reminders;
 
 namespace Application.Dtos.Reminders;
 public class ReminderDto
@@ -9,6 +8,11 @@ public class ReminderDto
     public string Title { get; set; }
     public DateTime DueDate { get; set; }
     public ReminderType Type { get; set; }
+    public Guid CreatedBy { get; private set; }
+    
+    public DateTime CreatedAt { get; private set; }
+
+
 
     public static ReminderDto FromDomainModel(ReminderEntity reminderEntity)
     {
@@ -18,18 +22,9 @@ public class ReminderDto
             ContainerId = reminderEntity.ContainerId.Value,
             Title = reminderEntity.Title,
             DueDate = reminderEntity.DueDate,
-            Type = reminderEntity.Type
-        };
-    }
-    public static ReminderDto FromDomainModel(ReminderVM reminder)
-    {
-        return new ReminderDto
-        {
-            Id = reminder.Id,
-            ContainerId = reminder.ContainerId,
-            Title = reminder.Title,
-            DueDate = reminder.DueDate,
-            Type = reminder.Type
+            Type = reminderEntity.Type,
+            CreatedAt = reminderEntity.CreatedAt,
+            CreatedBy = reminderEntity.CreatedBy.Value
         };
     }
 }

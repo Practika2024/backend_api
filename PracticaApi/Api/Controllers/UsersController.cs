@@ -1,7 +1,7 @@
 ﻿using Application.Commands.Users.Commands;
 using Application.Common.Interfaces.Queries;
 using Application.Dtos.Users;
-using Application.ViewModels;
+using Application.Models.UserModels;
 using Domain.Authentications;
 using Domain.Authentications.Users;
 using MediatR;
