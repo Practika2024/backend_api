@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{148245CD-489A-45C4-88DA-A85629E56F9A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{1EF15DC4-E2C4-4227-ADAD-8428C8F008AA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAxessLayer", "DataAxessLayer\DataAxessLayer.csproj", "{1EF15DC4-E2C4-4227-ADAD-8428C8F008AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

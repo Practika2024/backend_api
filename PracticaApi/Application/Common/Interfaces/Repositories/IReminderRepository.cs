@@ -1,11 +1,14 @@
-﻿using Domain.Reminders;
+﻿using Application.Models.ReminderModels;
+using Domain.Reminders;
 using Optional;
 
-namespace Application.Common.Interfaces.Repositories;
-public interface IReminderRepository
+namespace Application.Common.Interfaces.Repositories
 {
-    Task<Reminder> Create(Reminder reminder, CancellationToken cancellationToken);
-    Task<Reminder> Update(Reminder reminder, CancellationToken cancellationToken);
-    Task<Reminder> Delete(Reminder reminder, CancellationToken cancellationToken);
-    Task<Option<Reminder>> GetById(ReminderId id, CancellationToken cancellationToken);
+    public interface IReminderRepository
+    {
+        Task<ReminderEntity> Create(CreateReminderModel model, CancellationToken cancellationToken);
+        Task<ReminderEntity> Update(UpdateReminderModel model, CancellationToken cancellationToken);
+        Task<ReminderEntity> Delete(DeleteReminderModel model, CancellationToken cancellationToken);
+        Task<Option<ReminderEntity>> GetById(ReminderId id, CancellationToken cancellationToken);
+    }
 }

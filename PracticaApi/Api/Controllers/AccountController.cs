@@ -1,57 +1,68 @@
-﻿using Api.Dtos.Authentications;
-using Api.Modules.Errors;
-using Application.Common.Interfaces.Queries;
-using Application.Services;
-using Application.Services.AuthenticationServices.RefreshTokenService;
-using Application.Services.AuthenticationServices.SignInService;
-using Application.Services.AuthenticationServices.SignUpService;
-using Application.ViewModels;
+﻿using Api.Modules.Errors;
+using Application.Commands.Authentications.Commands;
+using Application.Dtos.Authentications;
+using Application.Models.UserModels;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
 
 [Route("account")]
 [ApiController]
-public class AccountController : ControllerBase
+public class AccountController(ISender sender) : ControllerBase
 {
-    private readonly ISignUpService _signUpService;
-    private readonly ISignInService _signInService;
-    private readonly IRefreshTokenService _refreshTokenService;
-
-    public AccountController(ISignUpService signUpService, ISignInService signInService, IRefreshTokenService refreshTokenService)
-    {
-        _signUpService = signUpService;
-        _signInService = signInService;
-        _refreshTokenService = refreshTokenService;
-    }
-
     [HttpPost("signup")]
-    public async Task<ActionResult<JwtVM>> SignUpAsync([FromBody] SignUpDto request, CancellationToken cancellationToken)
+    public async Task<ActionResult<JwtModel>> SignUpAsync(
+        [FromBody] SignUpDto request,
+        CancellationToken cancellationToken)
     {
-        var result = await _signUpService.SignUpAsync(request.Email, request.Password, request.Name,request.Surname,request.Patronymic, cancellationToken);
-        return result.Match<ActionResult<JwtVM>>(
-            token => token,
-            error => error.ToObjectResult()
-        );
-    }
+        var input = new SignUpCommand
+        {
+            Email = request.Email,
+            Surname = request.Surname,
+            Patronymic = request.Patronymic,
+            Password = request.Password,
+            Name = request.Name,
+        };
+        
+        var result = await sender.Send(input, cancellationToken);
 
+        return result.Match<ActionResult<JwtModel>>(
+            f => f,
+            e => e.ToObjectResult());
+    }
+    
     [HttpPost("signin")]
-    public async Task<ActionResult<JwtVM>> SignInAsync([FromBody] SignInDto request, CancellationToken cancellationToken)
+    public async Task<ActionResult<JwtModel>> SignUpAsync(
+        [FromBody] SignInDto request,
+        CancellationToken cancellationToken)
     {
-        var result = await _signInService.SignInAsync(request.Email, request.Password, cancellationToken);
-        return result.Match<ActionResult<JwtVM>>(
-            token => token,
-            error => error.ToObjectResult()
-        );
-    }
+        var input = new SignInCommand
+        {
+            Email = request.Email,
+            Password = request.Password
+        };
+        
+        var result = await sender.Send(input, cancellationToken);
 
+        return result.Match<ActionResult<JwtModel>>(
+            f => f,
+            e => e.ToObjectResult());
+    }
+    
     [HttpPost("refresh-token")]
-    public async Task<ActionResult<JwtVM>> RefreshTokensAsync([FromBody] JwtVM model, CancellationToken cancellationToken)
+    public async Task<ActionResult<JwtModel>> RefreshTokensAsync([FromBody] JwtModel model, CancellationToken cancellationToken)
     {
-        var result = await _refreshTokenService.RefreshTokenAsync(model.AccessToken, model.RefreshToken, cancellationToken);
-        return result.Match<ActionResult<JwtVM>>(
-            token => token,
-            error => error.ToObjectResult()
-        );
+        var input = new RefreshTokenCommand()
+        {
+            AccessToken = model.AccessToken,
+            RefreshToken = model.RefreshToken
+        };
+        
+        var result = await sender.Send(input, cancellationToken);
+
+        return result.Match<ActionResult<JwtModel>>(
+            f => f,
+            e => e.ToObjectResult());
     }
 }
