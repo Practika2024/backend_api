@@ -1,4 +1,4 @@
-﻿using Application.Authentications.Exceptions;
+﻿using Application.Commands.Authentications.Exceptions;
 using Application.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 

@@ -3,7 +3,7 @@ using Application.Common;
 using Application.Common.Interfaces.Repositories;
 using Application.Models.UserModels;
 using Application.Services.TokenService;
-using Domain.Authentications.Users;
+using Domain.Users;
 using MediatR;
 
 namespace Application.Commands.Users.Commands;
@@ -17,26 +17,31 @@ public record UpdateUserCommand : IRequest<Result<JwtModel, UserException>>
     public required string? Patronymic { get; init; }
 }
 
-public class UpdateUserCommandHandle(IUserRepository userRepository, IJwtTokenService jwtTokenService) : IRequestHandler<UpdateUserCommand, Result<JwtModel, UserException>>
+public class UpdateUserCommandHandle(IUserRepository userRepository, IJwtTokenService jwtTokenService)
+    : IRequestHandler<UpdateUserCommand, Result<JwtModel, UserException>>
 {
-    public async Task<Result<JwtModel, UserException>> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
+    public async Task<Result<JwtModel, UserException>> Handle(UpdateUserCommand request,
+        CancellationToken cancellationToken)
     {
-        var userId = new UserId(request.UserId);
+        var userId = request.UserId;
         var existingUser = await userRepository.GetById(userId, cancellationToken);
 
         return await existingUser.Match(
             async u =>
             {
-                var existingEmail = await userRepository.SearchByEmailForUpdate(userId, request.Email, cancellationToken);
+                var existingEmail =
+                    await userRepository.SearchByEmailForUpdate(userId, request.Email, cancellationToken);
 
                 return await existingEmail.Match(
-                     e => Task.FromResult<Result<JwtModel, UserException>>
-                         (new UserByThisEmailAlreadyExistsException(userId)),
-                     async () => await UpdateEntity(u, request.Email, request.Name, request.Surname, request.Patronymic, cancellationToken));
+                    e => Task.FromResult<Result<JwtModel, UserException>>
+                        (new UserByThisEmailAlreadyExistsException(userId)),
+                    async () => await UpdateEntity(u, request.Email, request.Name, request.Surname, request.Patronymic,
+                        cancellationToken));
             },
             () => Task.FromResult<Result<JwtModel, UserException>>
                 (new UserNotFoundException(userId)));
     }
+
     private async Task<Result<JwtModel, UserException>> UpdateEntity(
         UserEntity user,
         string email,
@@ -56,7 +61,7 @@ public class UpdateUserCommandHandle(IUserRepository userRepository, IJwtTokenSe
                 Surname = user.Surname,
                 Patronymic = user.Patronymic,
             };
-            
+
             var updatedUser = await userRepository.Update(userModel, cancellationToken);
             return await jwtTokenService.GenerateTokensAsync(updatedUser, cancellationToken);
         }

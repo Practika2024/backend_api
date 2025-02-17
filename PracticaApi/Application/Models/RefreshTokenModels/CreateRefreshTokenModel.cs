@@ -1,5 +1,4 @@
-﻿using Domain.Authentications.Users;
-using Domain.RefreshTokens;
+﻿using Domain.RefreshTokens;
 
 namespace Application.Models.RefreshTokenModels;
 public class CreateRefreshTokenModel
@@ -9,5 +8,5 @@ public class CreateRefreshTokenModel
     public string JwtId { get; set; }
     public DateTime CreateDate { get; set; }
     public DateTime ExpiredDate { get; set; }
-    public UserId UserId { get; set; }
+    public Guid UserId { get; set; }
 }

@@ -4,5 +4,5 @@ namespace Application.Models.ProductModels;
 
 public class DeleteProductModel
 {
-    public ProductId Id { get; set; }
+    public Guid Id { get; set; }
 }

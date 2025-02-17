@@ -3,9 +3,8 @@ using Api.Modules;
 using Application;
 using Application.Middlewares;
 using Carter;
+using DataAccessLayer;
 // using Application.Services.ContainerServices.AddContainerService;
-using Infrastructure;
-using Infrastructure.Persistence;
 using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);

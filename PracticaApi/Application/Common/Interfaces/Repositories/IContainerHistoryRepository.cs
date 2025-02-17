@@ -9,6 +9,6 @@ namespace Application.Common.Interfaces.Repositories
         Task<ContainerHistoryEntity> Create(CreateContainerHistoryModel model, CancellationToken cancellationToken);
         Task<ContainerHistoryEntity> Update(UpdateContainerHistoryModel model, CancellationToken cancellationToken);
         Task<ContainerHistoryEntity> Delete(DeleteContainerHistoryModel model, CancellationToken cancellationToken);
-        Task<Option<ContainerHistoryEntity>> GetById(ContainerHistoryId id, CancellationToken cancellationToken);
+        Task<Option<ContainerHistoryEntity>> GetById(Guid id, CancellationToken cancellationToken);
     }
 }

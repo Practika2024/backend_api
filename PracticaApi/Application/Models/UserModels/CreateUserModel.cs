@@ -1,10 +1,9 @@
-﻿using Domain.Authentications.Users;
-
-namespace Application.Models.UserModels;
+﻿namespace Application.Models.UserModels;
 
 public class CreateUserModel
 {
-    public UserId Id { get; set; }
+    public Guid Id { get; set; }
+    public string RoleId { get; set; }
     public string Email { get; set; }
     public string? Name { get; set; }
     public string? Surname { get; set; }

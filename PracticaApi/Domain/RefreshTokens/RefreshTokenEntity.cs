@@ -1,4 +1,4 @@
-﻿using Domain.Authentications.Users;
+﻿using Domain.Users;
 
 namespace Domain.RefreshTokens
 {
@@ -10,11 +10,11 @@ namespace Domain.RefreshTokens
         public bool IsUsed { get; set; } = false;
         public DateTime CreateDate { get; private set; }
         public DateTime ExpiredDate { get; private set; }
-        public UserId UserId { get; private set; }
+        public Guid UserId { get; private set; }
         public UserEntity? User { get; private set; }
 
         private RefreshTokenEntity(Guid id, string token, string jwtId, DateTime createDate, DateTime expiredDate,
-            UserId userId)
+            Guid userId)
         {
             Id = id;
             Token = token;
@@ -25,7 +25,7 @@ namespace Domain.RefreshTokens
         }
 
         public static RefreshTokenEntity New(Guid id, string token, string jwtId, DateTime createDate, DateTime expiredDate,
-            UserId userId)
+            Guid userId)
             => new(id, token, jwtId, createDate, expiredDate, userId);
     }
 }

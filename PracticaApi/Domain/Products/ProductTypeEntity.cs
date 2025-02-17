@@ -1,13 +1,13 @@
-﻿using Domain.Authentications.Users;
+﻿using Domain.Interfaces;
 
 namespace Domain.Products;
 
-public class ProductTypeEntity
+public class ProductTypeEntity : IAuditableEntity
 {
-    public ProductTypeId Id { get; private set; }
+    public Guid Id { get; private set; }
     public string Name { get; private set; }
 
-    private ProductTypeEntity(ProductTypeId id, string name)
+    private ProductTypeEntity(Guid id, string name)
     {
         Id = id;
         Name = name;
@@ -15,18 +15,16 @@ public class ProductTypeEntity
 
     public static ProductTypeEntity New(string name)
     {
-        return new ProductTypeEntity(ProductTypeId.New(), name);
+        return new ProductTypeEntity(Guid.NewGuid(), name);
     }
 
     public void UpdateName(string newName)
     {
         Name = newName;
     }
-}
 
-public record ProductTypeId(Guid Value)
-{
-    public static ProductTypeId New() => new(Guid.NewGuid());
-    public static ProductTypeId Empty => new(Guid.Empty);
-    public override string ToString() => Value.ToString();
+    public Guid CreatedBy { get; }
+    public DateTime CreatedAt { get; }
+    public Guid ModifiedBy { get; }
+    public DateTime ModifiedAt { get; }
 }

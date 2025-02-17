@@ -3,5 +3,5 @@
 namespace Application.Models.ReminderModels;
 public class DeleteReminderModel
 {
-    public ReminderId Id { get; set; }
+    public Guid Id { get; set; }
 }

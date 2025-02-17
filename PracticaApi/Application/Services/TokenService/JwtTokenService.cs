@@ -6,8 +6,8 @@ using Application.Common.Interfaces.Repositories;
 using Application.Models.RefreshTokenModels;
 using Application.Models.UserModels;
 using Domain.Authentications;
-using Domain.Authentications.Users;
 using Domain.RefreshTokens;
+using Domain.Users;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -15,7 +15,7 @@ namespace Application.Services.TokenService
 {
     public class JwtTokenService(IConfiguration configuration, IRefreshTokenRepository refreshTokenRepository) : IJwtTokenService
     {
-        private JwtSecurityToken GenerateAccessToken(UserEntity userEntity)
+        private JwtSecurityToken GenerateAccessToken(UserEntity user)
         {
             var issuer = configuration["AuthSettings:issuer"];
             var audience = configuration["AuthSettings:audience"];
@@ -25,25 +25,11 @@ namespace Application.Services.TokenService
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim("id", userEntity.Id.Value.ToString()),
-                new Claim("email", userEntity.Email!),
-                new Claim("name", userEntity.Name ?? "N/A"),
-                new Claim("image", userEntity.UserImage?.FilePath ?? "N/A"),
+                new Claim("id", user.Id.ToString()),
+                new Claim("email", user.Email!),
+                new Claim("name", user.Name ?? "N/A"),
+                new Claim("role", AuthSettings.OperatorRole)
             };
-
-            if (userEntity.Roles.Count() > 0)
-            {
-                var roleClaims = userEntity.Roles.Select(ur => new Claim(
-                    "role",
-                    ur.Name
-                )).ToArray();
-
-                claims.AddRange(roleClaims);
-            }
-            else
-            {
-                claims.Add(new Claim("role", AuthSettings.OperatorRole));
-            }
             
             var token = new JwtSecurityToken(
                 issuer: issuer,
@@ -117,14 +103,14 @@ namespace Application.Services.TokenService
             return principals;
         }
         
-        public async Task<JwtModel> GenerateTokensAsync(UserEntity userEntity, CancellationToken cancellationToken)
+        public async Task<JwtModel> GenerateTokensAsync(UserEntity user, CancellationToken cancellationToken)
         {
-            var accessToken = GenerateAccessToken(userEntity);
+            var accessToken = GenerateAccessToken(user);
             var refreshToken = GenerateRefreshToken();
 
-            await refreshTokenRepository.MakeAllRefreshTokensExpiredForUser(userEntity.Id, cancellationToken);
+            await refreshTokenRepository.MakeAllRefreshTokensExpiredForUser(user.Id, cancellationToken);
             
-            var saveResult = await SaveRefreshTokenAsync(userEntity, refreshToken, accessToken.Id, cancellationToken);
+            var saveResult = await SaveRefreshTokenAsync(user, refreshToken, accessToken.Id, cancellationToken);
 
             var tokens = new JwtModel
             {

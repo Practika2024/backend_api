@@ -1,29 +1,30 @@
-﻿using Domain.Authentications.Users;
-using Domain.ContainerHistories;
+﻿using Domain.ContainerHistories;
+using Domain.Interfaces;
+using Domain.Users;
 
 namespace Domain.Products;
-public class ProductEntity
+public class ProductEntity : IAuditableEntity
 {
-    public ProductId Id { get; }
+    public Guid Id { get; }
     public string Name { get; private set; }
     public string? Description { get; private set; }
     public DateTime ManufactureDate { get; private set; }
     public UserEntity? CreatedByNavigation { get; private set; }
-    public UserId CreatedBy { get; private set; }
+    public Guid CreatedBy { get; private set; }
     public DateTime CreatedAt { get; private set; }
-    public UserId? ModifiedBy { get; private set; }
-    public DateTime? ModifiedAt { get; private set; }
-    public ProductTypeId? TypeId { get; private set; }
+    public Guid ModifiedBy { get; private set; }
+    public DateTime ModifiedAt { get; private set; }
+    public Guid TypeId { get; private set; }
     public ProductTypeEntity? Type { get; private set; }
     public ICollection<ContainerHistoryEntity> Histories { get; private set; } = new List<ContainerHistoryEntity>();
 
     private ProductEntity(
-        ProductId id,
+        Guid id,
         string name,
         string? description,
         DateTime manufactureDate,
-        UserId createdBy,
-        ProductTypeId typeId)
+        Guid createdBy,
+        Guid typeId)
     {
         Id = id;
         Name = name;
@@ -35,20 +36,20 @@ public class ProductEntity
     }
 
     public static ProductEntity New(
-        ProductId id,
+        Guid id,
         string name,
         string? description,
         DateTime manufactureDate,
-        UserId createdBy,
-        ProductTypeId typeId)
+        Guid createdBy,
+        Guid typeId)
         => new(id, name, description, manufactureDate, createdBy, typeId);
 
     public void Update(
         string name,
         string? description,
         DateTime manufactureDate,
-        UserId modifiedBy,
-        ProductTypeId typeId)
+        Guid modifiedBy,
+        Guid typeId)
     {
         Name = name;
         Description = description;
@@ -57,13 +58,6 @@ public class ProductEntity
         ModifiedAt = DateTime.UtcNow;
         TypeId = typeId;
     }
-}
-
-public record ProductId(Guid Value)
-{
-    public static ProductId New() => new(Guid.NewGuid());
-    public static ProductId Empty => new(Guid.Empty);
-    public override string ToString() => Value.ToString();
 }
 
 public enum ProductType

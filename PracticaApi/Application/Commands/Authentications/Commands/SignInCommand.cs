@@ -1,10 +1,10 @@
-﻿using Application.Authentications.Exceptions;
+﻿using Application.Commands.Authentications.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
 using Application.Models.UserModels;
 using Application.Services.HashPasswordService;
 using Application.Services.TokenService;
-using Domain.Authentications.Users;
+using Domain.Users;
 using MediatR;
 
 namespace Application.Commands.Authentications.Commands;

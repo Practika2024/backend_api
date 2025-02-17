@@ -1,8 +1,6 @@
-﻿using Domain.Authentications.Users;
-
-namespace Application.Models.UserModels;
+﻿namespace Application.Models.UserModels;
 
 public class DeleteUserModel
 {
-    public UserId Id { get; set; }
+    public Guid Id { get; set; }
 }

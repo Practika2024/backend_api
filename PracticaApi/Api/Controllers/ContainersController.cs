@@ -1,9 +1,8 @@
-﻿using Api.Modules.Errors;
+﻿using Api.Dtos.Containers;
+using Api.Modules.Errors;
 using Application.Commands.Containers.Commands;
 using Application.Common.Interfaces.Queries;
-using Application.Dtos.Containers;
 using Domain.Authentications;
-using Domain.Authentications.Users;
 using Domain.Containers;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -30,7 +29,7 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
     public async Task<ActionResult<ContainerDto>> GetById([FromRoute] Guid containerId,
         CancellationToken cancellationToken)
     {
-        var entity = await containerQueries.GetById(new ContainerId(containerId), cancellationToken);
+        var entity = await containerQueries.GetById(containerId, cancellationToken);
         return entity.Match<ActionResult<ContainerDto>>(
             p => Ok(ContainerDto.FromDomainModel(p)),
             () => NotFound());
