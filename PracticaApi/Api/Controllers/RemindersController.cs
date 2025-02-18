@@ -1,7 +1,6 @@
-﻿using Application.Commands.Reminders.Commands;
+﻿using Api.Dtos.Reminders;
+using Application.Commands.Reminders.Commands;
 using Application.Common.Interfaces.Queries;
-using Application.Dtos.Containers;
-using Application.Dtos.Reminders;
 using Domain.Reminders;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -27,7 +26,7 @@ namespace Api.Controllers
         public async Task<ActionResult<ReminderDto>> GetById([FromRoute] Guid reminderId,
             CancellationToken cancellationToken)
         {
-            var entity = await reminderQueries.GetById(new ReminderId(reminderId), cancellationToken);
+            var entity = await reminderQueries.GetById(reminderId, cancellationToken);
             return entity.Match<ActionResult<ReminderDto>>(
                 p => Ok(ReminderDto.FromDomainModel(p)),
                 () => NotFound());

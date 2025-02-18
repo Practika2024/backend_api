@@ -1,46 +1,43 @@
-﻿using Domain.Authentications.Users;
+﻿using Domain.Abstractions;
 using Domain.Containers;
+using Domain.Users;
 
 namespace Domain.Reminders;
-public class ReminderEntity
+public class ReminderEntity : AuditableEntity
 {
-    public ReminderId Id { get; }
-    public ContainerId ContainerId { get; private set; }
+    public Guid Id { get; }
+    public Guid ContainerId { get; private set; }
     public ContainerEntity? Container { get; private set; }
     public string Title { get; private set; }
     public DateTime DueDate { get; private set; }
     public ReminderType Type { get; private set; }
-    public UserId CreatedBy { get; private set; }
     public UserEntity? CreatedByNavigation { get; private set; }
-    public DateTime CreatedAt { get; private set; }
 
     private ReminderEntity(
-        ReminderId id,
-        ContainerId containerId,
+        Guid id,
+        Guid containerId,
         string title,
         DateTime dueDate,
         ReminderType type,
-        UserId createdBy)
+        Guid createdBy) : base(createdBy)
     {
         Id = id;
         ContainerId = containerId;
         Title = title;
         DueDate = dueDate;
         Type = type;
-        CreatedBy = createdBy;
-        CreatedAt = DateTime.UtcNow;
     }
 
     public static ReminderEntity New(
-        ReminderId id,
-        ContainerId containerId,
+        Guid id,
+        Guid containerId,
         string title,
         DateTime dueDate,
         ReminderType type,
-        UserId createdBy)
+        Guid createdBy)
         => new(id, containerId, title, dueDate, type, createdBy);
 
-    public void Update(string title, DateTime dueDate, ReminderType type, UserId modifiedBy)
+    public void Update(string title, DateTime dueDate, ReminderType type, Guid modifiedBy)
     {
         Title = title;
         DueDate = dueDate;
@@ -48,13 +45,6 @@ public class ReminderEntity
     }
     
 
-}
-
-public record ReminderId(Guid Value)
-{
-    public static ReminderId New() => new(Guid.NewGuid());
-    public static ReminderId Empty => new(Guid.Empty);
-    public override string ToString() => Value.ToString();
 }
 
 public enum ReminderType

@@ -2,7 +2,7 @@ using Application.Commands.Users.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
 using Application.Models.UserModels;
-using Domain.Authentications.Users;
+using Domain.Users;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
 
@@ -21,7 +21,7 @@ public class DeleteUserCommandHandler(
         DeleteUserCommand request,
         CancellationToken cancellationToken)
     {
-        var userId = new UserId(request.UserId);
+        var userId = request.UserId;
 
         var existingUser = await userRepository.GetById(userId, cancellationToken);
 
@@ -30,7 +30,6 @@ public class DeleteUserCommandHandler(
             {
                 try
                 {
-                    DeleteImageByUser(user);
                     var deleteModel = new DeleteUserModel { Id = userId };
                     var deletedUser = await userRepository.Delete(deleteModel, cancellationToken);
                     return deletedUser;
@@ -43,24 +42,5 @@ public class DeleteUserCommandHandler(
             () => Task.FromResult<Result<UserEntity, UserException>>(
                 new UserNotFoundException(userId))
         );
-    }
-
-    private void DeleteImageByUser(UserEntity user)
-    {
-        var userImage = user.UserImage?.FilePath;
-
-        if (!string.IsNullOrEmpty(userImage))
-        {
-            var fullPath = Path.Combine(
-                webHostEnvironment.ContentRootPath,
-                "Images/UserImages",
-                userImage
-            );
-
-            if (File.Exists(fullPath))
-            {
-                File.Delete(fullPath);
-            }
-        }
     }
 }

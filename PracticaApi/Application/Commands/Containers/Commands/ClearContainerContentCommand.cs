@@ -1,28 +1,26 @@
 ﻿using Application.Commands.Containers.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
-using Application.Dtos.Containers;
 using Application.Models.ContainerModels;
-using Domain.Authentications.Users;
 using Domain.Containers;
 using MediatR;
 
 namespace Application.Commands.Containers.Commands;
 
-public record ClearContainerContentCommand : IRequest<Result<ContainerDto, ContainerException>>
+public record ClearContainerContentCommand : IRequest<Result<ContainerEntity, ContainerException>>
 {
     public required Guid ContainerId { get; init; } 
     public required Guid ModifiedBy { get; init; }
 }
 
 public class ClearContainerContentCommandHandler(
-    IContainerRepository containerRepository) : IRequestHandler<ClearContainerContentCommand, Result<ContainerDto, ContainerException>>
+    IContainerRepository containerRepository) : IRequestHandler<ClearContainerContentCommand, Result<ContainerEntity, ContainerException>>
 {
-    public async Task<Result<ContainerDto, ContainerException>> Handle(
+    public async Task<Result<ContainerEntity, ContainerException>> Handle(
         ClearContainerContentCommand request,
         CancellationToken cancellationToken)
     {
-        var containerId = new ContainerId(request.ContainerId);
+        var containerId = request.ContainerId;
         var existingContainer = await containerRepository.GetById(containerId, cancellationToken);
 
         return await existingContainer.Match(
@@ -30,7 +28,7 @@ public class ClearContainerContentCommandHandler(
             {
                 try
                 {
-                    var userId = new UserId(request.ModifiedBy);
+                    var userId = request.ModifiedBy;
 
                     var clearContainerContentModel = new ClearContainerContentModel
                     {
@@ -39,14 +37,14 @@ public class ClearContainerContentCommandHandler(
                     };
 
                     var updatedContainer = await containerRepository.ClearContainerContent(clearContainerContentModel, cancellationToken);
-                    return ContainerDto.FromDomainModel(updatedContainer);
+                    return updatedContainer;
                 }
                 catch (ContainerException exception)
                 {
                     return new ContainerUnknownException(containerId, exception);
                 }
             },
-            () => Task.FromResult<Result<ContainerDto, ContainerException>>(
+            () => Task.FromResult<Result<ContainerEntity, ContainerException>>(
                 new ContainerNotFoundException(containerId))
         );
     }

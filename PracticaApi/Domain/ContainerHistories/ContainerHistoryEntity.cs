@@ -1,52 +1,42 @@
-﻿using Domain.Authentications.Users;
+﻿using Domain.Abstractions;
 using Domain.Containers;
 using Domain.Products;
+using Domain.Users;
 
 namespace Domain.ContainerHistories;
 
-public class ContainerHistoryEntity
+public class ContainerHistoryEntity : AuditableEntity
 {
-    public ContainerHistoryId Id { get; }
-    public ContainerId ContainerId { get; private set; }
+    public Guid Id { get; }
+    public Guid ContainerId { get; private set; }
     public ContainerEntity? Container { get; private set; }
-    public ProductId ProductId { get; private set; } 
+    public Guid ProductId { get; private set; }
     public ProductEntity? Product { get; private set; }
     public DateTime StartDate { get; }
-    public DateTime? EndDate { get; private set; }
-    public UserId CreatedBy { get; private set; }
+    public DateTime EndDate { get; private set; }
     public UserEntity? CreatedByNavigation { get; private set; }
 
     private ContainerHistoryEntity(
-        ContainerHistoryId id,
-        ContainerId containerId,
-        ProductId productId,
+        Guid id,
+        Guid containerId,
+        Guid productId,
         DateTime startDate,
-        UserId createdBy)
+        Guid createdBy) : base(createdBy)
     {
         Id = id;
         ContainerId = containerId;
         ProductId = productId;
         StartDate = startDate;
-        CreatedBy = createdBy;
     }
 
     public static ContainerHistoryEntity New(
-        ContainerHistoryId id,
-        ContainerId containerId,
-        ProductId productId,
+        Guid id,
+        Guid containerId,
+        Guid productId,
         DateTime startDate,
-        UserId createdBy)
+        Guid createdBy)
         => new(id, containerId, productId, startDate, createdBy);
 
     public void SetEndDate(DateTime endDate)
         => EndDate = endDate;
-
-
-}
-
-public record ContainerHistoryId(Guid Value)
-{
-    public static ContainerHistoryId New() => new(Guid.NewGuid());
-    public static ContainerHistoryId Empty => new(Guid.Empty);
-    public override string ToString() => Value.ToString();
 }

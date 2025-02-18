@@ -3,8 +3,7 @@ using Application.Common.Interfaces.Queries;
 using Application.Common.Interfaces.Repositories;
 using Application.Exceptions;
 using Application.Models.UserModels;
-using Domain.Authentications.Roles;
-using Domain.Authentications.Users;
+using Domain.Users;
 using MediatR;
 using Optional;
 
@@ -22,7 +21,7 @@ public class ChangeRolesForUserCommandHandler(
         ChangeRolesForUserCommand request,
         CancellationToken cancellationToken)
     {
-        var userId = new UserId(request.UserId);
+        var userId = request.UserId;
         var existingUser = await userRepository.GetById(userId, cancellationToken);
 
         return await existingUser.Match(

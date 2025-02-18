@@ -3,5 +3,5 @@
 namespace Application.Models.ContainerHistoryModels;
 public class DeleteContainerHistoryModel
 {
-    public ContainerHistoryId Id { get; set; }
+    public Guid Id { get; set; }
 }

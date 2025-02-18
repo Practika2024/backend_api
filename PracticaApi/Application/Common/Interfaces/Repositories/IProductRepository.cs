@@ -9,6 +9,6 @@ namespace Application.Common.Interfaces.Repositories
         Task<ProductEntity> Create(CreateProductModel model, CancellationToken cancellationToken);
         Task<ProductEntity> Update(UpdateProductModel model, CancellationToken cancellationToken);
         Task<ProductEntity> Delete(DeleteProductModel model, CancellationToken cancellationToken);
-        Task<Option<ProductEntity>> GetById(ProductId id, CancellationToken cancellationToken);
+        Task<Option<ProductEntity>> GetById(Guid id, CancellationToken cancellationToken);
     }
 }

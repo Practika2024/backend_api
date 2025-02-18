@@ -1,12 +1,12 @@
-﻿using Application.Authentications.Exceptions;
+﻿using Application.Commands.Authentications.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
 using Application.Exceptions;
 using Application.Models.UserModels;
 using Application.Services.HashPasswordService;
 using Application.Services.TokenService;
-using Domain.Authentications;
-using Domain.Authentications.Users;
+using Application.Settings;
+using Domain.Users;
 using MediatR;
 
 namespace Application.Commands.Authentications.Commands;
@@ -45,7 +45,8 @@ public class CreateUserCommandHandler(
     {
         try
         {
-            var userId = UserId.New();
+            //TODO logic for first who sign up is admin
+            var userId = Guid.NewGuid();
             var userModel = new CreateUserModel
             {
                 Id = userId,
@@ -61,14 +62,14 @@ public class CreateUserCommandHandler(
                 UserId = userEntity.Id,
                 RoleId = AuthSettings.OperatorRole
             };
-            var updatedUser = await userRepository.AddRole(addRoleModel, cancellationToken);
-            var token = await jwtTokenService.GenerateTokensAsync(updatedUser, cancellationToken);
+            //var updatedUser = await userRepository.AddRole(addRoleModel, cancellationToken);
+            var token = await jwtTokenService.GenerateTokensAsync(userEntity, cancellationToken);
 
             return token;
         }
         catch (Exception exception)
         {
-            return new AuthenticationUnknownException(UserId.Empty, exception);
+            return new AuthenticationUnknownException(Guid.Empty, exception);
         }
     }
 }

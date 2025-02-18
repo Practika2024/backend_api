@@ -16,10 +16,11 @@
     <ItemGroup>
       <ProjectReference Include="..\Application\Application.csproj" />
       <ProjectReference Include="..\Domain\Domain.csproj" />
-      <ProjectReference Include="..\DataAxessLayer\DataAxessLayer.csproj" />
+      <ProjectReference Include="..\DataAccessLayer\DataAccessLayer.csproj" />
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Carter" Version="8.0.0" />
       <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
       <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.12" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.12">
@@ -29,7 +30,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Modules\Validators\" />
+      <Folder Include="data\Images\productImages\" />
     </ItemGroup>
 
 </Project>

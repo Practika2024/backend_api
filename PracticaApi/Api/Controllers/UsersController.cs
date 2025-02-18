@@ -1,9 +1,7 @@
-﻿using Application.Commands.Users.Commands;
+﻿using Api.Dtos.Users;
+using Application.Commands.Users.Commands;
 using Application.Common.Interfaces.Queries;
-using Application.Dtos.Users;
 using Application.Models.UserModels;
-using Domain.Authentications;
-using Domain.Authentications.Users;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -29,7 +27,7 @@ public class UsersController(ISender sender, IUserQueries userQueries) : Control
     [HttpGet("get-by-id/{userId:guid}")]
     public async Task<ActionResult<UserDto>> Get([FromRoute] Guid userId, CancellationToken cancellationToken)
     {
-        var entity = await userQueries.GetById(new UserId(userId), cancellationToken);
+        var entity = await userQueries.GetById(userId, cancellationToken);
 
         return entity.Match<ActionResult<UserDto>>(
             p => UserDto.FromDomainModel(p),

@@ -1,32 +1,27 @@
-﻿using Domain.Authentications.Users;
+﻿using Domain.Interfaces;
+using System;
+using Domain.Abstractions;
 
-namespace Domain.Containers;
-
-public class ContainerTypeEntity
+namespace Domain.Containers
 {
-    public ContainerTypeId Id { get; private set; }
-    public string Name { get; private set; }
-
-    private ContainerTypeEntity(ContainerTypeId id, string name)
+    public class ContainerTypeEntity : AuditableEntity
     {
-        Id = id;
-        Name = name;
-    }
+        public Guid Id { get; private set; }
+        public string Name { get; private set; }
 
-    public static ContainerTypeEntity New(string name)
-    {
-        return new ContainerTypeEntity(ContainerTypeId.New(), name);
-    }
+        private ContainerTypeEntity(Guid id, string name, Guid createdBy)
+            : base(createdBy)
+        {
+            Id = id;
+            Name = name;
+        }
 
-    public void UpdateName(string newName)
-    {
-        Name = newName;
-    }
-}
+        public static ContainerTypeEntity New(string name, Guid createdBy)
+            => new ContainerTypeEntity(Guid.NewGuid(), name, createdBy);
 
-public record ContainerTypeId(Guid Value)
-{
-    public static ContainerTypeId New() => new(Guid.NewGuid());
-    public static ContainerTypeId Empty => new(Guid.Empty);
-    public override string ToString() => Value.ToString();
+        public void UpdateName(string newName)
+        {
+            Name = newName;
+        }
+    }
 }

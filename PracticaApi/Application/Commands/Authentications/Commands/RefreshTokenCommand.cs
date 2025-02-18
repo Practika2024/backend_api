@@ -1,4 +1,4 @@
-using Application.Authentications.Exceptions;
+using Application.Commands.Authentications.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
 using Application.Models.UserModels;

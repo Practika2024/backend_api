@@ -1,7 +1,8 @@
-PCComponents/.vs/
-
-PCComponents/src/Api/data/images/
-
+.vs/
 obj/
 bin/
+.idea/
+
+PracticaApi/src/Api/data/images/
+
 Migrations/

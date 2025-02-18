@@ -1,32 +1,25 @@
-﻿using Domain.Authentications.Users;
+﻿using Domain.Abstractions;
 
 namespace Domain.Products;
 
-public class ProductTypeEntity
+public class ProductTypeEntity : AuditableEntity
 {
-    public ProductTypeId Id { get; private set; }
+    public Guid Id { get; private set; }
     public string Name { get; private set; }
 
-    private ProductTypeEntity(ProductTypeId id, string name)
+    private ProductTypeEntity(Guid id, string name, Guid createdBy) : base(createdBy)
     {
         Id = id;
         Name = name;
     }
 
-    public static ProductTypeEntity New(string name)
+    public static ProductTypeEntity New(string name, Guid createdBy)
     {
-        return new ProductTypeEntity(ProductTypeId.New(), name);
+        return new ProductTypeEntity(Guid.NewGuid(), name, createdBy);
     }
 
     public void UpdateName(string newName)
     {
         Name = newName;
     }
-}
-
-public record ProductTypeId(Guid Value)
-{
-    public static ProductTypeId New() => new(Guid.NewGuid());
-    public static ProductTypeId Empty => new(Guid.Empty);
-    public override string ToString() => Value.ToString();
 }

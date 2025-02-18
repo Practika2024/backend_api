@@ -1,16 +1,14 @@
 ﻿using Application.Commands.Containers.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
-using Application.Dtos.Containers;
 using Application.Models.ContainerModels;
-using Domain.Authentications.Users;
 using Domain.Containers;
 using Domain.Products;
 using MediatR;
 
 namespace Application.Commands.Containers.Commands;
 
-public record SetContainerContentCommand : IRequest<Result<ContainerDto, ContainerException>>
+public record SetContainerContentCommand : IRequest<Result<ContainerEntity, ContainerException>>
 {
     public required Guid ContainerId { get;  init; } 
     public required Guid? ProductId { get; init; }
@@ -20,13 +18,13 @@ public record SetContainerContentCommand : IRequest<Result<ContainerDto, Contain
 
 public class SetContainerContentCommandHandler(
     IContainerRepository containerRepository)
-    : IRequestHandler<SetContainerContentCommand, Result<ContainerDto, ContainerException>>
+    : IRequestHandler<SetContainerContentCommand, Result<ContainerEntity, ContainerException>>
 {
-    public async Task<Result<ContainerDto, ContainerException>> Handle(
+    public async Task<Result<ContainerEntity, ContainerException>> Handle(
         SetContainerContentCommand request,
         CancellationToken cancellationToken)
     {
-        var containerId = new ContainerId(request.ContainerId);
+        var containerId = request.ContainerId;
         var existingContainer = await containerRepository.GetById(containerId, cancellationToken);
 
         return await existingContainer.Match(
@@ -34,9 +32,9 @@ public class SetContainerContentCommandHandler(
             {
                 try
                 {
-                    var userId = new UserId(request.ModifiedBy);
+                    var userId = request.ModifiedBy;
                     var productId = request.ProductId != null
-                        ? new ProductId(request.ProductId.Value)
+                        ? request.ProductId 
                         : null;
 
                     var setContainerContentModel = new SetContainerContentModel
@@ -49,14 +47,14 @@ public class SetContainerContentCommandHandler(
 
                     var updatedContainer =
                         await containerRepository.SetContainerContent(setContainerContentModel, cancellationToken);
-                    return ContainerDto.FromDomainModel(updatedContainer);
+                    return updatedContainer;
                 }
                 catch (ContainerException exception)
                 {
                     return new ContainerUnknownException(containerId, exception);
                 }
             },
-            () => Task.FromResult<Result<ContainerDto, ContainerException>>(
+            () => Task.FromResult<Result<ContainerEntity, ContainerException>>(
                 new ContainerNotFoundException(containerId))
         );
     }

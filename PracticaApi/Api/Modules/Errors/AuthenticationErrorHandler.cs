@@ -1,4 +1,4 @@
-﻿using Application.Authentications.Exceptions;
+﻿using Application.Commands.Authentications.Exceptions;
 using Application.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +13,7 @@ public static class AuthenticationErrorHandler
             StatusCode = exception switch
             {
                 UserByThisEmailAlreadyExistsAuthenticationException => StatusCodes.Status409Conflict,
-                EmailOrPasswordAreIncorrectException => StatusCodes.Status401Unauthorized,
+                EmailOrPasswordAreIncorrectException => StatusCodes.Status400BadRequest,
                 AuthenticationUnknownException => StatusCodes.Status500InternalServerError,
                 UserNorFoundException => StatusCodes.Status404NotFound,
 

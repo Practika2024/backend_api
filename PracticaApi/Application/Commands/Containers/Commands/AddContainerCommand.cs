@@ -2,15 +2,13 @@
 using Application.Commands.Containers.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
-using Application.Dtos.Containers;
 using Application.Models.ContainerModels;
-using Domain.Authentications.Users;
 using Domain.Containers;
 using MediatR;
 
 namespace Application.Commands.Containers.Commands;
 
-public record AddContainerCommand : IRequest<Result<ContainerDto, ContainerException>>
+public record AddContainerCommand : IRequest<Result<ContainerEntity, ContainerException>>
     {
         public required string Name { get; init; }
         public required decimal Volume { get; init; }
@@ -20,18 +18,18 @@ public record AddContainerCommand : IRequest<Result<ContainerDto, ContainerExcep
     }
 
     public class AddContainerCommandHandler(
-        IContainerRepository containerRepository) : IRequestHandler<AddContainerCommand, Result<ContainerDto, ContainerException>>
+        IContainerRepository containerRepository) : IRequestHandler<AddContainerCommand, Result<ContainerEntity, ContainerException>>
     {
-        public async Task<Result<ContainerDto, ContainerException>> Handle(
+        public async Task<Result<ContainerEntity, ContainerException>> Handle(
             AddContainerCommand request,
             CancellationToken cancellationToken)
         {
-            var userId = new UserId(request.UserId);
-            var typeId = new ContainerTypeId(request.TypeId);
+            var userId = request.UserId;
+            var typeId = request.TypeId;
             var existingContainer = await containerRepository.SearchByName(request.Name, cancellationToken);
 
-            return await existingContainer.Match<Task<Result<ContainerDto, ContainerException>>>(
-                c => Task.FromResult<Result<ContainerDto, ContainerException>>(
+            return await existingContainer.Match<Task<Result<ContainerEntity, ContainerException>>>(
+                c => Task.FromResult<Result<ContainerEntity, ContainerException>>(
                     new ContainerAlreadyExistsException(c.Id)),
                 async () => await CreateEntity(
                     request.Name,
@@ -42,18 +40,18 @@ public record AddContainerCommand : IRequest<Result<ContainerDto, ContainerExcep
                     cancellationToken));
         }
 
-        private async Task<Result<ContainerDto, ContainerException>> CreateEntity(
+        private async Task<Result<ContainerEntity, ContainerException>> CreateEntity(
             string name,
             decimal volume,
-            UserId userId,
+            Guid userId,
             string? notes,
-            ContainerTypeId typeId,
+            Guid typeId,
             CancellationToken cancellationToken)
         {
             try
             {
                 var uniqueCode = await GenerateUniqueCodeAsync(containerRepository, cancellationToken);
-                var containerId = ContainerId.New();
+                var containerId = Guid.NewGuid();
                 var createContainerModel = new CreateContainerModel
                 {
                     Id = containerId,
@@ -66,11 +64,11 @@ public record AddContainerCommand : IRequest<Result<ContainerDto, ContainerExcep
                 };
 
                 var createdContainer = await containerRepository.Create(createContainerModel, cancellationToken);
-                return ContainerDto.FromDomainModel(createdContainer);
+                return createdContainer;
             }
             catch (ContainerException exception)
             {
-                return new ContainerUnknownException(ContainerId.Empty, exception);
+                return new ContainerUnknownException(Guid.Empty, exception);
             }
         }
 
