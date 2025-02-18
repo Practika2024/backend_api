@@ -15,7 +15,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 builder.Services.AddInfrastructure(builder);
-builder.Services.AddApplication();
+builder.Services.AddApplication(builder);
 builder.Services.SetupServices();
 builder.Services.AddCarter();
 

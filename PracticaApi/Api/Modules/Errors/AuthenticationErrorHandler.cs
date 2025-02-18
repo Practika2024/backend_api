@@ -6,16 +6,24 @@ namespace Api.Modules.Errors;
 
 public static class AuthenticationErrorHandler
 {
-    public static IResult ToIResult(this AuthenticationException exception)
+    public static ObjectResult ToObjectResult(this AuthenticationException exception)
     {
-        return TypedResults.Problem(exception.Message, statusCode: exception switch
+        return new ObjectResult(exception.Message)
         {
-            UserByThisEmailAlreadyExistsAuthenticationException => StatusCodes.Status409Conflict,
-            EmailOrPasswordAreIncorrectException => StatusCodes.Status401Unauthorized,
-            AuthenticationUnknownException => StatusCodes.Status500InternalServerError,
-            UserNorFoundException => StatusCodes.Status404NotFound,
-            InvalidTokenException or TokenExpiredException or InvalidAccessTokenException => StatusCodes.Status426UpgradeRequired,
-            _ => throw new NotImplementedException("Authentication error handler is not implemented")
-        });
+            StatusCode = exception switch
+            {
+                UserByThisEmailAlreadyExistsAuthenticationException => StatusCodes.Status409Conflict,
+                EmailOrPasswordAreIncorrectException => StatusCodes.Status400BadRequest,
+                AuthenticationUnknownException => StatusCodes.Status500InternalServerError,
+                UserNorFoundException => StatusCodes.Status404NotFound,
+
+                InvalidTokenException
+                    or TokenExpiredException
+                    or InvalidAccessTokenException
+                    => StatusCodes.Status426UpgradeRequired,
+
+                _ => throw new NotImplementedException("Authentication error handler does not implemented")
+            }
+        };
     }
 }

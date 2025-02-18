@@ -1,9 +1,9 @@
-﻿using Domain.Containers;
-using Domain.Interfaces;
+﻿using Domain.Abstractions;
+using Domain.Containers;
 using Domain.Users;
 
 namespace Domain.Reminders;
-public class ReminderEntity : IAuditableEntity
+public class ReminderEntity : AuditableEntity
 {
     public Guid Id { get; }
     public Guid ContainerId { get; private set; }
@@ -11,11 +11,7 @@ public class ReminderEntity : IAuditableEntity
     public string Title { get; private set; }
     public DateTime DueDate { get; private set; }
     public ReminderType Type { get; private set; }
-    public Guid CreatedBy { get; private set; }
     public UserEntity? CreatedByNavigation { get; private set; }
-    public DateTime CreatedAt { get; private set; }
-    public Guid ModifiedBy { get; }
-    public DateTime ModifiedAt { get; }
 
     private ReminderEntity(
         Guid id,
@@ -23,15 +19,13 @@ public class ReminderEntity : IAuditableEntity
         string title,
         DateTime dueDate,
         ReminderType type,
-        Guid createdBy)
+        Guid createdBy) : base(createdBy)
     {
         Id = id;
         ContainerId = containerId;
         Title = title;
         DueDate = dueDate;
         Type = type;
-        CreatedBy = createdBy;
-        CreatedAt = DateTime.UtcNow;
     }
 
     public static ReminderEntity New(

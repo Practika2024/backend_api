@@ -1,9 +1,7 @@
 ﻿using Api.Dtos.Containers;
-using Api.Modules.Errors;
 using Application.Commands.Containers.Commands;
 using Application.Common.Interfaces.Queries;
-using Domain.Authentications;
-using Domain.Containers;
+using Application.Settings;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -13,10 +11,10 @@ namespace Api.Controllers;
 
 [Route("containers")]
 [ApiController]
-// [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+//[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class ContainersController(ISender sender, IContainerQueries containerQueries) : ControllerBase
 {
-    // [Authorize(Roles = AuthSettings.AdminRole)]
+    //[Authorize(Roles = AuthSettings.AdminRole)]
     [HttpGet("get-all")]
     public async Task<ActionResult<IReadOnlyList<ContainerDto>>> GetAll(CancellationToken cancellationToken)
     {
@@ -24,7 +22,7 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
         return Ok(entities.Select(ContainerDto.FromDomainModel).ToList());
     }
 
-    // [Authorize(Roles = $"{AuthSettings.AdminRole},{AuthSettings.OperatorRole}")]
+    //[Authorize(Roles = $"{AuthSettings.AdminRole},{AuthSettings.OperatorRole}")]
     [HttpGet("get-by-id/{containerId:guid}")]
     public async Task<ActionResult<ContainerDto>> GetById([FromRoute] Guid containerId,
         CancellationToken cancellationToken)
@@ -35,7 +33,7 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
             () => NotFound());
     }
 
-    // [Authorize(Roles = AuthSettings.OperatorRole)]
+    //[Authorize(Roles = AuthSettings.OperatorRole)]
     [HttpPost("add")]
     public async Task<ActionResult<ContainerDto>> AddContainer(
         [FromBody] CreateContainerDto model,
@@ -56,7 +54,8 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
             dto => CreatedAtAction(nameof(GetById), new { containerId = dto.Id }, dto),
             e => Problem(e.Message));
     }
-    // [Authorize(Roles = "Operator")]
+
+    //[Authorize(Roles = "Operator")]
     [HttpPut("update/{containerId:guid}")]
     public async Task<ActionResult<ContainerDto>> UpdateContainer(
         [FromRoute] Guid containerId,
@@ -79,9 +78,9 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
             dto => Ok(dto),
             e => Problem(e.Message));
     }
-    
+
+    //[Authorize(Roles = AuthSettings.OperatorRole)]
     [HttpDelete("delete/{containerId:guid}")]
-    // [Authorize(Roles = AuthSettings.OperatorRole)]
     public async Task<ActionResult<ContainerDto>> DeleteContainer(
         [FromRoute] Guid containerId,
         CancellationToken cancellationToken)
@@ -97,9 +96,9 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
             dto => Ok(dto),
             e => Problem(e.Message));
     }
-    
+
+    //[Authorize(Roles = "Operator")]
     [HttpPut("set-content/{containerId:guid}")]
-    // [Authorize(Roles = "Operator")]
     public async Task<ActionResult<ContainerDto>> SetContainerContent(
         [FromRoute] Guid containerId,
         [FromBody] SetContainerContentDto model,
@@ -121,8 +120,8 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
     }
 
     // Clear container content (Operator role only)
+    //[Authorize(Roles = "Operator")]
     [HttpPut("clear-content/{containerId:guid}")]
-    // [Authorize(Roles = "Operator")]
     public async Task<ActionResult<ContainerDto>> ClearContainerContent(
         [FromRoute] Guid containerId,
         [FromBody] ClearContainerContentDto model,

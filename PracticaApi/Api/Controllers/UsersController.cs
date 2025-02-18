@@ -2,7 +2,6 @@
 using Application.Commands.Users.Commands;
 using Application.Common.Interfaces.Queries;
 using Application.Models.UserModels;
-using Domain.Authentications;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;

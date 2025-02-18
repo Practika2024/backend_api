@@ -1,4 +1,4 @@
-﻿namespace Domain.Authentications;
+﻿namespace Application.Settings;
 
 public static class AuthSettings
 {

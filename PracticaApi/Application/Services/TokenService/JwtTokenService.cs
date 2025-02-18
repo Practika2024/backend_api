@@ -5,7 +5,7 @@ using System.Text;
 using Application.Common.Interfaces.Repositories;
 using Application.Models.RefreshTokenModels;
 using Application.Models.UserModels;
-using Domain.Authentications;
+using Application.Settings;
 using Domain.RefreshTokens;
 using Domain.Users;
 using Microsoft.Extensions.Configuration;

@@ -10,12 +10,5 @@ public class ProductTypeConfiguration : IEntityTypeConfiguration<ProductTypeEnti
     {
         builder.HasKey(pt => pt.Id);
         builder.Property(pt => pt.Name).HasMaxLength(50).IsRequired();
-
-        builder.HasData(
-            ProductTypeEntity.New("Liquid"),
-            ProductTypeEntity.New("Solid"),
-            ProductTypeEntity.New("Powder"),
-            ProductTypeEntity.New("Other")
-        );
     }
 }

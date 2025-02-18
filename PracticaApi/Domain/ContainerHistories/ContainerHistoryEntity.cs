@@ -1,11 +1,11 @@
-﻿using Domain.Containers;
-using Domain.Interfaces;
+﻿using Domain.Abstractions;
+using Domain.Containers;
 using Domain.Products;
 using Domain.Users;
 
 namespace Domain.ContainerHistories;
 
-public class ContainerHistoryEntity : IAuditableEntity
+public class ContainerHistoryEntity : AuditableEntity
 {
     public Guid Id { get; }
     public Guid ContainerId { get; private set; }
@@ -21,13 +21,12 @@ public class ContainerHistoryEntity : IAuditableEntity
         Guid containerId,
         Guid productId,
         DateTime startDate,
-        Guid createdBy)
+        Guid createdBy) : base(createdBy)
     {
         Id = id;
         ContainerId = containerId;
         ProductId = productId;
         StartDate = startDate;
-        CreatedBy = createdBy;
     }
 
     public static ContainerHistoryEntity New(
@@ -40,9 +39,4 @@ public class ContainerHistoryEntity : IAuditableEntity
 
     public void SetEndDate(DateTime endDate)
         => EndDate = endDate;
-
-    public Guid CreatedBy { get; }
-    public DateTime CreatedAt { get; }
-    public Guid ModifiedBy { get; }
-    public DateTime ModifiedAt { get; }
 }

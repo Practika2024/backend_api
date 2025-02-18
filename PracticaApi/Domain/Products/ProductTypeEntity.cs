@@ -1,30 +1,25 @@
-﻿using Domain.Interfaces;
+﻿using Domain.Abstractions;
 
 namespace Domain.Products;
 
-public class ProductTypeEntity : IAuditableEntity
+public class ProductTypeEntity : AuditableEntity
 {
     public Guid Id { get; private set; }
     public string Name { get; private set; }
 
-    private ProductTypeEntity(Guid id, string name)
+    private ProductTypeEntity(Guid id, string name, Guid createdBy) : base(createdBy)
     {
         Id = id;
         Name = name;
     }
 
-    public static ProductTypeEntity New(string name)
+    public static ProductTypeEntity New(string name, Guid createdBy)
     {
-        return new ProductTypeEntity(Guid.NewGuid(), name);
+        return new ProductTypeEntity(Guid.NewGuid(), name, createdBy);
     }
 
     public void UpdateName(string newName)
     {
         Name = newName;
     }
-
-    public Guid CreatedBy { get; }
-    public DateTime CreatedAt { get; }
-    public Guid ModifiedBy { get; }
-    public DateTime ModifiedAt { get; }
 }

@@ -1,9 +1,9 @@
-﻿using Domain.Interfaces;
+﻿using Domain.Abstractions;
 using Domain.Products;
 
 namespace Domain.Containers;
 
-public class ContainerContentEntity : IAuditableEntity
+public class ContainerContentEntity : AuditableEntity
 {
     public Guid Id { get; private set; }
     public Guid? ProductId { get; private set; }
@@ -14,13 +14,11 @@ public class ContainerContentEntity : IAuditableEntity
         Guid id,
         Guid? productId,
         bool isEmpty,
-        Guid createdBy)
+        Guid createdBy) : base(createdBy)
     {
         Id = id;
         ProductId = productId;
         IsEmpty = isEmpty;
-        CreatedBy = createdBy;
-        CreatedAt = DateTime.UtcNow;
     }
 
     public static ContainerContentEntity New(Guid? productId, bool isEmpty, Guid createdBy)
@@ -43,9 +41,4 @@ public class ContainerContentEntity : IAuditableEntity
         ModifiedBy = modifiedBy;
         ModifiedAt = DateTime.UtcNow;
     }
-
-    public Guid CreatedBy { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public Guid ModifiedBy { get; set; }
-    public DateTime ModifiedAt { get; set; }
 }

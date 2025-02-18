@@ -1,6 +1,7 @@
 ﻿using Application.Services.HashPasswordService;
-using Domain.Authentications;
+using Application.Settings;
 using Domain.Containers;
+using Domain.Products;
 using Domain.Roles;
 using Domain.Users;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ namespace DataAccessLayer.Data.Initializer
             SeedRoles(modelBuilder);
             var seededUsers = SeedUsers(modelBuilder, hashPasswordService);
             SeedTypes(modelBuilder, seededUsers);
+            SeedProductTypes(modelBuilder, seededUsers);
         }
 
         private static void SeedRoles(ModelBuilder modelBuilder)
@@ -63,11 +65,23 @@ namespace DataAccessLayer.Data.Initializer
 
         private static void SeedTypes(ModelBuilder modelBuilder, List<UserEntity> users)
         {
+            var userId = users[0].Id;
             modelBuilder.Entity<ContainerTypeEntity>().HasData(
-                ContainerTypeEntity.New("Plastic", users[0].Id),
-                ContainerTypeEntity.New("Glass", users[0].Id),
-                ContainerTypeEntity.New("Metal", users[0].Id),
-                ContainerTypeEntity.New("Other", users[0].Id)
+                ContainerTypeEntity.New("Plastic", userId),
+                ContainerTypeEntity.New("Glass", userId),
+                ContainerTypeEntity.New("Metal", userId),
+                ContainerTypeEntity.New("Other", userId)
+            );
+        }
+        
+        private static void SeedProductTypes(ModelBuilder modelBuilder, List<UserEntity> users)
+        {
+            var userId = users[0].Id;
+            modelBuilder.Entity<ProductTypeEntity>().HasData(
+                ProductTypeEntity.New("Liquid", userId),
+                ProductTypeEntity.New("Solid", userId),
+                ProductTypeEntity.New("Powder", userId),
+                ProductTypeEntity.New("Other", userId)
             );
         }
     }
