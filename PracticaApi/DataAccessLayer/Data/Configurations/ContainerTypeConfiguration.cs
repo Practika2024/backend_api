@@ -10,5 +10,10 @@ public class ContainerTypeConfiguration : IEntityTypeConfiguration<ContainerType
     {
         builder.HasKey(ct => ct.Id);
         builder.Property(ct => ct.Name).HasMaxLength(50).IsRequired();
+        
+        builder.HasOne(x => x.CreatedByEntity)
+            .WithMany()
+            .HasForeignKey("CreatedBy")
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

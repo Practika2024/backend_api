@@ -16,5 +16,10 @@ public class ReminderConfiguration : IEntityTypeConfiguration<ReminderEntity>
             .WithMany()
             .HasForeignKey("ContainerId")
             .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.HasOne(x => x.CreatedByEntity)
+            .WithMany()
+            .HasForeignKey("CreatedBy")
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -54,14 +54,15 @@ public class CreateUserCommandHandler(
                 Name = request.Name,
                 Surname = request.Surname,
                 Patronymic = request.Patronymic,
-                PasswordHash = hashPasswordService.HashPassword(request.Password)
-            };
-            UserEntity userEntity = await userRepository.Create(userModel, cancellationToken);
-            var addRoleModel = new AddRoleToUserModel
-            {
-                UserId = userEntity.Id,
+                PasswordHash = hashPasswordService.HashPassword(request.Password),
                 RoleId = AuthSettings.OperatorRole
             };
+            UserEntity userEntity = await userRepository.Create(userModel, cancellationToken);
+            // var addRoleModel = new AddRoleToUserModel
+            // {
+            //     UserId = userEntity.Id,
+            //     RoleId = AuthSettings.OperatorRole
+            // };
             //var updatedUser = await userRepository.AddRole(addRoleModel, cancellationToken);
             var token = await jwtTokenService.GenerateTokensAsync(userEntity, cancellationToken);
 

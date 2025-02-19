@@ -9,7 +9,6 @@ public class ProductEntity : AuditableEntity
     public string Name { get; private set; }
     public string? Description { get; private set; }
     public DateTime ManufactureDate { get; private set; }
-    public UserEntity? CreatedByNavigation { get; private set; }
     public Guid TypeId { get; private set; }
     public ProductTypeEntity? Type { get; private set; }
     public ICollection<ContainerHistoryEntity> Histories { get; private set; } = new List<ContainerHistoryEntity>();

@@ -23,5 +23,10 @@ public class ContainerConfiguration : IEntityTypeConfiguration<ContainerEntity>
             .WithOne()
             .HasForeignKey<ContainerEntity>("ContentId")
             .OnDelete(DeleteBehavior.Restrict);
+        
+        builder.HasOne(x => x.CreatedByEntity)
+            .WithMany()
+            .HasForeignKey("CreatedBy")
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

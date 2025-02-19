@@ -5,6 +5,7 @@ using Application.Common.Interfaces.Repositories;
 using Application.Models.ContainerModels;
 using Domain.Containers;
 using MediatR;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace Application.Commands.Containers.Commands;
 
@@ -50,6 +51,7 @@ public record AddContainerCommand : IRequest<Result<ContainerEntity, ContainerEx
         {
             try
             {
+                //var uniqueCode = await GenerateUniqueCodeAsync(name, typeId, containerRepository, cancellationToken);
                 var uniqueCode = await GenerateUniqueCodeAsync(containerRepository, cancellationToken);
                 var containerId = Guid.NewGuid();
                 var createContainerModel = new CreateContainerModel
@@ -72,6 +74,29 @@ public record AddContainerCommand : IRequest<Result<ContainerEntity, ContainerEx
             }
         }
 
+        // private async Task<string> GenerateUniqueCodeAsync(
+        //     string containerName,
+        //     Guid typeId,
+        //     IContainerRepository containerRepository,
+        //     CancellationToken cancellationToken)
+        // {
+        //     var containerType = await containerRepository.GetById(typeId, cancellationToken);
+        //     
+        //     var namePrefix = containerName.Length >= 3 
+        //         ? containerName.Substring(0, 3).ToUpper() 
+        //         : containerName.ToUpper();
+        //     
+        //     var typeLetter = containerType.Name.Substring(0, 1).ToUpper();
+        //     
+        //     var codePrefix = namePrefix + typeLetter;
+        //     
+        //     var lastSequence = await containerRepository.GetLastSequenceForPrefixAsync(codePrefix, cancellationToken);
+        //     var nextSequence = lastSequence + 1;
+        //     
+        //     var sequenceString = nextSequence.ToString("D3");
+        //     return codePrefix + sequenceString;
+        // }
+        
         private async Task<string> GenerateUniqueCodeAsync(
             IContainerRepository containerRepository,
             CancellationToken cancellationToken)

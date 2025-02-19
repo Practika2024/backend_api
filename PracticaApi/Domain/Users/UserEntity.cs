@@ -16,16 +16,8 @@ public class UserEntity
     public string? Patronymic { get; private set; }
     public string PasswordHash { get; }
     public string RoleId { get; private set; }
-    public RoleEntity Role { get; private set; }
+    public RoleEntity? Role { get; private set; }
     public List<RefreshTokenEntity> RefreshTokens { get; private set; } = new();
-
-    public ICollection<ContainerEntity> CreatedContainers { get; private set; } = new List<ContainerEntity>();
-    public ICollection<ProductEntity> CreatedProducts { get; private set; } = new List<ProductEntity>();
-
-    public ICollection<ContainerHistoryEntity> CreatedHistories { get; private set; } =
-        new List<ContainerHistoryEntity>();
-
-    public ICollection<ReminderEntity> CreatedReminders { get; private set; } = new List<ReminderEntity>();
 
     private UserEntity(Guid id, string roleId, string email, string? name, string? surname, string? patronymic,
         string passwordHash)

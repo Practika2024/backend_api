@@ -14,7 +14,6 @@ public class ContainerHistoryEntity : AuditableEntity
     public ProductEntity? Product { get; private set; }
     public DateTime StartDate { get; }
     public DateTime EndDate { get; private set; }
-    public UserEntity? CreatedByNavigation { get; private set; }
 
     private ContainerHistoryEntity(
         Guid id,

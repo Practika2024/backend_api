@@ -11,7 +11,6 @@ public class ReminderEntity : AuditableEntity
     public string Title { get; private set; }
     public DateTime DueDate { get; private set; }
     public ReminderType Type { get; private set; }
-    public UserEntity? CreatedByNavigation { get; private set; }
 
     private ReminderEntity(
         Guid id,

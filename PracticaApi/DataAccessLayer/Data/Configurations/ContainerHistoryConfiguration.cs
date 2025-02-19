@@ -22,5 +22,10 @@ public class ContainerHistoryConfiguration : IEntityTypeConfiguration<ContainerH
             .HasForeignKey(ch => ch.ProductId)
             .HasConstraintName("fk_product_id")
             .OnDelete(DeleteBehavior.Restrict);
+        
+        builder.HasOne(x => x.CreatedByEntity)
+            .WithMany()
+            .HasForeignKey("CreatedBy")
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

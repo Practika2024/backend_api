@@ -10,5 +10,10 @@ public class ProductTypeConfiguration : IEntityTypeConfiguration<ProductTypeEnti
     {
         builder.HasKey(pt => pt.Id);
         builder.Property(pt => pt.Name).HasMaxLength(50).IsRequired();
+        
+        builder.HasOne(x => x.CreatedByEntity)
+            .WithMany()
+            .HasForeignKey("CreatedBy")
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

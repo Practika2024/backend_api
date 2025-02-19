@@ -18,22 +18,7 @@ public class UserConfiguration : IEntityTypeConfiguration<UserEntity>
         builder.Property(x => x.PasswordHash).IsRequired();
 
         builder.HasOne(x => x.Role)
-            .WithOne()
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasMany(u => u.CreatedProducts)
-            .WithOne(p => p.CreatedByNavigation)
-            .HasForeignKey("CreatedBy")
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasMany(u => u.CreatedHistories)
-            .WithOne(ch => ch.CreatedByNavigation)
-            .HasForeignKey("CreatedBy") 
-            .OnDelete(DeleteBehavior.Restrict); 
-
-        builder.HasMany(u => u.CreatedReminders)
-            .WithOne(r => r.CreatedByNavigation)
-            .HasForeignKey("CreatedBy") 
+            .WithMany()
             .OnDelete(DeleteBehavior.Restrict);
     }
 }
