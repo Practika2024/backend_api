@@ -1,4 +1,4 @@
-﻿using Domain.ContainerHistories;
+﻿using DataAccessLayer.Entities.ContainerHistories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -14,18 +14,16 @@ public class ContainerHistoryConfiguration : IEntityTypeConfiguration<ContainerH
         builder.HasOne(ch => ch.Container)
             .WithMany(c => c.Histories)
             .HasForeignKey(ch => ch.ContainerId)
-            .HasConstraintName("fk_container_id")
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(ch => ch.Product)
             .WithMany(p => p.Histories)
             .HasForeignKey(ch => ch.ProductId)
-            .HasConstraintName("fk_product_id")
             .OnDelete(DeleteBehavior.Restrict);
         
         builder.HasOne(x => x.CreatedByEntity)
             .WithMany()
-            .HasForeignKey("CreatedBy")
+            .HasForeignKey(x => x.CreatedBy)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

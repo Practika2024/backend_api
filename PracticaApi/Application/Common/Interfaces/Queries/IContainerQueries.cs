@@ -1,11 +1,11 @@
-﻿using Domain.Containers;
+﻿using Domain.ContainerModels;
 using Optional;
 
 namespace Application.Common.Interfaces.Queries
 {
     public interface IContainerQueries
     {
-        Task<IReadOnlyList<ContainerEntity>> GetAll(CancellationToken cancellationToken);
-        Task<Option<ContainerEntity>> GetById(Guid id, CancellationToken cancellationToken);
+        Task<IReadOnlyList<Container>> GetAll(CancellationToken cancellationToken);
+        Task<Option<Container>> GetById(Guid id, CancellationToken cancellationToken);
     }
 }

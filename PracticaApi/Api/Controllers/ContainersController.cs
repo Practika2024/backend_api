@@ -1,9 +1,9 @@
-﻿using Api.Dtos.Containers;
+﻿using System.Security.Claims;
+using Api.Dtos.Containers;
 using Application.Commands.Containers.Commands;
 using Application.Common.Interfaces.Queries;
 using Application.Settings;
 using AutoMapper;
-using Domain.Containers;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -21,7 +21,7 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
     public async Task<ActionResult<IReadOnlyList<ContainerDto>>> GetAll(CancellationToken cancellationToken)
     {
         var entities = await containerQueries.GetAll(cancellationToken);
-        return Ok(entities.Select(ContainerDto.FromDomainModel).ToList());
+        return Ok(entities.Select(mapper.Map<ContainerDto>).ToList());
     }
 
     //[Authorize(Roles = $"{AuthSettings.AdminRole},{AuthSettings.OperatorRole}")]
@@ -31,10 +31,10 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
     {
         var entity = await containerQueries.GetById(containerId, cancellationToken);
         return entity.Match<ActionResult<ContainerDto>>(
-            p => Ok(ContainerDto.FromDomainModel(p)),
+            p => Ok(mapper.Map<ContainerDto>(p)),
             () => NotFound());
     }
-
+    
     //[Authorize(Roles = AuthSettings.OperatorRole)]
     [HttpPost("add")]
     public async Task<ActionResult<ContainerDto>> AddContainer(

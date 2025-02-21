@@ -1,80 +1,80 @@
 ﻿using System.Linq.Expressions;
 using Application.Common.Interfaces.Queries;
 using Application.Common.Interfaces.Repositories;
-using Application.Models.ContainerTypeModels;
+using AutoMapper;
 using DataAccessLayer.Data;
-using Domain.Containers;
+using DataAccessLayer.Entities.Containers;
+using Domain.ContainerTypeModels;
 using Microsoft.EntityFrameworkCore;
 using Optional;
 
 namespace DataAccessLayer.Repositories;
 
-public class ContainerTypeRepository(ApplicationDbContext _context) : IContainerTypeQueries, IContainerTypeRepository
+public class ContainerTypeRepository(ApplicationDbContext context, IMapper mapper)
+    : IContainerTypeRepository, IContainerTypeQueries
 {
-    public async Task<ContainerTypeEntity> Create(CreateContainerTypeModel model, CancellationToken cancellationToken)
+    public async Task<ContainerType> Create(CreateContainerTypeModel model, CancellationToken cancellationToken)
     {
-        var containerTypeEntity = ContainerTypeEntity.New(
-            name: model.Name,
-            createdBy: model.CreatedBy
-        );
+        var containerTypeEntity = mapper.Map<ContainerTypeEntity>(model);
 
-        await _context.ContainerTypes.AddAsync(containerTypeEntity, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.ContainerTypes.AddAsync(containerTypeEntity, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
-        return containerTypeEntity;
+        return mapper.Map<ContainerType>(containerTypeEntity);
     }
 
-    public async Task<ContainerTypeEntity> Update(UpdateContainerTypeModel model, CancellationToken cancellationToken)
+    public async Task<ContainerType> Update(UpdateContainerTypeModel model, CancellationToken cancellationToken)
     {
         var containerTypeEntity = await GetContainerTypeAsync(x => x.Id == model.Id, cancellationToken);
 
         if (containerTypeEntity == null)
         {
-            throw new InvalidOperationException("Container not found.");
+            throw new InvalidOperationException("Container type not found.");
         }
 
-        containerTypeEntity.Update(
-            modifiedBy: model.ModifiedBy,
-            name: model.Name
-        );
+        containerTypeEntity = mapper.Map(model, containerTypeEntity);
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
-        return containerTypeEntity;
+        return mapper.Map<ContainerType>(containerTypeEntity);
     }
 
-    public async Task<ContainerTypeEntity> Delete(Guid id, CancellationToken cancellationToken)
+    public async Task<ContainerType> Delete(Guid id, CancellationToken cancellationToken)
     {
         var containerTypeEntity = await GetContainerTypeAsync(x => x.Id == id, cancellationToken);
 
         if (containerTypeEntity == null)
         {
-            throw new InvalidOperationException("Container not found.");
+            throw new InvalidOperationException("Container type not found.");
         }
 
-        _context.ContainerTypes.Remove(containerTypeEntity);
-        await _context.SaveChangesAsync(cancellationToken);
+        context.ContainerTypes.Remove(containerTypeEntity);
+        await context.SaveChangesAsync(cancellationToken);
 
-        return containerTypeEntity;
+        return mapper.Map<ContainerType>(containerTypeEntity);
     }
 
-    public async Task<IReadOnlyList<ContainerTypeEntity>> GetAll(CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<ContainerType>> GetAll(CancellationToken cancellationToken)
     {
-        return await _context.ContainerTypes
+        var containerTypesEntity = await context.ContainerTypes
             .AsNoTracking()
             .ToListAsync(cancellationToken);
+
+        return mapper.Map<IReadOnlyList<ContainerType>>(containerTypesEntity);
     }
 
-    public async Task<Option<ContainerTypeEntity>> GetById(Guid id, CancellationToken cancellationToken)
+    public async Task<Option<ContainerType>> GetById(Guid id, CancellationToken cancellationToken)
     {
         var entity = await GetContainerTypeAsync(x => x.Id == id, cancellationToken);
-        return entity == null ? Option.None<ContainerTypeEntity>() : Option.Some(entity);
+        var containerType = mapper.Map<ContainerType>(entity);
+        return containerType == null ? Option.None<ContainerType>() : Option.Some(containerType);
     }
 
-    public async Task<Option<ContainerTypeEntity>> SearchByName(string name, CancellationToken cancellationToken)
+    public async Task<Option<ContainerType>> SearchByName(string name, CancellationToken cancellationToken)
     {
         var entity = await GetContainerTypeAsync(x => x.Name == name, cancellationToken);
-        return entity == null ? Option.None<ContainerTypeEntity>() : Option.Some(entity);
+        var containerType = mapper.Map<ContainerType>(entity);
+        return containerType == null ? Option.None<ContainerType>() : Option.Some(containerType);
     }
 
     private async Task<ContainerTypeEntity?> GetContainerTypeAsync(Expression<Func<ContainerTypeEntity, bool>> predicate, CancellationToken cancellationToken,
@@ -82,15 +82,12 @@ public class ContainerTypeRepository(ApplicationDbContext _context) : IContainer
     {
         if (asNoTracking)
         {
-            return await _context.ContainerTypes
+            return await context.ContainerTypes
                 .AsNoTracking()
                 .FirstOrDefaultAsync(predicate, cancellationToken);
         }
 
-        return await _context.ContainerTypes
+        return await context.ContainerTypes
             .FirstOrDefaultAsync(predicate, cancellationToken);
     }
-
-
-
 }

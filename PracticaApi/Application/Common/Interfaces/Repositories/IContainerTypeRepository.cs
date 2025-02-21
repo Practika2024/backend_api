@@ -1,17 +1,14 @@
-﻿using Application.Models;
-using Application.Models.ContainerModels;
-using Application.Models.ContainerTypeModels;
-using Domain.Containers;
+﻿using Domain.ContainerTypeModels;
 using Optional;
 
 namespace Application.Common.Interfaces.Repositories
 {
     public interface IContainerTypeRepository
     {
-        Task<ContainerTypeEntity> Create(CreateContainerTypeModel model, CancellationToken cancellationToken);
-        Task<ContainerTypeEntity> Update(UpdateContainerTypeModel model, CancellationToken cancellationToken);
-        Task<ContainerTypeEntity> Delete(Guid id, CancellationToken cancellationToken);
-        Task<Option<ContainerTypeEntity>> GetById(Guid id, CancellationToken cancellationToken);
-        Task<Option<ContainerTypeEntity>> SearchByName(string name, CancellationToken cancellationToken);
+        Task<ContainerType> Create(CreateContainerTypeModel model, CancellationToken cancellationToken);
+        Task<ContainerType> Update(UpdateContainerTypeModel model, CancellationToken cancellationToken);
+        Task<ContainerType> Delete(Guid id, CancellationToken cancellationToken);
+        Task<Option<ContainerType>> GetById(Guid id, CancellationToken cancellationToken);
+        Task<Option<ContainerType>> SearchByName(string name, CancellationToken cancellationToken);
     }
 }

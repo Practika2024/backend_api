@@ -1,14 +1,12 @@
 ﻿using Application.Commands.Reminders.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
-using Application.Models.ReminderModels;
-using Domain.Containers;
-using Domain.Reminders;
+using Domain.ReminderModels;
 using MediatR;
 
 namespace Application.Commands.Reminders.Commands;
 
-public record AddReminderToContainerCommand : IRequest<Result<ReminderEntity, ReminderException>>
+public record AddReminderToContainerCommand : IRequest<Result<Reminder, ReminderException>>
 {
     public required Guid ContainerId { get; init; }
     public required string Title { get; init; } = null!; 
@@ -18,9 +16,9 @@ public record AddReminderToContainerCommand : IRequest<Result<ReminderEntity, Re
 }
  public class AddReminderToContainerCommandHandler(
         IContainerRepository containerRepository,
-        IReminderRepository reminderRepository) : IRequestHandler<AddReminderToContainerCommand, Result<ReminderEntity, ReminderException>>
+        IReminderRepository reminderRepository) : IRequestHandler<AddReminderToContainerCommand, Result<Reminder, ReminderException>>
     {
-        public async Task<Result<ReminderEntity, ReminderException>> Handle(
+        public async Task<Result<Reminder, ReminderException>> Handle(
             AddReminderToContainerCommand request,
             CancellationToken cancellationToken)
         {
@@ -51,7 +49,7 @@ public record AddReminderToContainerCommand : IRequest<Result<ReminderEntity, Re
                         return new ReminderUnknownException(reminderId, exception);
                     }
                 },
-                () => Task.FromResult<Result<ReminderEntity, ReminderException>>(
+                () => Task.FromResult<Result<Reminder, ReminderException>>(
                     new ContainerForReminderNotFoundException(reminderId))
             );
         }

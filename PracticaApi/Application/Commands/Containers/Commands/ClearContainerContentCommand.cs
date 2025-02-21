@@ -1,22 +1,21 @@
 ﻿using Application.Commands.Containers.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
-using Application.Models.ContainerModels;
-using Domain.Containers;
+using Domain.ContainerModels;
 using MediatR;
 
 namespace Application.Commands.Containers.Commands;
 
-public record ClearContainerContentCommand : IRequest<Result<ContainerEntity, ContainerException>>
+public record ClearContainerContentCommand : IRequest<Result<Container, ContainerException>>
 {
     public required Guid ContainerId { get; init; } 
     public required Guid ModifiedBy { get; init; }
 }
 
 public class ClearContainerContentCommandHandler(
-    IContainerRepository containerRepository) : IRequestHandler<ClearContainerContentCommand, Result<ContainerEntity, ContainerException>>
+    IContainerRepository containerRepository) : IRequestHandler<ClearContainerContentCommand, Result<Container, ContainerException>>
 {
-    public async Task<Result<ContainerEntity, ContainerException>> Handle(
+    public async Task<Result<Container, ContainerException>> Handle(
         ClearContainerContentCommand request,
         CancellationToken cancellationToken)
     {
@@ -44,7 +43,7 @@ public class ClearContainerContentCommandHandler(
                     return new ContainerUnknownException(containerId, exception);
                 }
             },
-            () => Task.FromResult<Result<ContainerEntity, ContainerException>>(
+            () => Task.FromResult<Result<Container, ContainerException>>(
                 new ContainerNotFoundException(containerId))
         );
     }

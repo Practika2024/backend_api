@@ -1,23 +1,22 @@
 using Application.Commands.Users.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
-using Application.Models.UserModels;
-using Domain.Users;
+using Domain.UserModels;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
 
 namespace Application.Commands.Users.Commands;
 
-public record DeleteUserCommand : IRequest<Result<UserEntity, UserException>>
+public record DeleteUserCommand : IRequest<Result<User, UserException>>
 {
     public required Guid UserId { get; init; }
 }
 
 public class DeleteUserCommandHandler(
     IUserRepository userRepository, IWebHostEnvironment webHostEnvironment)
-    : IRequestHandler<DeleteUserCommand, Result<UserEntity, UserException>>
+    : IRequestHandler<DeleteUserCommand, Result<User, UserException>>
 {
-    public async Task<Result<UserEntity, UserException>> Handle(
+    public async Task<Result<User, UserException>> Handle(
         DeleteUserCommand request,
         CancellationToken cancellationToken)
     {
@@ -25,7 +24,7 @@ public class DeleteUserCommandHandler(
 
         var existingUser = await userRepository.GetById(userId, cancellationToken);
 
-        return await existingUser.Match<Task<Result<UserEntity, UserException>>>(
+        return await existingUser.Match<Task<Result<User, UserException>>>(
             async user =>
             {
                 try
@@ -39,7 +38,7 @@ public class DeleteUserCommandHandler(
                     return new UserUnknownException(userId, exception);
                 }
             },
-            () => Task.FromResult<Result<UserEntity, UserException>>(
+            () => Task.FromResult<Result<User, UserException>>(
                 new UserNotFoundException(userId))
         );
     }

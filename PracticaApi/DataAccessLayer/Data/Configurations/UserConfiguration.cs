@@ -1,4 +1,4 @@
-﻿using Domain.Users;
+﻿using DataAccessLayer.Entities.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -19,6 +19,7 @@ public class UserConfiguration : IEntityTypeConfiguration<UserEntity>
 
         builder.HasOne(x => x.Role)
             .WithMany()
+            .HasForeignKey(x => x.RoleId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

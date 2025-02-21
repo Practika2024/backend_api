@@ -1,4 +1,4 @@
-﻿using Domain.Containers;
+﻿using DataAccessLayer.Entities.Containers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -13,7 +13,7 @@ public class ContainerTypeConfiguration : IEntityTypeConfiguration<ContainerType
         
         builder.HasOne(x => x.CreatedByEntity)
             .WithMany()
-            .HasForeignKey("CreatedBy")
+            .HasForeignKey(x => x.CreatedBy)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

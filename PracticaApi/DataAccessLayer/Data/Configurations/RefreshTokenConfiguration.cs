@@ -1,5 +1,5 @@
 using DataAccessLayer.Converters;
-using Domain.RefreshTokens;
+using DataAccessLayer.Entities.RefreshTokens;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

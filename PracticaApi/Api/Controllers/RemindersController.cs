@@ -1,7 +1,7 @@
 ﻿using Api.Dtos.Reminders;
 using Application.Commands.Reminders.Commands;
 using Application.Common.Interfaces.Queries;
-using Domain.Reminders;
+using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -12,14 +12,14 @@ namespace Api.Controllers
     [Route("reminders")]
     [ApiController]
     // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class RemindersController(ISender sender, IReminderQueries reminderQueries) : ControllerBase
+    public class RemindersController(ISender sender, IReminderQueries reminderQueries, IMapper mapper) : ControllerBase
     {
         
         [HttpGet("get-all")]
         public async Task<ActionResult<IReadOnlyList<ReminderDto>>> GetAll(CancellationToken cancellationToken)
         {
             var entities = await reminderQueries.GetAll(cancellationToken);
-            return Ok(entities.Select(ReminderDto.FromDomainModel).ToList());
+            return Ok(entities.Select(mapper.Map<ReminderDto>).ToList());
         }
         
         [HttpGet("get-by-id/{reminderId:guid}")]
@@ -28,7 +28,7 @@ namespace Api.Controllers
         {
             var entity = await reminderQueries.GetById(reminderId, cancellationToken);
             return entity.Match<ActionResult<ReminderDto>>(
-                p => Ok(ReminderDto.FromDomainModel(p)),
+                p => Ok(mapper.Map<ReminderDto>(p)),
                 () => NotFound());
         }
         

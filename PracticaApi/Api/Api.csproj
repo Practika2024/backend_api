@@ -32,7 +32,6 @@
 
     <ItemGroup>
       <Folder Include="data\Images\productImages\" />
-      <Folder Include="Dtos\Models\" />
     </ItemGroup>
 
 </Project>

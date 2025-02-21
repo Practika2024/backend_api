@@ -1,6 +1,4 @@
-﻿using Domain.Containers;
-
-namespace Application.Commands.Containers.Exceptions;
+﻿namespace Application.Commands.Containers.Exceptions;
 
 public abstract class ContainerException(Guid id, string message, Exception innerException = null) : Exception(message, innerException)
 {

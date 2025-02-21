@@ -1,10 +1,9 @@
 ﻿using Application.Commands.Authentications.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
-using Application.Models.UserModels;
 using Application.Services.HashPasswordService;
 using Application.Services.TokenService;
-using Domain.Users;
+using Domain.UserModels;
 using MediatR;
 
 namespace Application.Commands.Authentications.Commands;
@@ -29,7 +28,7 @@ public class SignInCommandHandler(IUserRepository userRepository, IJwtTokenServi
             () => Task.FromResult<Result<JwtModel, AuthenticationException>>(new EmailOrPasswordAreIncorrectException()));
     }
     private async Task<Result<JwtModel, AuthenticationException>> SignIn(
-        UserEntity user,
+        User user,
          string password,
          CancellationToken cancellationToken)
      {
