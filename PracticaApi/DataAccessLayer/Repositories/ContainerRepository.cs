@@ -134,6 +134,28 @@ public class ContainerRepository(ApplicationDbContext _context) : IContainerRepo
         return containerEntity;
     }
 
+    public async Task<int> GetLastSequenceForPrefixAsync(string codePrefix, CancellationToken cancellationToken)
+    {
+        var containers = await _context.Containers
+            .Where(c => c.UniqueCode.StartsWith(codePrefix))
+            .ToListAsync(cancellationToken);
+
+        if (!containers.Any())
+        {
+            return 0;
+        }
+        
+        var maxSequence = containers
+            .Select(c =>
+            {
+                var numericPart = c.UniqueCode.Substring(codePrefix.Length);
+                return int.TryParse(numericPart, out int number) ? number : 0;
+            })
+            .Max();
+
+        return maxSequence;
+    }
+
     private async Task<ContainerEntity?> GetContainerAsync(Expression<Func<ContainerEntity, bool>> predicate, CancellationToken cancellationToken,
         bool asNoTracking = false)
     {

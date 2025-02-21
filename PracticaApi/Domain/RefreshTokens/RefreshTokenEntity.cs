@@ -1,31 +1,15 @@
 ﻿using Domain.Users;
 
-namespace Domain.RefreshTokens
+namespace Domain.RefreshTokens;
+
+internal class RefreshTokenEntity
 {
-    public class RefreshTokenEntity
-    {
-        public Guid Id { get; }
-        public string Token { get; private set; }
-        public string JwtId { get; private set; }
-        public bool IsUsed { get; set; } = false;
-        public DateTime CreateDate { get; private set; }
-        public DateTime ExpiredDate { get; private set; }
-        public Guid UserId { get; private set; }
-        public UserEntity? User { get; private set; }
-
-        private RefreshTokenEntity(Guid id, string token, string jwtId, DateTime createDate, DateTime expiredDate,
-            Guid userId)
-        {
-            Id = id;
-            Token = token;
-            JwtId = jwtId;
-            CreateDate = createDate;
-            ExpiredDate = expiredDate;
-            UserId = userId;
-        }
-
-        public static RefreshTokenEntity New(Guid id, string token, string jwtId, DateTime createDate, DateTime expiredDate,
-            Guid userId)
-            => new(id, token, jwtId, createDate, expiredDate, userId);
-    }
+    public Guid Id { get; }
+    public string Token { get; set; }
+    public string JwtId { get; set; }
+    public bool IsUsed { get; set; } = false;
+    public DateTime CreateDate { get; set; }
+    public DateTime ExpiredDate { get; set; }
+    public Guid UserId { get; set; }
+    public UserEntity? User { get; set; }
 }

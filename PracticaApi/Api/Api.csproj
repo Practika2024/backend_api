@@ -20,6 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="AutoMapper" Version="14.0.0" />
       <PackageReference Include="Carter" Version="8.0.0" />
       <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
       <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.12" />
@@ -31,6 +32,7 @@
 
     <ItemGroup>
       <Folder Include="data\Images\productImages\" />
+      <Folder Include="Dtos\Models\" />
     </ItemGroup>
 
 </Project>

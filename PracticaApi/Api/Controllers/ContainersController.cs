@@ -2,6 +2,8 @@
 using Application.Commands.Containers.Commands;
 using Application.Common.Interfaces.Queries;
 using Application.Settings;
+using AutoMapper;
+using Domain.Containers;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -12,7 +14,7 @@ namespace Api.Controllers;
 [Route("containers")]
 [ApiController]
 //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-public class ContainersController(ISender sender, IContainerQueries containerQueries) : ControllerBase
+public class ContainersController(ISender sender, IContainerQueries containerQueries, IMapper mapper) : ControllerBase
 {
     //[Authorize(Roles = AuthSettings.AdminRole)]
     [HttpGet("get-all")]
@@ -51,7 +53,7 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
         var result = await sender.Send(command, cancellationToken);
 
         return result.Match<ActionResult<ContainerDto>>(
-            dto => CreatedAtAction(nameof(GetById), new { containerId = dto.Id }, dto),
+            dto => mapper.Map<ContainerDto>(dto),
             e => Problem(e.Message));
     }
 

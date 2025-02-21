@@ -1,11 +1,10 @@
-using Api.Controllers;
 using Api.Modules;
 using Application;
 using Application.Middlewares;
 using Carter;
 using DataAccessLayer;
-// using Application.Services.ContainerServices.AddContainerService;
 using Microsoft.Extensions.FileProviders;
+// using Application.Services.ContainerServices.AddContainerService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +17,8 @@ builder.Services.AddInfrastructure(builder);
 builder.Services.AddApplication(builder);
 builder.Services.SetupServices();
 builder.Services.AddCarter();
+
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
 

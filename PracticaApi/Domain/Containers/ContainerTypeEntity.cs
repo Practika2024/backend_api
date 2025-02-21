@@ -1,27 +1,9 @@
-﻿using Domain.Interfaces;
-using System;
-using Domain.Abstractions;
+﻿using Domain.Abstractions;
 
-namespace Domain.Containers
+namespace Domain.Containers;
+
+internal class ContainerTypeEntity : AuditableEntity
 {
-    public class ContainerTypeEntity : AuditableEntity
-    {
-        public Guid Id { get; private set; }
-        public string Name { get; private set; }
-
-        private ContainerTypeEntity(Guid id, string name, Guid createdBy)
-            : base(createdBy)
-        {
-            Id = id;
-            Name = name;
-        }
-
-        public static ContainerTypeEntity New(string name, Guid createdBy)
-            => new ContainerTypeEntity(Guid.NewGuid(), name, createdBy);
-
-        public void UpdateName(string newName)
-        {
-            Name = newName;
-        }
-    }
+    public Guid Id { get; set; }
+    public string Name { get; set; }
 }

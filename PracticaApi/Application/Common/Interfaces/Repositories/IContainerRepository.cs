@@ -15,5 +15,6 @@ namespace Application.Common.Interfaces.Repositories
         Task<Option<ContainerEntity>> SearchByName(string name, CancellationToken cancellationToken);
         Task<ContainerEntity> SetContainerContent(SetContainerContentModel model, CancellationToken cancellationToken);
         Task<ContainerEntity> ClearContainerContent(ClearContainerContentModel model, CancellationToken cancellationToken);
+        Task<int> GetLastSequenceForPrefixAsync(string codePrefix, CancellationToken cancellationToken);
     }
 }
