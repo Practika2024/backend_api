@@ -49,7 +49,7 @@ public class AddContainerTypeCommandHandler(IContainerTypeRepository containerTy
             var createdContainer = await containerTypeRepository.Create(createContainerModel, cancellationToken);
             return createdContainer;
         }
-        catch (ContainerException exception)
+        catch (ContainerTypeException exception)
         {
             return new ContainerUnknownException(Guid.Empty, exception);
         }

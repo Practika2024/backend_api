@@ -34,6 +34,8 @@ public class ContainerTypeRepository(ApplicationDbContext context, IMapper mappe
         }
 
         containerTypeEntity = mapper.Map(model, containerTypeEntity);
+        
+        await context.ContainerTypes.UpdateAuditableAsync(containerTypeEntity, cancellationToken);
 
         await context.SaveChangesAsync(cancellationToken);
 
