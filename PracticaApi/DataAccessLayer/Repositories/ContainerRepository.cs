@@ -4,6 +4,7 @@ using Application.Common.Interfaces.Repositories;
 using AutoMapper;
 using DataAccessLayer.Data;
 using DataAccessLayer.Entities.Containers;
+using DataAccessLayer.Extensions;
 using Domain.ContainerModels;
 using Microsoft.EntityFrameworkCore;
 using Optional;
@@ -17,7 +18,7 @@ public class ContainerRepository(ApplicationDbContext context, IMapper mapper)
     {
         var containerEntity = mapper.Map<ContainerEntity>(model);
 
-        await context.Containers.AddAsync(containerEntity, cancellationToken);
+        await context.Containers.AddAuditableAsync(containerEntity, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
         return mapper.Map<Container>(containerEntity);

@@ -4,6 +4,7 @@ using Application.Common.Interfaces.Repositories;
 using AutoMapper;
 using DataAccessLayer.Data;
 using DataAccessLayer.Entities.ContainerHistories;
+using DataAccessLayer.Extensions;
 using Domain.ContainerHistoryModels;
 using Microsoft.EntityFrameworkCore;
 using Optional;
@@ -17,7 +18,7 @@ public class ContainerHistoryRepository(ApplicationDbContext context, IMapper ma
     {
         var historyEntity = mapper.Map<ContainerHistoryEntity>(model);
 
-        await context.ContainerHistories.AddAsync(historyEntity, cancellationToken);
+        await context.ContainerHistories.AddAuditableAsync(historyEntity, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
         return mapper.Map<ContainerHistory>(historyEntity);

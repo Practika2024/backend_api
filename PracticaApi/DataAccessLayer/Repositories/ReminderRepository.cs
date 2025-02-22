@@ -4,6 +4,7 @@ using Application.Common.Interfaces.Repositories;
 using AutoMapper;
 using DataAccessLayer.Data;
 using DataAccessLayer.Entities.Reminders;
+using DataAccessLayer.Extensions;
 using Domain.ReminderModels;
 using Microsoft.EntityFrameworkCore;
 using Optional;
@@ -16,7 +17,7 @@ public class ReminderRepository(ApplicationDbContext context, IMapper mapper) : 
     {
         var reminderEntity = mapper.Map<ReminderEntity>(model);
 
-        await context.Reminders.AddAsync(reminderEntity, cancellationToken);
+        await context.Reminders.AddAuditableAsync(reminderEntity, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
         return mapper.Map<Reminder>(reminderEntity);

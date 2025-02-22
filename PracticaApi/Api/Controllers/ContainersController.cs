@@ -13,8 +13,8 @@ namespace Api.Controllers;
 
 [Route("containers")]
 [ApiController]
-//[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-public class ContainersController(ISender sender, IContainerQueries containerQueries, IMapper mapper) : ControllerBase
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+public class ContainersController(ISender sender, IContainerQueries containerQueries, IMapper mapper) : BaseController
 {
     //[Authorize(Roles = AuthSettings.AdminRole)]
     [HttpGet("get-all")]
@@ -46,7 +46,7 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
             Name = model.Name,
             Volume = model.Volume,
             Notes = model.Notes,
-            UserId = model.CreatedBy,
+            UserId = GetUserId()!.Value,
             TypeId = model.TypeId
         };
 

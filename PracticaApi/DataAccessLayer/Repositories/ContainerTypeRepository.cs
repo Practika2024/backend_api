@@ -4,6 +4,8 @@ using Application.Common.Interfaces.Repositories;
 using AutoMapper;
 using DataAccessLayer.Data;
 using DataAccessLayer.Entities.Containers;
+using DataAccessLayer.Entities.Users;
+using DataAccessLayer.Extensions;
 using Domain.ContainerTypeModels;
 using Microsoft.EntityFrameworkCore;
 using Optional;
@@ -16,11 +18,8 @@ public class ContainerTypeRepository(ApplicationDbContext context, IMapper mappe
     public async Task<ContainerType> Create(CreateContainerTypeModel model, CancellationToken cancellationToken)
     {
         var containerTypeEntity = mapper.Map<ContainerTypeEntity>(model);
-        
-        // Встановлюємо CreatedBy з моделі
-        containerTypeEntity.CreatedBy = model.CreatedBy;
-        
-        await context.ContainerTypes.AddAsync(containerTypeEntity, cancellationToken);
+
+        await context.ContainerTypes.AddAuditableAsync(containerTypeEntity, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
         return mapper.Map<ContainerType>(containerTypeEntity);

@@ -22,7 +22,7 @@ public class ContainersTypeController(ISender sender, IMapper mapper) : BaseCont
         var command = new AddContainerTypeCommand()
         {
             Name = model.Name,
-            CreatedBy = base.GetUserId()!.Value
+            CreatedBy = GetUserId()!.Value
         };
 
         var result = await sender.Send(command, cancellationToken);

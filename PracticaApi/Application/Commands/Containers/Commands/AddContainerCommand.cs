@@ -17,22 +17,12 @@ public record AddContainerCommand : IRequest<Result<Container, ContainerExceptio
     public required Guid TypeId { get; init; }
 }
 
-public class AddContainerCommandHandler : IRequestHandler<AddContainerCommand, Result<Container, ContainerException>>
+public class AddContainerCommandHandler(
+    IContainerRepository containerRepository,
+    IContainerTypeQueries containerTypeQueries,
+    IUserQueries userQueries)
+    : IRequestHandler<AddContainerCommand, Result<Container, ContainerException>>
 {
-    private readonly IContainerRepository containerRepository;
-    private readonly IContainerTypeQueries containerTypeQueries;
-    private readonly IUserQueries userQueries;
-
-    public AddContainerCommandHandler(
-        IContainerRepository containerRepository,
-        IContainerTypeQueries containerTypeQueries,
-        IUserQueries userQueries)
-    {
-        this.containerRepository = containerRepository;
-        this.containerTypeQueries = containerTypeQueries;
-        this.userQueries = userQueries;
-    }
-
     public async Task<Result<Container, ContainerException>> Handle(
         AddContainerCommand request,
         CancellationToken cancellationToken)

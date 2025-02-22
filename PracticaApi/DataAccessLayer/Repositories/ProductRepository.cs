@@ -4,6 +4,7 @@ using Application.Common.Interfaces.Repositories;
 using AutoMapper;
 using DataAccessLayer.Data;
 using DataAccessLayer.Entities.Products;
+using DataAccessLayer.Extensions;
 using Domain.ProductModels;
 using Microsoft.EntityFrameworkCore;
 using Optional;
@@ -17,7 +18,7 @@ public class ProductRepository(ApplicationDbContext context, IMapper mapper)
     {
         var productEntity = mapper.Map<ProductEntity>(model);
 
-        await context.Products.AddAsync(productEntity, cancellationToken);
+        await context.Products.AddAuditableAsync(productEntity, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
         return mapper.Map<Product>(productEntity);
