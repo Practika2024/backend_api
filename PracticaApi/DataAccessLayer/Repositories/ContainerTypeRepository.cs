@@ -16,13 +16,15 @@ public class ContainerTypeRepository(ApplicationDbContext context, IMapper mappe
     public async Task<ContainerType> Create(CreateContainerTypeModel model, CancellationToken cancellationToken)
     {
         var containerTypeEntity = mapper.Map<ContainerTypeEntity>(model);
-
+        
+        // Встановлюємо CreatedBy з моделі
+        containerTypeEntity.CreatedBy = model.CreatedBy;
+        
         await context.ContainerTypes.AddAsync(containerTypeEntity, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
         return mapper.Map<ContainerType>(containerTypeEntity);
     }
-
     public async Task<ContainerType> Update(UpdateContainerTypeModel model, CancellationToken cancellationToken)
     {
         var containerTypeEntity = await GetContainerTypeAsync(x => x.Id == model.Id, cancellationToken);

@@ -23,8 +23,8 @@ public static class ConfigureApplication
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
         
         services.AddServices();
-        services.AddSwaggerAuth();
         services.AddJwtTokenAuth(builder);
+        services.AddSwaggerAuth();
     }
     
     private static void AddServices(this IServiceCollection services)

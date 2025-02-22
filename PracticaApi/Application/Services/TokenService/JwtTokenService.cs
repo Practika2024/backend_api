@@ -26,7 +26,7 @@ namespace Application.Services.TokenService
                 new Claim("id", user.Id.ToString()),
                 new Claim("email", user.Email!),
                 new Claim("name", user.Name ?? "N/A"),
-                new Claim("role", AuthSettings.OperatorRole)
+                new Claim("role", user.RoleId)
             };
             
             var token = new JwtSecurityToken(
