@@ -1,8 +1,4 @@
-﻿using Domain.ContainerHistories;
-using Domain.Containers;
-using Domain.Products;
-
-namespace Application.Exceptions;
+﻿namespace Application.Exceptions;
 public abstract class ContainerHistoryException(Guid id, string message, Exception innerException = null) : Exception(message, innerException)
 {
     public Guid HistoryId { get; } = id;

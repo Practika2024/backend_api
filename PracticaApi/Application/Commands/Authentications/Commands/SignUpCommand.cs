@@ -1,12 +1,10 @@
 ﻿using Application.Commands.Authentications.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
-using Application.Exceptions;
-using Application.Models.UserModels;
 using Application.Services.HashPasswordService;
 using Application.Services.TokenService;
 using Application.Settings;
-using Domain.Users;
+using Domain.UserModels;
 using MediatR;
 
 namespace Application.Commands.Authentications.Commands;
@@ -54,14 +52,15 @@ public class CreateUserCommandHandler(
                 Name = request.Name,
                 Surname = request.Surname,
                 Patronymic = request.Patronymic,
-                PasswordHash = hashPasswordService.HashPassword(request.Password)
-            };
-            UserEntity userEntity = await userRepository.Create(userModel, cancellationToken);
-            var addRoleModel = new AddRoleToUserModel
-            {
-                UserId = userEntity.Id,
+                PasswordHash = hashPasswordService.HashPassword(request.Password),
                 RoleId = AuthSettings.OperatorRole
             };
+            User userEntity = await userRepository.Create(userModel, cancellationToken);
+            // var addRoleModel = new AddRoleToUserModel
+            // {
+            //     UserId = userEntity.Id,
+            //     RoleId = AuthSettings.OperatorRole
+            // };
             //var updatedUser = await userRepository.AddRole(addRoleModel, cancellationToken);
             var token = await jwtTokenService.GenerateTokensAsync(userEntity, cancellationToken);
 

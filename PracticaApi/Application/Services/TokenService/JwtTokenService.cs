@@ -3,11 +3,9 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Application.Common.Interfaces.Repositories;
-using Application.Models.RefreshTokenModels;
-using Application.Models.UserModels;
 using Application.Settings;
-using Domain.RefreshTokens;
-using Domain.Users;
+using Domain.RefreshTokenModels;
+using Domain.UserModels;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -15,7 +13,7 @@ namespace Application.Services.TokenService
 {
     public class JwtTokenService(IConfiguration configuration, IRefreshTokenRepository refreshTokenRepository) : IJwtTokenService
     {
-        private JwtSecurityToken GenerateAccessToken(UserEntity user)
+        private JwtSecurityToken GenerateAccessToken(User user)
         {
             var issuer = configuration["AuthSettings:issuer"];
             var audience = configuration["AuthSettings:audience"];
@@ -28,7 +26,7 @@ namespace Application.Services.TokenService
                 new Claim("id", user.Id.ToString()),
                 new Claim("email", user.Email!),
                 new Claim("name", user.Name ?? "N/A"),
-                new Claim("role", AuthSettings.OperatorRole)
+                new Claim("role", user.RoleId)
             };
             
             var token = new JwtSecurityToken(
@@ -53,7 +51,7 @@ namespace Application.Services.TokenService
             }
         }
 
-        private async Task<RefreshTokenEntity?> SaveRefreshTokenAsync(UserEntity userEntity, string refreshToken, string jwtId, CancellationToken cancellationToken)
+        private async Task<RefreshToken?> SaveRefreshTokenAsync(User userEntity, string refreshToken, string jwtId, CancellationToken cancellationToken)
         {
             var model = new CreateRefreshTokenModel
             {
@@ -103,7 +101,7 @@ namespace Application.Services.TokenService
             return principals;
         }
         
-        public async Task<JwtModel> GenerateTokensAsync(UserEntity user, CancellationToken cancellationToken)
+        public async Task<JwtModel> GenerateTokensAsync(User user, CancellationToken cancellationToken)
         {
             var accessToken = GenerateAccessToken(user);
             var refreshToken = GenerateRefreshToken();

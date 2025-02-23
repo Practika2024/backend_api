@@ -1,8 +1,9 @@
-﻿using Domain.Reminders;
+﻿using DataAccessLayer.Entities.Reminders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DataAccessLayer.Data.Configurations;
+
 public class ReminderConfiguration : IEntityTypeConfiguration<ReminderEntity>
 {
     public void Configure(EntityTypeBuilder<ReminderEntity> builder)
@@ -14,7 +15,12 @@ public class ReminderConfiguration : IEntityTypeConfiguration<ReminderEntity>
 
         builder.HasOne(r => r.Container)
             .WithMany()
-            .HasForeignKey("ContainerId")
+            .HasForeignKey(x => x.ContainerId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(x => x.CreatedByEntity)
+            .WithMany()
+            .HasForeignKey(x => x.CreatedBy)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -1,9 +1,9 @@
 using Application.Commands.Authentications.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
-using Application.Models.UserModels;
 using Application.Services.TokenService;
-using Domain.RefreshTokens;
+using Domain.RefreshTokenModels;
+using Domain.UserModels;
 using MediatR;
 using Microsoft.IdentityModel.JsonWebTokens;
 
@@ -34,7 +34,7 @@ public class RefreshTokenCommandHandler(
                 new InvalidTokenException()));
     }
 
-    private async Task<Result<JwtModel, AuthenticationException>> RefreshToken(RefreshTokenEntity storedToken,
+    private async Task<Result<JwtModel, AuthenticationException>> RefreshToken(RefreshToken storedToken,
         string accessToken, CancellationToken cancellationToken)
     {
         if (storedToken.IsUsed)

@@ -1,4 +1,4 @@
-﻿using Domain.Reminders;
+﻿using Domain.ReminderModels;
 
 namespace Api.Dtos.Reminders;
 public class ReminderDto
@@ -11,20 +11,4 @@ public class ReminderDto
     public Guid CreatedBy { get; private set; }
     
     public DateTime CreatedAt { get; private set; }
-
-
-
-    public static ReminderDto FromDomainModel(ReminderEntity reminderEntity)
-    {
-        return new ReminderDto
-        {
-            Id = reminderEntity.Id,
-            ContainerId = reminderEntity.ContainerId,
-            Title = reminderEntity.Title,
-            DueDate = reminderEntity.DueDate,
-            Type = reminderEntity.Type,
-            CreatedAt = reminderEntity.CreatedAt,
-            CreatedBy = reminderEntity.CreatedBy
-        };
-    }
 }

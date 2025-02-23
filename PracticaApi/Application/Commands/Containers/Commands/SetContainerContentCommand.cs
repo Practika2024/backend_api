@@ -1,14 +1,12 @@
 ﻿using Application.Commands.Containers.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
-using Application.Models.ContainerModels;
-using Domain.Containers;
-using Domain.Products;
+using Domain.ContainerModels;
 using MediatR;
 
 namespace Application.Commands.Containers.Commands;
 
-public record SetContainerContentCommand : IRequest<Result<ContainerEntity, ContainerException>>
+public record SetContainerContentCommand : IRequest<Result<Container, ContainerException>>
 {
     public required Guid ContainerId { get;  init; } 
     public required Guid? ProductId { get; init; }
@@ -18,9 +16,9 @@ public record SetContainerContentCommand : IRequest<Result<ContainerEntity, Cont
 
 public class SetContainerContentCommandHandler(
     IContainerRepository containerRepository)
-    : IRequestHandler<SetContainerContentCommand, Result<ContainerEntity, ContainerException>>
+    : IRequestHandler<SetContainerContentCommand, Result<Container, ContainerException>>
 {
-    public async Task<Result<ContainerEntity, ContainerException>> Handle(
+    public async Task<Result<Container, ContainerException>> Handle(
         SetContainerContentCommand request,
         CancellationToken cancellationToken)
     {
@@ -54,7 +52,7 @@ public class SetContainerContentCommandHandler(
                     return new ContainerUnknownException(containerId, exception);
                 }
             },
-            () => Task.FromResult<Result<ContainerEntity, ContainerException>>(
+            () => Task.FromResult<Result<Container, ContainerException>>(
                 new ContainerNotFoundException(containerId))
         );
     }

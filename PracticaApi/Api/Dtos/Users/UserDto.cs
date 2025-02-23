@@ -1,21 +1,11 @@
-﻿using Domain.Users;
+﻿namespace Api.Dtos.Users;
 
-namespace Api.Dtos.Users;
-
-public record UserDto(
-    Guid? Id, 
-    string Email,
-    string? Name, 
-    string? Surname, 
-    string? Patronymic,
-    string? Role) 
+public record UserDto
 {
-    public static UserDto FromDomainModel(UserEntity userEntity)
-        => new(
-            userEntity.Id,
-            userEntity.Email, 
-            userEntity.Name,
-            userEntity.Surname,
-            userEntity.Patronymic,
-            userEntity.RoleId); 
+    public Guid? Id { get; set; }
+    public string Email { get; set; }
+    public string? Name { get; set; }
+    public string? Surname { get; set; }
+    public string? Patronymic { get; set; }
+    public string? Role { get; set; }
 }

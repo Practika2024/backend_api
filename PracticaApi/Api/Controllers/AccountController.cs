@@ -1,7 +1,7 @@
 ﻿using Api.Dtos.Authentications;
 using Api.Modules.Errors;
 using Application.Commands.Authentications.Commands;
-using Application.Models.UserModels;
+using Domain.UserModels;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

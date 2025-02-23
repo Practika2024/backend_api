@@ -1,9 +1,9 @@
 ﻿using Application.Services.HashPasswordService;
 using Application.Settings;
-using Domain.Containers;
-using Domain.Products;
-using Domain.Roles;
-using Domain.Users;
+using DataAccessLayer.Entities.Containers;
+using DataAccessLayer.Entities.Products;
+using DataAccessLayer.Entities.Roles;
+using DataAccessLayer.Entities.Users;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessLayer.Data.Initializer
@@ -24,7 +24,7 @@ namespace DataAccessLayer.Data.Initializer
 
             foreach (var role in AuthSettings.ListOfRoles)
             {
-                roles.Add(RoleEntity.New(role));
+                roles.Add(new RoleEntity { Name = role, Id = role });
             }
 
             modelBuilder.Entity<RoleEntity>().HasData(roles);
@@ -32,31 +32,33 @@ namespace DataAccessLayer.Data.Initializer
 
         private static List<UserEntity> SeedUsers(ModelBuilder modelBuilder, IHashPasswordService hashPasswordService)
         {
-            var adminRole = RoleEntity.New(AuthSettings.AdminRole);
-            var operatorRole = RoleEntity.New(AuthSettings.OperatorRole);
+            var adminRole = new RoleEntity { Name = AuthSettings.AdminRole, Id = AuthSettings.AdminRole };
+            var operatorRole = new RoleEntity { Name = AuthSettings.OperatorRole, Id = AuthSettings.OperatorRole };
 
             var adminId = Guid.NewGuid();
             var operatorId = Guid.NewGuid();
 
-            var admin = UserEntity.New(
-                adminId,
-                adminRole.Id,
-                "admin@example.com",
-                "admin",
-                "admin",
-                "admin",
-                hashPasswordService.HashPassword("123456")
-            );
+            var admin = new UserEntity
+            {
+                Id = adminId,
+                RoleId = adminRole.Id,
+                Email = "admin@example.com",
+                Name = "admin",
+                Surname = "admin",
+                Patronymic = "admin",
+                PasswordHash = hashPasswordService.HashPassword("123456")
+            };
 
-            var operatorUser = UserEntity.New(
-                operatorId,
-                operatorRole.Id,
-                "operator@example.com",
-                "operator",
-                "operator",
-                "operator",
-                hashPasswordService.HashPassword("123456")
-            );
+            var operatorUser = new UserEntity
+            {
+                Id = operatorId,
+                RoleId = operatorRole.Id,
+                Email = "operator@example.com",
+                Name = "operator",
+                Surname = "operator",
+                Patronymic = "operator",
+                PasswordHash = hashPasswordService.HashPassword("123456")
+            };
 
             modelBuilder.Entity<UserEntity>().HasData(admin, operatorUser);
 
@@ -67,21 +69,21 @@ namespace DataAccessLayer.Data.Initializer
         {
             var userId = users[0].Id;
             modelBuilder.Entity<ContainerTypeEntity>().HasData(
-                ContainerTypeEntity.New("Plastic", userId),
-                ContainerTypeEntity.New("Glass", userId),
-                ContainerTypeEntity.New("Metal", userId),
-                ContainerTypeEntity.New("Other", userId)
+                new ContainerTypeEntity { Id = Guid.NewGuid(), Name = "Plastic", CreatedBy = userId },
+                new ContainerTypeEntity { Id = Guid.NewGuid(), Name = "Glass", CreatedBy = userId },
+                new ContainerTypeEntity { Id = Guid.NewGuid(), Name = "Metal", CreatedBy = userId },
+                new ContainerTypeEntity { Id = Guid.NewGuid(), Name = "Other", CreatedBy = userId }
             );
         }
-        
+
         private static void SeedProductTypes(ModelBuilder modelBuilder, List<UserEntity> users)
         {
             var userId = users[0].Id;
             modelBuilder.Entity<ProductTypeEntity>().HasData(
-                ProductTypeEntity.New("Liquid", userId),
-                ProductTypeEntity.New("Solid", userId),
-                ProductTypeEntity.New("Powder", userId),
-                ProductTypeEntity.New("Other", userId)
+                new ProductTypeEntity { Id = Guid.NewGuid(), Name = "Liquid", CreatedBy = userId },
+                new ProductTypeEntity { Id = Guid.NewGuid(), Name = "Solid", CreatedBy = userId },
+                new ProductTypeEntity { Id = Guid.NewGuid(), Name = "Powder", CreatedBy = userId },
+                new ProductTypeEntity { Id = Guid.NewGuid(), Name = "Other", CreatedBy = userId }
             );
         }
     }

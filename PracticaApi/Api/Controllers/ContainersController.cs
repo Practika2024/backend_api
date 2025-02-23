@@ -1,7 +1,9 @@
-﻿using Api.Dtos.Containers;
+﻿using System.Security.Claims;
+using Api.Dtos.Containers;
 using Application.Commands.Containers.Commands;
 using Application.Common.Interfaces.Queries;
 using Application.Settings;
+using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -11,15 +13,15 @@ namespace Api.Controllers;
 
 [Route("containers")]
 [ApiController]
-//[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-public class ContainersController(ISender sender, IContainerQueries containerQueries) : ControllerBase
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+public class ContainersController(ISender sender, IContainerQueries containerQueries, IMapper mapper) : BaseController
 {
     //[Authorize(Roles = AuthSettings.AdminRole)]
     [HttpGet("get-all")]
     public async Task<ActionResult<IReadOnlyList<ContainerDto>>> GetAll(CancellationToken cancellationToken)
     {
         var entities = await containerQueries.GetAll(cancellationToken);
-        return Ok(entities.Select(ContainerDto.FromDomainModel).ToList());
+        return Ok(entities.Select(mapper.Map<ContainerDto>).ToList());
     }
 
     //[Authorize(Roles = $"{AuthSettings.AdminRole},{AuthSettings.OperatorRole}")]
@@ -29,10 +31,10 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
     {
         var entity = await containerQueries.GetById(containerId, cancellationToken);
         return entity.Match<ActionResult<ContainerDto>>(
-            p => Ok(ContainerDto.FromDomainModel(p)),
+            p => Ok(mapper.Map<ContainerDto>(p)),
             () => NotFound());
     }
-
+    
     //[Authorize(Roles = AuthSettings.OperatorRole)]
     [HttpPost("add")]
     public async Task<ActionResult<ContainerDto>> AddContainer(
@@ -44,14 +46,14 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
             Name = model.Name,
             Volume = model.Volume,
             Notes = model.Notes,
-            UserId = model.CreatedBy,
+            UserId = GetUserId()!.Value,
             TypeId = model.TypeId
         };
 
         var result = await sender.Send(command, cancellationToken);
 
         return result.Match<ActionResult<ContainerDto>>(
-            dto => CreatedAtAction(nameof(GetById), new { containerId = dto.Id }, dto),
+            dto => mapper.Map<ContainerDto>(dto),
             e => Problem(e.Message));
     }
 

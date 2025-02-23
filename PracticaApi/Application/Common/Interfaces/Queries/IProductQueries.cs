@@ -1,12 +1,12 @@
-﻿using Domain.Products;
+﻿using Domain.ProductModels;
 using Optional;
 
 namespace Application.Common.Interfaces.Queries
 {
     public interface IProductQueries
     {
-        Task<IReadOnlyList<ProductEntity>> GetAll(CancellationToken cancellationToken);
-        Task<Option<ProductEntity>> GetById(Guid id, CancellationToken cancellationToken);
-        Task<Option<ProductEntity>> SearchByName(string name, CancellationToken cancellationToken);
+        Task<IReadOnlyList<Product>> GetAll(CancellationToken cancellationToken);
+        Task<Option<Product>> GetById(Guid id, CancellationToken cancellationToken);
+        Task<Option<Product>> SearchByName(string name, CancellationToken cancellationToken);
     }
 }
