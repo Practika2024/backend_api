@@ -1,17 +1,9 @@
-﻿using Domain.Users;
+﻿namespace Api.Dtos.Users;
 
-namespace Api.Dtos.Users;
-
-public record UpdateUserDto(
-    string Email,
-    string? Name, 
-    string? Surname, 
-    string? Patronymic) 
+public record UpdateUserDto
 {
-    public static UpdateUserDto FromDomainModel(UserEntity userEntity)
-        => new(
-            userEntity.Email, 
-            userEntity.Name,
-            userEntity.Surname,
-            userEntity.Patronymic); 
+    public string Email { get; set; }
+    public string? Name { get; set; }
+    public string? Surname { get; set; }
+    public string? Patronymic { get; set; }
 }

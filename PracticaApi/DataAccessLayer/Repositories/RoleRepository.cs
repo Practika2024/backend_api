@@ -1,38 +1,45 @@
 using System.Linq.Expressions;
 using Application.Common.Interfaces.Queries;
+using AutoMapper;
 using DataAccessLayer.Data;
-using Domain.Roles;
+using DataAccessLayer.Entities.Roles;
+using Domain.RoleModels;
 using Microsoft.EntityFrameworkCore;
 using Optional;
 
 namespace DataAccessLayer.Repositories;
 
-public class RoleRepository(ApplicationDbContext _context) : IRoleQueries
+public class RoleRepository(ApplicationDbContext context, IMapper mapper) : IRoleQueries
 {
-    public async Task<IReadOnlyList<RoleEntity>> GetAll(CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<Role>> GetAll(CancellationToken cancellationToken)
     {
-        return await _context.Roles
+        var roleEntities = await context.Roles
             .AsNoTracking()
             .ToListAsync(cancellationToken);
+
+        return mapper.Map<IReadOnlyList<Role>>(roleEntities);
     }
 
-    public async Task<Option<RoleEntity>> GetByName(string name, CancellationToken cancellationToken)
+    public async Task<Option<Role>> GetByName(string name, CancellationToken cancellationToken)
     {
-        var entity = await GetRoleAsync(r => r.Name == name, cancellationToken, false);
-        
-        return entity == null ? Option.None<RoleEntity>() : Option.Some(entity);
+        var entity = await GetRoleAsync(r => r.Name == name, cancellationToken, true);
+
+        var role = mapper.Map<Role>(entity);
+
+        return role == null ? Option.None<Role>() : Option.Some(role);
     }
-    
-    public async Task<RoleEntity?> GetRoleAsync(Expression<Func<RoleEntity, bool>> predicate, CancellationToken cancellationToken, bool asNoTracking = true)
+
+    private async Task<RoleEntity?> GetRoleAsync(Expression<Func<RoleEntity, bool>> predicate,
+        CancellationToken cancellationToken, bool asNoTracking = true)
     {
         if (asNoTracking)
         {
-            return await _context.Roles
+            return await context.Roles
                 .AsNoTracking()
                 .FirstOrDefaultAsync(predicate, cancellationToken);
         }
 
-        return await _context.Roles
+        return await context.Roles
             .FirstOrDefaultAsync(predicate, cancellationToken);
     }
 }

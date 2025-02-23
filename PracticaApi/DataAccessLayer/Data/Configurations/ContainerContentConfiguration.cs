@@ -1,4 +1,4 @@
-﻿using Domain.Containers;
+﻿using DataAccessLayer.Entities.Containers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -12,7 +12,12 @@ public class ContainerContentConfiguration : IEntityTypeConfiguration<ContainerC
         builder.Property(cc => cc.IsEmpty).IsRequired();
         builder.HasOne(cc => cc.Product)
             .WithMany()
-            .HasForeignKey("ProductId")
+            .HasForeignKey(x => x.ProductId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(x => x.CreatedByEntity)
+            .WithMany()
+            .HasForeignKey(x => x.CreatedBy)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

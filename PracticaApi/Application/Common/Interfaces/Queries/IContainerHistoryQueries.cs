@@ -1,13 +1,12 @@
-﻿using Domain.ContainerHistories;
-using Domain.Containers;
+﻿using Domain.ContainerHistoryModels;
 using Optional;
 
 namespace Application.Common.Interfaces.Queries
 {
     public interface IContainerHistoryQueries
     {
-        Task<IReadOnlyList<ContainerHistoryEntity>> GetAll(CancellationToken cancellationToken);
-        Task<Option<ContainerHistoryEntity>> GetById(Guid id, CancellationToken cancellationToken);
-        Task<IReadOnlyList<ContainerHistoryEntity>> GetByContainerId(Guid containerId, CancellationToken cancellationToken);
+        Task<IReadOnlyList<ContainerHistory>> GetAll(CancellationToken cancellationToken);
+        Task<Option<ContainerHistory>> GetById(Guid id, CancellationToken cancellationToken);
+        Task<IReadOnlyList<ContainerHistory>> GetByContainerId(Guid containerId, CancellationToken cancellationToken);
     }
 }

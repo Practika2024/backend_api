@@ -1,7 +1,8 @@
 ﻿using Api.Dtos.Users;
 using Application.Commands.Users.Commands;
 using Application.Common.Interfaces.Queries;
-using Application.Models.UserModels;
+using AutoMapper;
+using Domain.UserModels;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -12,7 +13,7 @@ namespace Api.Controllers;
 [Route("users")]
 [ApiController]
 // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-public class UsersController(ISender sender, IUserQueries userQueries) : ControllerBase
+public class UsersController(ISender sender, IUserQueries userQueries, IMapper mapper) : ControllerBase
 {
     // [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpGet("get-all")]
@@ -20,7 +21,7 @@ public class UsersController(ISender sender, IUserQueries userQueries) : Control
     {
         var entities = await userQueries.GetAll(cancellationToken);
 
-        return entities.Select(UserDto.FromDomainModel).ToList();
+        return entities.Select(mapper.Map<UserDto>).ToList();
     }
     
     // [Authorize(Roles = $"{AuthSettings.AdminRole},{AuthSettings.OperatorRole}")]
@@ -30,28 +31,28 @@ public class UsersController(ISender sender, IUserQueries userQueries) : Control
         var entity = await userQueries.GetById(userId, cancellationToken);
 
         return entity.Match<ActionResult<UserDto>>(
-            p => UserDto.FromDomainModel(p),
+            p => mapper.Map<UserDto>(p),
             () => NotFound());
     }
     // [Authorize(Roles = AuthSettings.AdminRole)]
-    [HttpPut("update-roles/{userId:guid}")]
-    public async Task<ActionResult> UpdateRoles(
-        [FromRoute] Guid userId,
-        [FromBody] List<string> roles,
-        CancellationToken cancellationToken)
-    {
-        var command = new ChangeRolesForUserCommand
-        {
-            UserId = userId,
-            Roles = roles
-        };
-
-        var result = await sender.Send(command, cancellationToken);
-
-        return result.Match<ActionResult>(
-            _ => NoContent(),
-            e => Problem(e.Message));
-    }
+    // [HttpPut("update-roles/{userId:guid}")]
+    // public async Task<ActionResult> UpdateRoles(
+    //     [FromRoute] Guid userId,
+    //     [FromBody] List<string> roles,
+    //     CancellationToken cancellationToken)
+    // {
+    //     var command = new ChangeRolesForUserCommand
+    //     {
+    //         UserId = userId,
+    //         Roles = roles
+    //     };
+    //
+    //     var result = await sender.Send(command, cancellationToken);
+    //
+    //     return result.Match<ActionResult>(
+    //         _ => NoContent(),
+    //         e => Problem(e.Message));
+    // }
 
     // [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpDelete("delete/{userId:guid}")]
@@ -66,25 +67,25 @@ public class UsersController(ISender sender, IUserQueries userQueries) : Control
     }
 
     // [Authorize(Roles = AuthSettings.OperatorRole)]
-    [HttpPut("update/{userId:guid}")]
-    public async Task<ActionResult<JwtModel>> UpdateUser(
-        [FromRoute] Guid userId,
-        [FromBody] UpdateUserDto model,
-        CancellationToken cancellationToken)
-    {
-        var command = new UpdateUserCommand
-        {
-            UserId = userId,
-            Email = model.Email,
-            Name = model.Name,
-            Surname = model.Surname,
-            Patronymic = model.Patronymic
-        };
-
-        var result = await sender.Send(command, cancellationToken);
-
-        return result.Match<ActionResult<JwtModel>>(
-            jwt => Ok(jwt),
-            e => Problem(e.Message));
-    }
+    // [HttpPut("update/{userId:guid}")]
+    // public async Task<ActionResult<JwtModel>> UpdateUser(
+    //     [FromRoute] Guid userId,
+    //     [FromBody] UpdateUserDto model,
+    //     CancellationToken cancellationToken)
+    // {
+    //     var command = new UpdateUserCommand
+    //     {
+    //         UserId = userId,
+    //         Email = model.Email,
+    //         Name = model.Name,
+    //         Surname = model.Surname,
+    //         Patronymic = model.Patronymic
+    //     };
+    //
+    //     var result = await sender.Send(command, cancellationToken);
+    //
+    //     return result.Match<ActionResult<JwtModel>>(
+    //         jwt => Ok(jwt),
+    //         e => Problem(e.Message));
+    // }
 }

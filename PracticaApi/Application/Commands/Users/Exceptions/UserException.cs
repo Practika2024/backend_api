@@ -1,5 +1,3 @@
-using Domain.Products;
-
 namespace Application.Commands.Users.Exceptions;
 
 public abstract class UserException(Guid id, string message, Exception innerException = null)

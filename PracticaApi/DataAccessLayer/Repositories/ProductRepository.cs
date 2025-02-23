@@ -1,101 +1,95 @@
 ﻿using System.Linq.Expressions;
 using Application.Common.Interfaces.Queries;
 using Application.Common.Interfaces.Repositories;
-using Application.Models.ProductModels;
+using AutoMapper;
 using DataAccessLayer.Data;
-using Domain.Products;
+using DataAccessLayer.Entities.Products;
+using DataAccessLayer.Extensions;
+using Domain.ProductModels;
 using Microsoft.EntityFrameworkCore;
 using Optional;
 
-namespace DataAccessLayer.Repositories
+namespace DataAccessLayer.Repositories;
+
+public class ProductRepository(ApplicationDbContext context, IMapper mapper)
+    : IProductRepository, IProductQueries
 {
-    public class ProductRepository(ApplicationDbContext _context) : IProductRepository, IProductQueries
+    public async Task<Product> Create(CreateProductModel model, CancellationToken cancellationToken)
     {
-        public async Task<ProductEntity> Create(CreateProductModel model, CancellationToken cancellationToken)
+        var productEntity = mapper.Map<ProductEntity>(model);
+
+        await context.Products.AddAuditableAsync(productEntity, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+
+        return mapper.Map<Product>(productEntity);
+    }
+
+    public async Task<Product> Update(UpdateProductModel model, CancellationToken cancellationToken)
+    {
+        var productEntity = await GetProductAsync(x => x.Id == model.Id, cancellationToken);
+
+        if (productEntity == null)
         {
-            var productEntity = ProductEntity.New(
-                id: model.Id,
-                name: model.Name,
-                description: model.Description,
-                manufactureDate: model.ManufactureDate,
-                createdBy: model.CreatedBy,
-                typeId: model.TypeId
-            );
-
-            await _context.Products.AddAsync(productEntity, cancellationToken);
-            await _context.SaveChangesAsync(cancellationToken);
-
-            return productEntity;
+            throw new InvalidOperationException("Product not found.");
         }
 
-        public async Task<ProductEntity> Update(UpdateProductModel model, CancellationToken cancellationToken)
+        productEntity = mapper.Map(model, productEntity);
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        return mapper.Map<Product>(productEntity);
+    }
+
+    public async Task<Product> Delete(DeleteProductModel model, CancellationToken cancellationToken)
+    {
+        var productEntity = await GetProductAsync(x => x.Id == model.Id, cancellationToken);
+
+        if (productEntity == null)
         {
-            var productEntity = await GetProductAsync(x => x.Id == model.Id, cancellationToken);
-
-            if (productEntity == null)
-            {
-                throw new InvalidOperationException("Product not found.");
-            }
-
-            productEntity.Update(
-                name: model.Name,
-                description: model.Description,
-                manufactureDate: model.ManufactureDate,
-                modifiedBy: model.ModifiedBy,
-                typeId: model.TypeId
-            );
-
-            await _context.SaveChangesAsync(cancellationToken);
-
-            return productEntity;
+            throw new InvalidOperationException("Product not found.");
         }
 
-        public async Task<ProductEntity> Delete(DeleteProductModel model, CancellationToken cancellationToken)
+        context.Products.Remove(productEntity);
+        await context.SaveChangesAsync(cancellationToken);
+
+        return mapper.Map<Product>(productEntity);
+    }
+
+    public async Task<IReadOnlyList<Product>> GetAll(CancellationToken cancellationToken)
+    {
+        var productEntities = await context.Products
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+
+        return mapper.Map<IReadOnlyList<Product>>(productEntities);
+    }
+
+    public async Task<Option<Product>> GetById(Guid id, CancellationToken cancellationToken)
+    {
+        var entity = await GetProductAsync(x => x.Id == id, cancellationToken);
+        var product = mapper.Map<Product>(entity);
+        return product == null ? Option.None<Product>() : Option.Some(product);
+    }
+
+    public async Task<Option<Product>> SearchByName(string name, CancellationToken cancellationToken)
+    {
+        var entity = await GetProductAsync(x => x.Name == name, cancellationToken);
+        var product = mapper.Map<Product>(entity);
+        return product == null ? Option.None<Product>() : Option.Some(product);
+    }
+
+    private async Task<ProductEntity?> GetProductAsync(Expression<Func<ProductEntity, bool>> predicate,
+        CancellationToken cancellationToken,
+        bool asNoTracking = false)
+    {
+        if (asNoTracking)
         {
-            var productEntity = await GetProductAsync(x => x.Id == model.Id, cancellationToken);
-
-            if (productEntity == null)
-            {
-                throw new InvalidOperationException("Product not found.");
-            }
-
-            _context.Products.Remove(productEntity);
-            await _context.SaveChangesAsync(cancellationToken);
-
-            return productEntity;
-        }
-
-        public async Task<IReadOnlyList<ProductEntity>> GetAll(CancellationToken cancellationToken)
-        {
-            return await _context.Products
+            return await context.Products
                 .AsNoTracking()
-                .ToListAsync(cancellationToken);
-        }
-
-        public async Task<Option<ProductEntity>> GetById(Guid id, CancellationToken cancellationToken)
-        {
-            var entity = await GetProductAsync(x => x.Id == id, cancellationToken);
-            return entity == null ? Option.None<ProductEntity>() : Option.Some(entity);
-        }
-
-        public async Task<Option<ProductEntity>> SearchByName(string name, CancellationToken cancellationToken)
-        {
-            var entity = await GetProductAsync(x => x.Name == name, cancellationToken);
-            return entity == null ? Option.None<ProductEntity>() : Option.Some(entity);
-        }
-
-        private async Task<ProductEntity?> GetProductAsync(Expression<Func<ProductEntity, bool>> predicate, CancellationToken cancellationToken,
-            bool asNoTracking = false)
-        {
-            if (asNoTracking)
-            {
-                return await _context.Products
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(predicate, cancellationToken);
-            }
-
-            return await _context.Products
                 .FirstOrDefaultAsync(predicate, cancellationToken);
         }
+
+        return await context.Products
+            .FirstOrDefaultAsync(predicate, cancellationToken);
     }
 }

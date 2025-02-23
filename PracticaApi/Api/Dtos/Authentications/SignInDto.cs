@@ -1,9 +1,7 @@
-﻿using Domain.Users;
+﻿namespace Api.Dtos.Authentications;
 
-namespace Api.Dtos.Authentications;
-
-public record SignInDto(string Email, string Password)
+public record SignInDto
 {
-    public static SignInDto FromDomainModel(UserEntity userEntity)
-        => new(userEntity.Email, userEntity.PasswordHash);
+    public string Email { get; set; }
+    public string Password { get; set; }
 }

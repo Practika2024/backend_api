@@ -1,4 +1,4 @@
-﻿using Domain.Products;
+﻿using DataAccessLayer.Entities.Products;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -15,7 +15,12 @@ public class ProductConfiguration : IEntityTypeConfiguration<ProductEntity>
 
         builder.HasOne(p => p.Type)
             .WithMany()
-            .HasForeignKey("TypeId")
+            .HasForeignKey(x => x.TypeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(x => x.CreatedByEntity)
+            .WithMany()
+            .HasForeignKey(x => x.CreatedBy)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

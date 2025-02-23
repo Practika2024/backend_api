@@ -1,4 +1,4 @@
-﻿using Domain.Roles;
+﻿using DataAccessLayer.Entities.Roles;
 
 namespace Api.Dtos.Users;
 

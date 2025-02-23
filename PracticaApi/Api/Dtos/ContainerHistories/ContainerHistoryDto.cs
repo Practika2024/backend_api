@@ -1,6 +1,4 @@
-﻿using Domain.ContainerHistories;
-
-namespace Api.Dtos.ContainerHistories;
+﻿namespace Api.Dtos.ContainerHistories;
 
 public record ContainerHistoryDto
 {
@@ -10,17 +8,4 @@ public record ContainerHistoryDto
     public DateTime StartDate { get; init; }
     public DateTime? EndDate { get; init; }
     public Guid CreatedBy { get; init; }
-
-    public static ContainerHistoryDto FromDomainModel(ContainerHistoryEntity historyEntity)
-    {
-        return new ContainerHistoryDto
-        {
-            Id = historyEntity.Id,
-            ContainerId = historyEntity.ContainerId,
-            ProductId = historyEntity.ProductId,
-            StartDate = historyEntity.StartDate,
-            EndDate = historyEntity.EndDate,
-            CreatedBy = historyEntity.CreatedBy
-        };
-    }
 }

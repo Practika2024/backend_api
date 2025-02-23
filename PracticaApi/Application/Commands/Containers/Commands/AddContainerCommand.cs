@@ -1,92 +1,114 @@
-﻿using System.Security.Cryptography;
-using Application.Commands.Containers.Exceptions;
+﻿using Application.Commands.Containers.Exceptions;
 using Application.Common;
+using Application.Common.Interfaces.Queries;
 using Application.Common.Interfaces.Repositories;
-using Application.Models.ContainerModels;
-using Domain.Containers;
+using Domain.ContainerModels;
+using Domain.ContainerTypeModels;
 using MediatR;
 
 namespace Application.Commands.Containers.Commands;
 
-public record AddContainerCommand : IRequest<Result<ContainerEntity, ContainerException>>
+public record AddContainerCommand : IRequest<Result<Container, ContainerException>>
+{
+    public required string Name { get; init; }
+    public required decimal Volume { get; init; }
+    public required string? Notes { get; init; }
+    public required Guid UserId { get; init; }
+    public required Guid TypeId { get; init; }
+}
+
+public class AddContainerCommandHandler(
+    IContainerRepository containerRepository,
+    IContainerTypeQueries containerTypeQueries,
+    IUserQueries userQueries)
+    : IRequestHandler<AddContainerCommand, Result<Container, ContainerException>>
+{
+    public async Task<Result<Container, ContainerException>> Handle(
+        AddContainerCommand request,
+        CancellationToken cancellationToken)
     {
-        public required string Name { get; init; }
-        public required decimal Volume { get; init; }
-        public required string? Notes { get; init; }
-        public required Guid UserId { get; init; }
-        public required Guid TypeId { get; init; }
+        var existingContainer = await containerRepository.SearchByName(request.Name, cancellationToken);
+
+        return await existingContainer.Match<Task<Result<Container, ContainerException>>>(
+            c => Task.FromResult<Result<Container, ContainerException>>(
+                new ContainerAlreadyExistsException(c.Id)),
+            async () =>
+            {
+                var userResult = await userQueries.GetById(request.UserId, cancellationToken);
+                return await userResult.Match<Task<Result<Container, ContainerException>>>(
+                    async user =>
+                    {
+                        var typeResult = await containerTypeQueries.GetById(request.TypeId, cancellationToken);
+                        return await typeResult.Match<Task<Result<Container, ContainerException>>>(
+                            async type =>
+                            {
+                                return await CreateEntity(
+                                    request.Name,
+                                    request.Volume,
+                                    request.UserId,
+                                    request.Notes,
+                                    type,
+                                    cancellationToken);
+                            },
+                            () => Task.FromResult<Result<Container, ContainerException>>(
+                                new ContainerTypeNotFoundException(request.TypeId))
+                        );
+                    },
+                    () => Task.FromResult<Result<Container, ContainerException>>(
+                        new UserNotFoundException(request.UserId))
+                );
+            });
     }
 
-    public class AddContainerCommandHandler(
-        IContainerRepository containerRepository) : IRequestHandler<AddContainerCommand, Result<ContainerEntity, ContainerException>>
+    private async Task<Result<Container, ContainerException>> CreateEntity(
+        string name,
+        decimal volume,
+        Guid userId,
+        string? notes,
+        ContainerType type,
+        CancellationToken cancellationToken)
     {
-        public async Task<Result<ContainerEntity, ContainerException>> Handle(
-            AddContainerCommand request,
-            CancellationToken cancellationToken)
+        try
         {
-            var userId = request.UserId;
-            var typeId = request.TypeId;
-            var existingContainer = await containerRepository.SearchByName(request.Name, cancellationToken);
+            var uniqueCode = await GenerateUniqueCodeAsync(name, type, cancellationToken);
+            var containerId = Guid.NewGuid();
+            var createContainerModel = new CreateContainerModel
+            {
+                Id = containerId,
+                Name = name,
+                Volume = volume,
+                Notes = notes,
+                CreatedBy = userId,
+                TypeId = type.Id,
+                UniqueCode = uniqueCode
+            };
 
-            return await existingContainer.Match<Task<Result<ContainerEntity, ContainerException>>>(
-                c => Task.FromResult<Result<ContainerEntity, ContainerException>>(
-                    new ContainerAlreadyExistsException(c.Id)),
-                async () => await CreateEntity(
-                    request.Name,
-                    request.Volume,
-                    userId,
-                    request.Notes,
-                    typeId,
-                    cancellationToken));
+            var createdContainer = await containerRepository.Create(createContainerModel, cancellationToken);
+            return createdContainer;
         }
-
-        private async Task<Result<ContainerEntity, ContainerException>> CreateEntity(
-            string name,
-            decimal volume,
-            Guid userId,
-            string? notes,
-            Guid typeId,
-            CancellationToken cancellationToken)
+        catch (ContainerException exception)
         {
-            try
-            {
-                var uniqueCode = await GenerateUniqueCodeAsync(containerRepository, cancellationToken);
-                var containerId = Guid.NewGuid();
-                var createContainerModel = new CreateContainerModel
-                {
-                    Id = containerId,
-                    Name = name,
-                    Volume = volume,
-                    Notes = notes,
-                    CreatedBy = userId,
-                    TypeId = typeId,
-                    UniqueCode = uniqueCode
-                };
-
-                var createdContainer = await containerRepository.Create(createContainerModel, cancellationToken);
-                return createdContainer;
-            }
-            catch (ContainerException exception)
-            {
-                return new ContainerUnknownException(Guid.Empty, exception);
-            }
-        }
-
-        private async Task<string> GenerateUniqueCodeAsync(
-            IContainerRepository containerRepository,
-            CancellationToken cancellationToken)
-        {
-            while (true)
-            {
-                var uniqueCode = Convert.ToBase64String(RandomNumberGenerator.GetBytes(16))
-                    .Replace("/", "_")
-                    .Replace("+", "-");
-
-                var existingContainer = await containerRepository.SearchByUniqueCode(uniqueCode, cancellationToken);
-                if (!existingContainer.HasValue)
-                {
-                    return uniqueCode;
-                }
-            }
+            return new ContainerUnknownException(Guid.Empty, exception);
         }
     }
+
+    private async Task<string> GenerateUniqueCodeAsync(
+        string containerName,
+        ContainerType type,
+        CancellationToken cancellationToken)
+    {
+        var namePrefix = containerName.Length >= 3
+            ? containerName.Substring(0, 3).ToUpper()
+            : containerName.ToUpper();
+
+        var typeLetter = type.Name.Substring(0, 1).ToUpper();
+
+        var codePrefix = namePrefix + typeLetter;
+
+        var lastSequence = await containerRepository.GetLastSequenceForPrefixAsync(codePrefix, cancellationToken);
+        var nextSequence = lastSequence + 1;
+
+        var sequenceString = nextSequence.ToString("D3");
+        return codePrefix + sequenceString;
+    }
+}
