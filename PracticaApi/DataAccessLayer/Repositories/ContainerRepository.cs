@@ -107,9 +107,9 @@ public class ContainerRepository(ApplicationDbContext context, IMapper mapper)
         var contentEntity = mapper.Map<ContainerContentEntity>(model);
 
         containerEntity.Content = contentEntity;
-
+        
+        context.Containers.UpdateAuditableAsync(containerEntity);   
         await context.SaveChangesAsync(cancellationToken);
-
         return mapper.Map<Container>(containerEntity);
     }
 

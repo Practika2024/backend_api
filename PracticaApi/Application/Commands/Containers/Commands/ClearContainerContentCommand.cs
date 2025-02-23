@@ -13,7 +13,8 @@ public record ClearContainerContentCommand : IRequest<Result<Container, Containe
 }
 
 public class ClearContainerContentCommandHandler(
-    IContainerRepository containerRepository) : IRequestHandler<ClearContainerContentCommand, Result<Container, ContainerException>>
+    IContainerRepository containerRepository,
+    IContainerHistoryRepository containerHistoryRepository) : IRequestHandler<ClearContainerContentCommand, Result<Container, ContainerException>>
 {
     public async Task<Result<Container, ContainerException>> Handle(
         ClearContainerContentCommand request,
@@ -36,6 +37,7 @@ public class ClearContainerContentCommandHandler(
                     };
 
                     var updatedContainer = await containerRepository.ClearContainerContent(clearContainerContentModel, cancellationToken);
+                    containerHistoryRepository.ClearContainerContent(updatedContainer.Id, userId, cancellationToken);
                     return updatedContainer;
                 }
                 catch (ContainerException exception)

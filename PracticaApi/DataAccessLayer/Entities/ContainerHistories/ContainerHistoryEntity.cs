@@ -10,8 +10,8 @@ public class ContainerHistoryEntity : AuditableEntity<UserEntity>
     public Guid Id { get; set; }
     public Guid ContainerId { get; set; }
     public ContainerEntity? Container { get; set; }
-    public Guid ProductId { get; set; }
+    public Guid? ProductId { get; set; }
     public ProductEntity? Product { get; set; }
-    public DateTime StartDate { get; }
+    public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
 }

@@ -15,7 +15,9 @@ public record SetContainerContentCommand : IRequest<Result<Container, ContainerE
 }
 
 public class SetContainerContentCommandHandler(
-    IContainerRepository containerRepository)
+    IContainerRepository containerRepository,
+    IContainerHistoryRepository containerHistoryRepository
+    )
     : IRequestHandler<SetContainerContentCommand, Result<Container, ContainerException>>
 {
     public async Task<Result<Container, ContainerException>> Handle(
@@ -45,6 +47,8 @@ public class SetContainerContentCommandHandler(
 
                     var updatedContainer =
                         await containerRepository.SetContainerContent(setContainerContentModel, cancellationToken);
+                        containerHistoryRepository.AddProductToContainer(updatedContainer.Id, productId.Value, userId,
+                            cancellationToken);
                     return updatedContainer;
                 }
                 catch (ContainerException exception)

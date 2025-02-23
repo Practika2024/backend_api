@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using Api.Dtos.ContainerHistories;
 using Api.Dtos.Containers;
 using Application.Commands.Containers.Commands;
 using Application.Common.Interfaces.Queries;
@@ -14,7 +15,7 @@ namespace Api.Controllers;
 [Route("containers")]
 [ApiController]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-public class ContainersController(ISender sender, IContainerQueries containerQueries, IMapper mapper) : BaseController
+public class ContainersController(ISender sender, IContainerQueries containerQueries, IContainerHistoryQueries containerHistoryQueries, IMapper mapper) : BaseController
 {
     //[Authorize(Roles = AuthSettings.AdminRole)]
     [HttpGet("get-all")]
@@ -111,7 +112,7 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
             ContainerId = containerId,
             ProductId = model.ProductId,
             IsEmpty = model.IsEmpty,
-            ModifiedBy = model.ModifiedBy,
+            ModifiedBy = GetUserId()!.Value,
         };
 
         var result = await sender.Send(command, cancellationToken);
@@ -140,5 +141,15 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
         return result.Match<ActionResult<ContainerDto>>(
             dto => Ok(dto),
             e => Problem(e.Message));
+    }
+    
+    // [Authorize(Roles = "Operator")] // Якщо доступ до історії має бути обмежений
+    [HttpGet("history/{containerId:guid}")]
+    public async Task<ActionResult<IReadOnlyList<ContainerHistoryDto>>> GetContainerHistory(
+        [FromRoute] Guid containerId,
+        CancellationToken cancellationToken)
+    {
+        var historyResult = await containerHistoryQueries.GetContainerHistory(containerId, cancellationToken);
+        return Ok(historyResult.Select(mapper.Map<ContainerHistoryDto>).ToList());
     }
 }
