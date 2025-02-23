@@ -67,7 +67,7 @@ public class AccountController(ISender sender, IMapper mapper) : ControllerBase
             e => e.ToObjectResult());
     }
     
-    [HttpPost("GoogleExternalLogin")]
+    [HttpPost("externalLogin")]
     public async Task<ActionResult<JwtModel>> GoogleExternalLoginAsync([FromBody] ExternalLoginDto model, CancellationToken cancellationToken)
     {
         var command = new GoogleExternalLoginCommand { Model = mapper.Map<ExternalLoginModel>(model) };
