@@ -6,6 +6,7 @@ using Application.Common.Interfaces.Repositories;
 using Application.Settings;
 using Domain.RefreshTokenModels;
 using Domain.UserModels;
+using Google.Apis.Auth;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -117,6 +118,18 @@ namespace Application.Services.TokenService
             };
 
             return tokens;
+        }
+        
+        public async Task<GoogleJsonWebSignature.Payload> VerifyGoogleToken(ExternalLoginModel model)
+        {
+            string clientId = configuration["GoogleAuthSettings:ClientId"];
+            var settings = new GoogleJsonWebSignature.ValidationSettings()
+            {
+                Audience = new List<string> { clientId }
+            };
+
+            var payload = await GoogleJsonWebSignature.ValidateAsync(model.Token, settings);
+            return payload;
         }
     }
 }

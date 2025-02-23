@@ -16,3 +16,12 @@ public class UserNorFoundException(Guid id) : AuthenticationException(id, $"User
 
 public class AuthenticationUnknownException(Guid id, Exception innerException)
     : AuthenticationException(id, $"Unknown exception for the user under id: {id}", innerException);
+    
+public class MissingGoogleTokenException() 
+    : AuthenticationException(Guid.Empty, "Токен Google не надіслано.");
+
+public class InvalidGoogleTokenException() 
+    : AuthenticationException(Guid.Empty, "Недійсний токен Google.");
+
+public class FailedToAddGoogleLoginException() 
+    : AuthenticationException(Guid.Empty, "Не вдалося додати вход через Google.");

@@ -1,6 +1,7 @@
 ﻿using Api.Dtos.Authentications;
 using Api.Modules.Errors;
 using Application.Commands.Authentications.Commands;
+using AutoMapper;
 using Domain.UserModels;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +10,7 @@ namespace Api.Controllers;
 
 [Route("account")]
 [ApiController]
-public class AccountController(ISender sender) : ControllerBase
+public class AccountController(ISender sender, IMapper mapper) : ControllerBase
 {
     [HttpPost("signup")]
     public async Task<ActionResult<JwtModel>> SignUpAsync(
@@ -64,5 +65,16 @@ public class AccountController(ISender sender) : ControllerBase
         return result.Match<ActionResult<JwtModel>>(
             f => f,
             e => e.ToObjectResult());
+    }
+    
+    [HttpPost("externalLogin")]
+    public async Task<ActionResult<JwtModel>> GoogleExternalLoginAsync([FromBody] ExternalLoginDto model, CancellationToken cancellationToken)
+    {
+        var command = new GoogleExternalLoginCommand { Model = mapper.Map<ExternalLoginModel>(model) };
+        var result = await sender.Send(command, cancellationToken);
+
+        return result.Match<ActionResult<JwtModel>>(
+            f => f,
+            e => e.ToObjectResult()); 
     }
 }

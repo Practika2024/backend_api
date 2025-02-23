@@ -1,4 +1,5 @@
 ﻿using Domain.UserModels;
+using Microsoft.AspNetCore.Identity;
 using Optional;
 
 namespace Application.Common.Interfaces.Repositories
@@ -13,5 +14,11 @@ namespace Application.Common.Interfaces.Repositories
         Task<Option<User>> SearchByEmail(string email, CancellationToken cancellationToken);
         Task<Option<User>> SearchByEmailForUpdate(Guid userId, string email, CancellationToken cancellationToken);
         //Task<User> UpdateRoles(UpdateRolesModel model, CancellationToken cancellationToken);
+        
+        
+        
+        Task<User?> FindByLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken);
+        Task<User?> FindByEmailAsync(string email, CancellationToken cancellationToken);
+        Task<IdentityResult> AddLoginAsync(User user, UserLoginInfo loginInfo, CancellationToken cancellationToken);
     }
 }

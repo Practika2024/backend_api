@@ -15,4 +15,6 @@ public class UserEntity
     public string RoleId { get; set; }
     public RoleEntity? Role { get; set; }
     public List<RefreshTokenEntity> RefreshTokens { get; set; } = new();
+    public string? ExternalProvider { get; set; }
+    public string? ExternalProviderKey { get; set; }
 }
