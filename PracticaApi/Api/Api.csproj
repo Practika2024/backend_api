@@ -11,6 +11,7 @@
       <Content Include="..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
+      <Content Remove="data\**" />
     </ItemGroup>
 
     <ItemGroup>
@@ -30,7 +31,15 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="data\Images\productImages\" />
+      <Compile Remove="data\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="data\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="data\**" />
     </ItemGroup>
 
 </Project>

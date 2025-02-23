@@ -5,6 +5,7 @@ using AutoMapper;
 using DataAccessLayer.Data;
 using DataAccessLayer.Entities.Users;
 using Domain.UserModels;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Optional;
 
@@ -119,5 +120,36 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper) : IUse
 
         return await context.Users
             .FirstOrDefaultAsync(predicate, cancellationToken);
+    }
+    
+    
+    public async Task<User?> FindByLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken)
+    {
+        var userEntity = await context.Users
+            .FirstOrDefaultAsync(u => u.ExternalProvider == loginProvider && u.ExternalProviderKey == providerKey, cancellationToken);
+
+        return mapper.Map<User>(userEntity);
+    }
+
+    public async Task<User?> FindByEmailAsync(string email, CancellationToken cancellationToken)
+    {
+        var userEntity = await context.Users.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
+
+        return mapper.Map<User>(userEntity);
+    }
+
+    public async Task<IdentityResult> AddLoginAsync(User user, UserLoginInfo loginInfo, CancellationToken cancellationToken)
+    {
+        var userEntity = await GetUserAsync(x => x.Id == user.Id, cancellationToken);
+
+        if (userEntity == null)
+        {
+            return IdentityResult.Failed(new IdentityError { Code = "NotFound", Description = "User not found." });
+        }
+        userEntity.ExternalProvider = loginInfo.LoginProvider;
+        userEntity.ExternalProviderKey = loginInfo.ProviderKey;
+
+        await context.SaveChangesAsync(cancellationToken);
+        return IdentityResult.Success;
     }
 }
