@@ -1,7 +1,7 @@
 ﻿using Domain.Common.Abstractions;
 using Domain.UserModels;
 
-namespace Domain.ProductModels;
+namespace Domain.ProductTypeModels;
 
 public class ProductType : AuditableEntity<User>
 {

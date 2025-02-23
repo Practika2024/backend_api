@@ -1,5 +1,6 @@
 ﻿using Domain.Common.Abstractions;
 using Domain.ContainerHistoryModels;
+using Domain.ProductTypeModels;
 using Domain.UserModels;
 
 namespace Domain.ProductModels;

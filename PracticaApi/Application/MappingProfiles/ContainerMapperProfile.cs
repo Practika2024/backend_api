@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 
-namespace Api.MappingProfiles;
+namespace Application.MappingProfiles;
 
 public class ContainerMapperProfile : Profile
 {
