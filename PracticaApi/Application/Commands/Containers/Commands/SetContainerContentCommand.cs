@@ -36,7 +36,7 @@ public class SetContainerContentCommandHandler(
             async product =>
             {
                 return await existingContainer.Match(
-                    async c => await SetProduct(request, containerId, cancellationToken),
+                    async container => await SetProduct(request, container, cancellationToken),
                     () => Task.FromResult<Result<Container, ContainerException>>(
                         new ContainerNotFoundException(containerId))
                 );
@@ -46,11 +46,16 @@ public class SetContainerContentCommandHandler(
     }
 
     private async Task<Result<Container, ContainerException>> SetProduct(SetContainerContentCommand request,
-        Guid containerId, CancellationToken cancellationToken)
+        Container container, CancellationToken cancellationToken)
     {
         if (await containerQueries.IsProductInContainer(request.ProductId!.Value, cancellationToken))
         {
             throw new Exception("Product already in container");
+        }
+
+        if (container.ProductId.HasValue)
+        {
+            throw new Exception("Container is not empty");
         }
 
         try
@@ -62,7 +67,7 @@ public class SetContainerContentCommandHandler(
 
             var setContainerContentModel = new SetContainerContentModel
             {
-                ContainerId = containerId,
+                ContainerId = container.Id,
                 ProductId = productId,
                 ModifiedBy = userId
             };
@@ -71,13 +76,13 @@ public class SetContainerContentCommandHandler(
                 await containerRepository.SetContainerContent(setContainerContentModel,
                     cancellationToken);
 
-            await AddHistory(userId, containerId, productId!.Value, cancellationToken);
+            await AddHistory(userId, container.Id, productId!.Value, cancellationToken);
 
             return updatedContainer;
         }
         catch (ContainerException exception)
         {
-            return new ContainerUnknownException(containerId, exception);
+            return new ContainerUnknownException(container.Id, exception);
         }
     }
 

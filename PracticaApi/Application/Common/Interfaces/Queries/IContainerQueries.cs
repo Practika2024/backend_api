@@ -9,6 +9,6 @@ namespace Application.Common.Interfaces.Queries
         Task<Option<Container>> GetById(Guid id, CancellationToken cancellationToken);
         Task<Option<Container>> GetByUniqueCode(string uniqueCode, CancellationToken cancellationToken);
         Task<bool> IsProductInContainer(Guid productId, CancellationToken cancellationToken);
-        Task<bool> IsContainerIsEmpty(Guid containerContentId, CancellationToken cancellationToken);
+        Task<bool> IsContainerIsEmpty(Guid containerId, CancellationToken cancellationToken);
     }
 }

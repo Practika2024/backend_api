@@ -19,9 +19,9 @@ public class ContainerConfiguration : IEntityTypeConfiguration<ContainerEntity>
             .HasForeignKey(x => x.TypeId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(c => c.Content)
-            .WithOne()
-            .HasForeignKey<ContainerEntity>(x => x.ContentId)
+        builder.HasOne(cc => cc.Product)
+            .WithMany()
+            .HasForeignKey(x => x.ProductId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(x => x.CreatedByEntity)

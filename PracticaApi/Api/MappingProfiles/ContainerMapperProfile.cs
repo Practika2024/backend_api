@@ -10,8 +10,5 @@ public class ContainerMapperProfile : Profile
     {
         CreateMap<ContainerDto, Container>().ReverseMap();
         CreateMap<CreateContainerDto, Container>().ReverseMap();
-        
-        CreateMap<ContainerWithContentDto, Container>().ReverseMap();
-        CreateMap<ContentDto, ContainerContent>().ReverseMap();
     }
 }

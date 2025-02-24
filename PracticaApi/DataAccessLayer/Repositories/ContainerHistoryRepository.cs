@@ -26,10 +26,10 @@ public class ContainerHistoryRepository(ApplicationDbContext context, IMapper ma
 
     public async Task<ContainerHistory> Update(Guid contentId, CancellationToken cancellationToken)
     {
-        var contentEntity =
-            await context.ContainerContents.FirstOrDefaultAsync(x => x.Id == contentId, cancellationToken);
+        var containerEntity =
+            await context.Containers.FirstOrDefaultAsync(x => x.Id == contentId, cancellationToken);
 
-        var productId = contentEntity!.ProductId;
+        var productId = containerEntity!.ProductId;
 
         var historyEntity =
             context.ContainerHistories.FirstOrDefault(x => x.ProductId == productId && x.EndDate == null);

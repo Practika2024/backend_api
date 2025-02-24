@@ -30,7 +30,7 @@ public class ClearContainerContentCommandHandler(
             {
                 try
                 {
-                    if (await containerQueries.IsContainerIsEmpty(container.ContentId!.Value, cancellationToken))
+                    if (!container.ProductId.HasValue)
                     {
                         throw new Exception("Container already is empty");
                     }
@@ -43,7 +43,7 @@ public class ClearContainerContentCommandHandler(
                         ModifiedBy = userId
                     };
                 
-                    await UpdateHistory(container.ContentId!.Value, cancellationToken);
+                    await UpdateHistory(container.Id, cancellationToken);
                     
                     var updatedContainer = await containerRepository.ClearContainerContent(clearContainerContentModel, cancellationToken);
                     return updatedContainer;
@@ -58,8 +58,8 @@ public class ClearContainerContentCommandHandler(
         );
     }
 
-    private async Task UpdateHistory(Guid containerContentId, CancellationToken cancellationToken)
+    private async Task UpdateHistory(Guid containerId, CancellationToken cancellationToken)
     {
-        await containerHistoryRepository.Update(containerContentId, cancellationToken);
+        await containerHistoryRepository.Update(containerId, cancellationToken);
     }
 }
