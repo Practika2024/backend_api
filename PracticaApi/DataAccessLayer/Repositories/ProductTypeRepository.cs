@@ -35,7 +35,7 @@ public class ProductTypeRepository(ApplicationDbContext context, IMapper mapper)
 
         productTypeEntity = mapper.Map(model, productTypeEntity);
         
-        await context.ProductTypes.UpdateAuditableAsync(productTypeEntity, cancellationToken);
+        context.ProductTypes.UpdateAuditable(productTypeEntity);
 
         await context.SaveChangesAsync(cancellationToken);
 

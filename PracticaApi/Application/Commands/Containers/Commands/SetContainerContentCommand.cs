@@ -10,7 +10,6 @@ public record SetContainerContentCommand : IRequest<Result<Container, ContainerE
 {
     public required Guid ContainerId { get;  init; } 
     public required Guid? ProductId { get; init; }
-    public required bool IsEmpty { get;  init; } 
     public required Guid ModifiedBy { get;  init; }
 }
 
@@ -39,7 +38,6 @@ public class SetContainerContentCommandHandler(
                     {
                         ContainerId = containerId,
                         ProductId = productId,
-                        IsEmpty = request.IsEmpty,
                         ModifiedBy = userId
                     };
 

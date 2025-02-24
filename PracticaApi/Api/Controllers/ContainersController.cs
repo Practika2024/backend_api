@@ -71,7 +71,7 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
             Notes = model?.Notes,
             Volume = model.Volume,
             TypeId = model.TypeId,
-            ModifiedBy = model.ModifiedBy,
+            ModifiedBy = GetUserId()!.Value,
         };
 
         var result = await sender.Send(command, cancellationToken);
@@ -95,7 +95,7 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
         var result = await sender.Send(command, cancellationToken);
 
         return result.Match<ActionResult<ContainerDto>>(
-            dto => Ok(dto),
+            dto => Ok(mapper.Map<ContainerDto>(dto)),
             e => Problem(e.Message));
     }
 
@@ -110,8 +110,7 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
         {
             ContainerId = containerId,
             ProductId = model.ProductId,
-            IsEmpty = model.IsEmpty,
-            ModifiedBy = model.ModifiedBy,
+            ModifiedBy = GetUserId()!.Value,
         };
 
         var result = await sender.Send(command, cancellationToken);

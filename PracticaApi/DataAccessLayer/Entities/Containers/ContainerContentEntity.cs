@@ -9,5 +9,5 @@ public class ContainerContentEntity : AuditableEntity<UserEntity>
     public Guid Id { get; set; }
     public Guid? ProductId { get; set; }
     public ProductEntity? Product { get; set; }
-    public bool IsEmpty { get; set; }
+    //public bool IsEmpty => ProductId == null;
 }

@@ -17,7 +17,17 @@ public class ContainerRepository(ApplicationDbContext context, IMapper mapper)
     public async Task<Container> Create(CreateContainerModel model, CancellationToken cancellationToken)
     {
         var containerEntity = mapper.Map<ContainerEntity>(model);
+        
+        var containerContentId = Guid.NewGuid();
+        var containerContentEntity = new ContainerContentEntity
+        {
+            Id = containerContentId,
+            CreatedBy = model.CreatedBy
+        };
 
+        containerEntity.ContentId = containerContentId;
+
+        await context.ContainerContents.AddAuditableAsync(containerContentEntity, cancellationToken);
         await context.Containers.AddAuditableAsync(containerEntity, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
@@ -97,17 +107,24 @@ public class ContainerRepository(ApplicationDbContext context, IMapper mapper)
     public async Task<Container> SetContainerContent(SetContainerContentModel model,
         CancellationToken cancellationToken)
     {
-        var containerEntity = await GetContainerAsync(x => x.Id == model.ContainerId, cancellationToken);
+        var containerEntity = await GetContainerAsync(x => x.Id == model.ContainerId, cancellationToken, true);
+        var contentEntity = await context.ContainerContents.FirstOrDefaultAsync(c => c.Id == containerEntity!.ContentId, cancellationToken);
 
         if (containerEntity == null)
         {
             throw new InvalidOperationException("Container not found.");
         }
 
-        var contentEntity = mapper.Map<ContainerContentEntity>(model);
+        if (contentEntity == null)
+        {
+            throw new InvalidOperationException("Container not found.");
+        }
 
-        containerEntity.Content = contentEntity;
+        contentEntity.ModifiedBy = model.ModifiedBy;
+        contentEntity.ProductId = model.ProductId;
 
+        context.ContainerContents.UpdateAuditable(contentEntity);
+        
         await context.SaveChangesAsync(cancellationToken);
 
         return mapper.Map<Container>(containerEntity);

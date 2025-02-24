@@ -9,7 +9,9 @@ public class ContainerContentConfiguration : IEntityTypeConfiguration<ContainerC
     public void Configure(EntityTypeBuilder<ContainerContentEntity> builder)
     {
         builder.HasKey(cc => cc.Id);
-        builder.Property(cc => cc.IsEmpty).IsRequired();
+        
+        //builder.Property(cc => cc.IsEmpty).IsRequired();
+        
         builder.HasOne(cc => cc.Product)
             .WithMany()
             .HasForeignKey(x => x.ProductId)

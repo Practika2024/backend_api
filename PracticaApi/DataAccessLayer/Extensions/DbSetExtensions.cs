@@ -19,10 +19,9 @@ public static class DbSetExtensions
         await dbSet.AddAsync(entity, cancellationToken);
     }
     
-    public static async Task UpdateAuditableAsync<TEntity>(
+    public static void UpdateAuditable<TEntity>(
         this DbSet<TEntity> dbSet,
-        TEntity entity,
-        CancellationToken cancellationToken = default)
+        TEntity entity)
         where TEntity : AuditableEntity<UserEntity>
     {
         entity.ModifiedBy = entity.ModifiedBy;
