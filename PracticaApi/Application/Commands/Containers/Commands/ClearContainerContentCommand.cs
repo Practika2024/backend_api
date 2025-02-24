@@ -1,5 +1,6 @@
 ﻿using Application.Commands.Containers.Exceptions;
 using Application.Common;
+using Application.Common.Interfaces.Queries;
 using Application.Common.Interfaces.Repositories;
 using Domain.ContainerModels;
 using MediatR;
@@ -13,7 +14,9 @@ public record ClearContainerContentCommand : IRequest<Result<Container, Containe
 }
 
 public class ClearContainerContentCommandHandler(
-    IContainerRepository containerRepository) : IRequestHandler<ClearContainerContentCommand, Result<Container, ContainerException>>
+    IContainerRepository containerRepository,
+    IContainerQueries containerQueries,
+    IContainerHistoryRepository containerHistoryRepository) : IRequestHandler<ClearContainerContentCommand, Result<Container, ContainerException>>
 {
     public async Task<Result<Container, ContainerException>> Handle(
         ClearContainerContentCommand request,
@@ -27,6 +30,11 @@ public class ClearContainerContentCommandHandler(
             {
                 try
                 {
+                    if (await containerQueries.IsContainerIsEmpty(container.ContentId!.Value, cancellationToken))
+                    {
+                        throw new Exception("Container already is empty");
+                    }
+                    
                     var userId = request.ModifiedBy;
 
                     var clearContainerContentModel = new ClearContainerContentModel
@@ -34,7 +42,9 @@ public class ClearContainerContentCommandHandler(
                         ContainerId = containerId,
                         ModifiedBy = userId
                     };
-
+                
+                    await UpdateHistory(container.ContentId!.Value, cancellationToken);
+                    
                     var updatedContainer = await containerRepository.ClearContainerContent(clearContainerContentModel, cancellationToken);
                     return updatedContainer;
                 }
@@ -46,5 +56,10 @@ public class ClearContainerContentCommandHandler(
             () => Task.FromResult<Result<Container, ContainerException>>(
                 new ContainerNotFoundException(containerId))
         );
+    }
+
+    private async Task UpdateHistory(Guid containerContentId, CancellationToken cancellationToken)
+    {
+        await containerHistoryRepository.Update(containerContentId, cancellationToken);
     }
 }

@@ -9,5 +9,5 @@ public class UpdateContainerModel
     public string? Notes { get; set; }
     public Guid ModifiedBy { get; set; }
     public Guid TypeId { get; set; }
-    // public string UniqueCode { get; set; }
+    public string UniqueCode { get; set; }
 }

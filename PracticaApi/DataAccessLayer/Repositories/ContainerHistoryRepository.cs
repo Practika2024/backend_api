@@ -24,17 +24,19 @@ public class ContainerHistoryRepository(ApplicationDbContext context, IMapper ma
         return mapper.Map<ContainerHistory>(historyEntity);
     }
 
-    public async Task<ContainerHistory> Update(UpdateContainerHistoryModel model, CancellationToken cancellationToken)
+    public async Task<ContainerHistory> Update(Guid contentId, CancellationToken cancellationToken)
     {
-        var historyEntity = await GetHistoryAsync(x => x.Id == model.Id, cancellationToken);
+        var contentEntity =
+            await context.ContainerContents.FirstOrDefaultAsync(x => x.Id == contentId, cancellationToken);
 
-        if (historyEntity == null)
-        {
-            throw new InvalidOperationException("Container history not found.");
-        }
+        var productId = contentEntity!.ProductId;
 
-        mapper.Map(model, historyEntity);
+        var historyEntity =
+            context.ContainerHistories.FirstOrDefault(x => x.ProductId == productId && x.EndDate == null);
 
+        historyEntity!.EndDate = DateTime.UtcNow;
+        
+        context.ContainerHistories.UpdateAuditable(historyEntity);
         await context.SaveChangesAsync(cancellationToken);
 
         return mapper.Map<ContainerHistory>(historyEntity);

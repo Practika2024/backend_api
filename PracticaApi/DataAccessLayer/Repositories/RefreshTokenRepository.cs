@@ -33,14 +33,8 @@ public class RefreshTokenRepository(ApplicationDbContext context, IMapper mapper
 
     public async Task MakeAllRefreshTokensExpiredForUser(Guid userId, CancellationToken cancellationToken)
     {
-        var refreshTokens = context.RefreshTokens.Where(t => t.UserId == userId);
-
-        if (!await refreshTokens.AnyAsync(cancellationToken))
-        {
-            return;
-        }
-
-        await refreshTokens.ForEachAsync(t => { t.IsUsed = true; }, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
+        await context.RefreshTokens.Where(t => t.UserId == userId)
+            .ExecuteUpdateAsync(updates => 
+                updates.SetProperty(t => t.IsUsed, true), cancellationToken);
     }
 }

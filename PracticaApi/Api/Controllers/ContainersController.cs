@@ -26,12 +26,25 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
 
     //[Authorize(Roles = $"{AuthSettings.AdminRole},{AuthSettings.OperatorRole}")]
     [HttpGet("get-by-id/{containerId:guid}")]
-    public async Task<ActionResult<ContainerDto>> GetById([FromRoute] Guid containerId,
+    public async Task<ActionResult<ContainerWithContentDto>> GetById([FromRoute] Guid containerId,
         CancellationToken cancellationToken)
     {
         var entity = await containerQueries.GetById(containerId, cancellationToken);
-        return entity.Match<ActionResult<ContainerDto>>(
-            p => Ok(mapper.Map<ContainerDto>(p)),
+        
+        return entity.Match<ActionResult<ContainerWithContentDto>>(
+            p => Ok(mapper.Map<ContainerWithContentDto>(p)),
+            () => NotFound());
+    }
+    
+    //[Authorize(Roles = $"{AuthSettings.AdminRole},{AuthSettings.OperatorRole}")]
+    [HttpGet("get-unique-code-id/{uniqueCode}")]
+    public async Task<ActionResult<ContainerWithContentDto>> GetById([FromRoute] string uniqueCode,
+        CancellationToken cancellationToken)
+    {
+        var entity = await containerQueries.GetByUniqueCode(uniqueCode, cancellationToken);
+        
+        return entity.Match<ActionResult<ContainerWithContentDto>>(
+            p => Ok(mapper.Map<ContainerWithContentDto>(p)),
             () => NotFound());
     }
     
@@ -101,7 +114,7 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
 
     //[Authorize(Roles = "Operator")]
     [HttpPut("set-content/{containerId:guid}")]
-    public async Task<ActionResult<ContainerDto>> SetContainerContent(
+    public async Task<ActionResult<ContainerWithContentDto>> SetContainerContent(
         [FromRoute] Guid containerId,
         [FromBody] SetContainerContentDto model,
         CancellationToken cancellationToken)
@@ -115,8 +128,8 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
 
         var result = await sender.Send(command, cancellationToken);
 
-        return result.Match<ActionResult<ContainerDto>>(
-            dto => Ok(dto),
+        return result.Match<ActionResult<ContainerWithContentDto>>(
+            dto => Ok(mapper.Map<ContainerWithContentDto>(dto)),
             e => Problem(e.Message));
     }
 
@@ -125,19 +138,18 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
     [HttpPut("clear-content/{containerId:guid}")]
     public async Task<ActionResult<ContainerDto>> ClearContainerContent(
         [FromRoute] Guid containerId,
-        [FromBody] ClearContainerContentDto model,
         CancellationToken cancellationToken)
     {
         var command = new ClearContainerContentCommand
         {
             ContainerId = containerId,
-            ModifiedBy = model.ModifiedBy
+            ModifiedBy = GetUserId()!.Value
         };
 
         var result = await sender.Send(command, cancellationToken);
 
         return result.Match<ActionResult<ContainerDto>>(
-            dto => Ok(dto),
+            dto => Ok(mapper.Map<ContainerWithContentDto>(dto)),
             e => Problem(e.Message));
     }
 }
