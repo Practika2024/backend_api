@@ -2,10 +2,12 @@
 using System.Net.Http.Json;
 using Api.Dtos.ContainersType;
 using DataAccessLayer.Entities.Containers;
+using DataAccessLayer.Entities.Users;
 using Domain.ContainerTypeModels;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Tests.Common;
+using Tests.Data;
 using Xunit;
 
 namespace Api.Tests.Integration.ContainerTypes;
@@ -16,25 +18,31 @@ public class ContainersTypeControllerTests : BaseIntegrationTest, IAsyncLifetime
 
     public ContainersTypeControllerTests(IntegrationTestWebFactory factory) : base(factory)
     {
-        _mainContainerType = new ContainerType { Id = Guid.NewGuid(), Name = "Main Test Container Type" };
+        _mainContainerType = ContainerTypeData.MainContainerType;
     }
 
     [Fact]
     public async Task ShouldCreateContainerType()
     {
-        var request = new CreateUpdateContainerTypeDto { Name = "New Test Container Type" };
+        // Arrange
+        var containerTypeName = "New Test Container Type";
+        var request = new CreateUpdateContainerTypeDto { Name = containerTypeName };
 
+        // Act
         var response = await Client.PostAsJsonAsync("containers-type/add", request);
 
+        // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
 
         var containerTypeFromResponse = await response.ToResponseModel<ContainerTypeDto>();
         var containerTypeId = containerTypeFromResponse.Id!.Value;
 
         var containerTypeFromDatabase = await Context.ContainerTypes.FirstOrDefaultAsync(x => x.Id == containerTypeId);
+
         containerTypeFromDatabase.Should().NotBeNull();
-        containerTypeFromDatabase!.Name.Should().Be(request.Name);
+        containerTypeFromDatabase!.Name.Should().Be(containerTypeName);
     }
+
 
     [Fact]
     public async Task ShouldUpdateContainerType()
@@ -105,6 +113,7 @@ public class ContainersTypeControllerTests : BaseIntegrationTest, IAsyncLifetime
         };
 
         await Context.ContainerTypes.AddAsync(containerEntity);
+        await Context.Users.AddAsync(new UserEntity{Id = UserId,Email = "qwerty@gmail.com",PasswordHash = "fdsafdsafsad", RoleId = "Administrator"});
         await SaveChangesAsync();
     }
 

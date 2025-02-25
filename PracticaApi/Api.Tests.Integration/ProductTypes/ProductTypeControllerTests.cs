@@ -2,6 +2,7 @@
 using System.Net.Http.Json;
 using Api.Dtos.ProductsType;
 using DataAccessLayer.Entities.Products;
+using DataAccessLayer.Entities.Users;
 using Domain.ProductTypeModels;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -105,6 +106,7 @@ public class ProductTypeControllerTests : BaseIntegrationTest, IAsyncLifetime
         };
 
         await Context.ProductTypes.AddAsync(productEntity);
+        await Context.Users.AddAsync(new UserEntity{Id = UserId,Email = "qwerty@gmail.com",PasswordHash = "fdsafdsafsad", RoleId = "Administrator"});
         await SaveChangesAsync();
     }
 

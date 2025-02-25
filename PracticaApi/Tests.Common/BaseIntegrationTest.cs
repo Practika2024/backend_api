@@ -23,6 +23,7 @@ public abstract class BaseIntegrationTest : IClassFixture<IntegrationTestWebFact
     private const string JwtSecretKey = "sItTJw6q2Pc7uFScU3JLrUF4S3S6krpgGhZeT9ZyWd2HA5vDNcyPLvo7BSGTeFYQ";
     protected readonly ApplicationDbContext Context;
     protected readonly HttpClient Client;
+    protected readonly Guid UserId=Guid.NewGuid();
 
     protected BaseIntegrationTest(IntegrationTestWebFactory factory)
     {
@@ -65,8 +66,10 @@ public abstract class BaseIntegrationTest : IClassFixture<IntegrationTestWebFact
 
         var claims = new List<Claim>
         {
+            
             new Claim(ClaimTypes.Role, AuthSettings.AdminRole),
-            new Claim(ClaimTypes.Role, AuthSettings.OperatorRole)
+            new Claim("id", UserId.ToString()),
+         //   new Claim(ClaimTypes.Role, AuthSettings.OperatorRole)
         };
         var token = new JwtSecurityToken(
             issuer: JwtIssuer,

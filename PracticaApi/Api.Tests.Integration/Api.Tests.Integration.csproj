@@ -27,5 +27,10 @@
       <ProjectReference Include="..\Tests.Common\Tests.Common.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Containers\" />
+      <Folder Include="Reminders\" />
+    </ItemGroup>
+
 
 </Project>
