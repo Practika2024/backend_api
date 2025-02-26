@@ -12,7 +12,7 @@ namespace Api.Controllers
     [Route("reminders")]
     [ApiController]
     // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class RemindersController(ISender sender, IReminderQueries reminderQueries, IMapper mapper) : ControllerBase
+    public class RemindersController(ISender sender, IReminderQueries reminderQueries, IMapper mapper) : BaseController
     {
         
         [HttpGet("get-all")]

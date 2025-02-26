@@ -22,6 +22,17 @@ public class ProductsTypeController(ISender sender, IProductTypeQueries productT
         return Ok(entities.Select(mapper.Map<ProductTypeDto>).ToList());
     }
     
+    [HttpGet("get-by-id/{productTypeId:guid}")]
+    public async Task<ActionResult<ProductTypeDto>> GetById([FromRoute] Guid productTypeId,
+        CancellationToken cancellationToken)
+    {
+        var entity = await productTypeQueries.GetById(productTypeId, cancellationToken);
+        
+        return entity.Match<ActionResult<ProductTypeDto>>(
+            p => Ok(mapper.Map<ProductTypeDto>(p)),
+            () => NotFound());
+    }
+    
     [HttpPost("add")]
     public async Task<ActionResult<ProductTypeDto>> AddProductType(
         [FromBody] CreateUpdateProductTypeDto model,

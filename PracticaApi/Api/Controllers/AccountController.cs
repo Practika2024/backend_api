@@ -10,7 +10,7 @@ namespace Api.Controllers;
 
 [Route("account")]
 [ApiController]
-public class AccountController(ISender sender, IMapper mapper) : ControllerBase
+public class AccountController(ISender sender, IMapper mapper) : BaseController
 {
     [HttpPost("signup")]
     public async Task<ActionResult<JwtModel>> SignUpAsync(
