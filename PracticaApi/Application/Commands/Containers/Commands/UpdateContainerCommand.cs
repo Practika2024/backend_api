@@ -1,7 +1,9 @@
 ﻿using Application.Commands.Containers.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
-using Domain.ContainerModels;
+using AutoMapper;
+using Domain.Containers;
+using Domain.Containers.Models;
 using MediatR;
 
 namespace Application.Commands.Containers.Commands;
@@ -15,9 +17,10 @@ public record UpdateContainerCommand : IRequest<Result<Container, ContainerExcep
     public Guid ModifiedBy { get; init; }
     public Guid TypeId { get; init; }
 }
-
+// todo if container change type then unique code of container must change
 public class UpdateContainerCommandHandler(
-    IContainerRepository containerRepository)
+    IContainerRepository containerRepository,
+    IMapper mapper)
     : IRequestHandler<UpdateContainerCommand, Result<Container, ContainerException>>
 {
     public async Task<Result<Container, ContainerException>> Handle(
@@ -34,17 +37,21 @@ public class UpdateContainerCommandHandler(
             {
                 try
                 {
-                    var typeId = request.TypeId;
-                    var updateContainerModel = new UpdateContainerModel
-                    {
-                        Id = containerId,
-                        Name = request.Name,
-                        Volume = request.Volume,
-                        Notes = request.Notes,
-                        ModifiedBy = userId,
-                        TypeId = typeId,
-                    };
-                    var updatedContainer = await containerRepository.Update(updateContainerModel, cancellationToken);
+                    var updatedContainerModel = mapper.Map<UpdateContainerModel>(container);
+                    
+                    updatedContainerModel.UniqueCode = container.UniqueCode;
+                    if (request?.Name is not null)
+                        updatedContainerModel.Name = request.Name;
+                    if (request?.Notes is not null)
+                        updatedContainerModel.Notes = request.Notes;
+                    if (request!.Volume != default)
+                        updatedContainerModel.Volume = request.Volume;
+                    if (request.TypeId != default)
+                        updatedContainerModel.TypeId = request.TypeId;
+
+                    updatedContainerModel.ModifiedBy = request.ModifiedBy;
+
+                    var updatedContainer = await containerRepository.Update(updatedContainerModel, cancellationToken);
                     return updatedContainer;
                 }
                 catch (ContainerException exception)

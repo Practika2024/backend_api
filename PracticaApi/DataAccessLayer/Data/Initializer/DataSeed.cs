@@ -69,10 +69,26 @@ namespace DataAccessLayer.Data.Initializer
         {
             var userId = users[0].Id;
             modelBuilder.Entity<ContainerTypeEntity>().HasData(
-                new ContainerTypeEntity { Id = Guid.NewGuid(), Name = "Plastic", CreatedBy = userId },
-                new ContainerTypeEntity { Id = Guid.NewGuid(), Name = "Glass", CreatedBy = userId },
-                new ContainerTypeEntity { Id = Guid.NewGuid(), Name = "Metal", CreatedBy = userId },
-                new ContainerTypeEntity { Id = Guid.NewGuid(), Name = "Other", CreatedBy = userId }
+                new ContainerTypeEntity
+                {
+                    Id = Guid.NewGuid(), Name = "Plastic", CreatedBy = userId, CreatedAt = DateTime.UtcNow,
+                    ModifiedBy = userId, ModifiedAt = DateTime.UtcNow
+                },
+                new ContainerTypeEntity
+                {
+                    Id = Guid.NewGuid(), Name = "Glass", CreatedBy = userId, CreatedAt = DateTime.UtcNow,
+                    ModifiedBy = userId, ModifiedAt = DateTime.UtcNow
+                },
+                new ContainerTypeEntity
+                {
+                    Id = Guid.NewGuid(), Name = "Metal", CreatedBy = userId, CreatedAt = DateTime.UtcNow,
+                    ModifiedBy = userId, ModifiedAt = DateTime.UtcNow
+                },
+                new ContainerTypeEntity
+                {
+                    Id = Guid.NewGuid(), Name = "Other", CreatedBy = userId, CreatedAt = DateTime.UtcNow,
+                    ModifiedBy = userId, ModifiedAt = DateTime.UtcNow
+                }
             );
         }
 
@@ -80,10 +96,26 @@ namespace DataAccessLayer.Data.Initializer
         {
             var userId = users[0].Id;
             modelBuilder.Entity<ProductTypeEntity>().HasData(
-                new ProductTypeEntity { Id = Guid.NewGuid(), Name = "Liquid", CreatedBy = userId },
-                new ProductTypeEntity { Id = Guid.NewGuid(), Name = "Solid", CreatedBy = userId },
-                new ProductTypeEntity { Id = Guid.NewGuid(), Name = "Powder", CreatedBy = userId },
-                new ProductTypeEntity { Id = Guid.NewGuid(), Name = "Other", CreatedBy = userId }
+                new ProductTypeEntity
+                {
+                    Id = Guid.NewGuid(), Name = "Liquid", CreatedBy = userId, CreatedAt = DateTime.UtcNow,
+                    ModifiedBy = userId, ModifiedAt = DateTime.UtcNow
+                },
+                new ProductTypeEntity
+                {
+                    Id = Guid.NewGuid(), Name = "Solid", CreatedBy = userId, CreatedAt = DateTime.UtcNow,
+                    ModifiedBy = userId, ModifiedAt = DateTime.UtcNow
+                },
+                new ProductTypeEntity
+                {
+                    Id = Guid.NewGuid(), Name = "Powder", CreatedBy = userId, CreatedAt = DateTime.UtcNow,
+                    ModifiedBy = userId, ModifiedAt = DateTime.UtcNow
+                },
+                new ProductTypeEntity
+                {
+                    Id = Guid.NewGuid(), Name = "Other", CreatedBy = userId, CreatedAt = DateTime.UtcNow,
+                    ModifiedBy = userId, ModifiedAt = DateTime.UtcNow
+                }
             );
         }
     }

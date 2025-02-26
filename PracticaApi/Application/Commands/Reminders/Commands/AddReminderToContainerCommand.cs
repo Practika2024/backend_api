@@ -1,7 +1,8 @@
 ﻿using Application.Commands.Reminders.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
-using Domain.ReminderModels;
+using Domain.Reminders;
+using Domain.Reminders.Models;
 using MediatR;
 
 namespace Application.Commands.Reminders.Commands;

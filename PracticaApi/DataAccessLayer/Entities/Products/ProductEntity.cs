@@ -11,13 +11,4 @@ public class ProductEntity : AuditableEntity<UserEntity>
     public DateTime ManufactureDate { get; set; }
     public Guid TypeId { get; set; }
     public ProductTypeEntity? Type { get; set; }
-    public ICollection<ContainerHistoryEntity> Histories { get; set; } = new List<ContainerHistoryEntity>();
-}
-
-public enum ProductType
-{
-    Liquid,
-    Solid,
-    Powder,
-    Other
 }

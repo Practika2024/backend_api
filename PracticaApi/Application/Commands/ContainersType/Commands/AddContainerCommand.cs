@@ -2,7 +2,8 @@
 using Application.Commands.ContainersType.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
-using Domain.ContainerTypeModels;
+using Domain.ContainerTypes;
+using Domain.ContainerTypes.Models;
 using MediatR;
 using ContainerUnknownException = Application.Commands.ContainersType.Exceptions.ContainerUnknownException;
 

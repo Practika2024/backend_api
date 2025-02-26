@@ -1,4 +1,4 @@
-﻿using Domain.ProductModels;
+﻿using Domain.Products;
 using Optional;
 
 namespace Application.Common.Interfaces.Queries

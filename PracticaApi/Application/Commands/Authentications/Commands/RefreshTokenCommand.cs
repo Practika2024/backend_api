@@ -2,8 +2,8 @@ using Application.Commands.Authentications.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
 using Application.Services.TokenService;
-using Domain.RefreshTokenModels;
-using Domain.UserModels;
+using Domain.RefreshTokens;
+using Domain.Users.Models;
 using MediatR;
 using Microsoft.IdentityModel.JsonWebTokens;
 

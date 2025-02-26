@@ -8,6 +8,7 @@
         public string? Notes { get; init; }
         public string UniqueCode { get; init; }
         public Guid? TypeId { get; init; } = null!;
-        public Guid? ContentId { get; init; } = null!;
+        public Guid? ProductId { get; init; } = null!;
+        public bool IsEmpty => !ProductId.HasValue;
     }
 }

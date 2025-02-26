@@ -3,8 +3,8 @@ using Api.Dtos.ContainersType;
 using Api.Dtos.Users;
 using AutoMapper;
 using DataAccessLayer.Entities.Containers;
-using Domain.ContainerTypeModels;
-using Domain.UserModels;
+using Domain.Users;
+using Domain.Users.Models;
 
 namespace Api.MappingProfiles;
 

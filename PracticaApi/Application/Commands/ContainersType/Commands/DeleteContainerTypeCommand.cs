@@ -1,7 +1,7 @@
 ﻿using Application.Commands.ContainersType.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
-using Domain.ContainerTypeModels;
+using Domain.ContainerTypes;
 using MediatR;
 
 namespace Application.Commands.ContainersType.Commands;

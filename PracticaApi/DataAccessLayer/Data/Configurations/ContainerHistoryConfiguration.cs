@@ -12,12 +12,12 @@ public class ContainerHistoryConfiguration : IEntityTypeConfiguration<ContainerH
         builder.Property(ch => ch.EndDate);
 
         builder.HasOne(ch => ch.Container)
-            .WithMany(c => c.Histories)
+            .WithMany()
             .HasForeignKey(ch => ch.ContainerId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(ch => ch.Product)
-            .WithMany(p => p.Histories)
+            .WithMany()
             .HasForeignKey(ch => ch.ProductId)
             .OnDelete(DeleteBehavior.Restrict);
         

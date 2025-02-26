@@ -5,7 +5,8 @@ using AutoMapper;
 using DataAccessLayer.Data;
 using DataAccessLayer.Entities.Products;
 using DataAccessLayer.Extensions;
-using Domain.ProductModels;
+using Domain.Products;
+using Domain.Products.Models;
 using Microsoft.EntityFrameworkCore;
 using Optional;
 

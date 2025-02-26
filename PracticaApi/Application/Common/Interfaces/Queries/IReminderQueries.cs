@@ -1,4 +1,4 @@
-﻿using Domain.ReminderModels;
+﻿using Domain.Reminders;
 using Optional;
 
 namespace Application.Common.Interfaces.Queries
