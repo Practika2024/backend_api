@@ -1,4 +1,4 @@
-﻿using Domain.ContainerHistoryModels;
+﻿using Domain.ContainersHistory;
 using Optional;
 
 namespace Application.Common.Interfaces.Queries

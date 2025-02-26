@@ -1,4 +1,4 @@
-﻿using Domain.ReminderModels;
+﻿using Domain.Reminders;
 
 namespace Api.Dtos.Reminders;
 public class ReminderDto

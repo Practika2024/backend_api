@@ -1,5 +1,5 @@
 using Api.Dtos.Authentications;
-using Domain.UserModels;
+using Domain.Users;
 
 namespace Tests.Data;
 

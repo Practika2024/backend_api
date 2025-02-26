@@ -1,4 +1,4 @@
-﻿using Domain.UserModels;
+﻿using Domain.Users;
 using Optional;
 
 namespace Application.Common.Interfaces.Queries

@@ -5,7 +5,8 @@ using AutoMapper;
 using DataAccessLayer.Data;
 using DataAccessLayer.Entities.ContainerHistories;
 using DataAccessLayer.Extensions;
-using Domain.ContainerHistoryModels;
+using Domain.ContainersHistory;
+using Domain.ContainersHistory.Models;
 using Microsoft.EntityFrameworkCore;
 using Optional;
 

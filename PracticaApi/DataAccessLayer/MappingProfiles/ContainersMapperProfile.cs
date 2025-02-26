@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DataAccessLayer.Entities.Containers;
-using Domain.ContainerModels;
+using Domain.Containers;
+using Domain.Containers.Models;
 
 namespace DataAccessLayer.MappingProfiles;
 

@@ -2,9 +2,9 @@
 using Application.Common;
 using Application.Common.Interfaces.Queries;
 using Application.Common.Interfaces.Repositories;
-using Domain.ContainerHistoryModels;
-using Domain.ContainerModels;
-using Domain.ProductModels;
+using Domain.Containers;
+using Domain.Containers.Models;
+using Domain.ContainersHistory.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore.Migrations;
 

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DataAccessLayer.Entities.ContainerHistories;
-using Domain.ContainerHistoryModels;
+using Domain.ContainersHistory;
+using Domain.ContainersHistory.Models;
 
 namespace DataAccessLayer.MappingProfiles;
 

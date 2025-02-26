@@ -4,7 +4,7 @@ using Application.Common.Interfaces.Repositories;
 using Application.Services.HashPasswordService;
 using Application.Services.TokenService;
 using Application.Settings;
-using Domain.UserModels;
+using Domain.Users.Models;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;

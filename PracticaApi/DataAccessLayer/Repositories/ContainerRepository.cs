@@ -5,7 +5,8 @@ using AutoMapper;
 using DataAccessLayer.Data;
 using DataAccessLayer.Entities.Containers;
 using DataAccessLayer.Extensions;
-using Domain.ContainerModels;
+using Domain.Containers;
+using Domain.Containers.Models;
 using Microsoft.EntityFrameworkCore;
 using Optional;
 

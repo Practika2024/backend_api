@@ -5,10 +5,10 @@ using AutoMapper;
 using DataAccessLayer.Data;
 using DataAccessLayer.Entities.Products;
 using DataAccessLayer.Extensions;
-using Domain.ProductTypeModels;
+using Domain.ProductTypes.Models;
 using Microsoft.EntityFrameworkCore;
 using Optional;
-using ProductType = Domain.ProductTypeModels.ProductType;
+using ProductType = Domain.ProductTypes.ProductType;
 
 namespace DataAccessLayer.Repositories;
 

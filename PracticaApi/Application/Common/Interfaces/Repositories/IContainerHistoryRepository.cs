@@ -1,4 +1,5 @@
-﻿using Domain.ContainerHistoryModels;
+﻿using Domain.ContainersHistory;
+using Domain.ContainersHistory.Models;
 using Optional;
 
 namespace Application.Common.Interfaces.Repositories

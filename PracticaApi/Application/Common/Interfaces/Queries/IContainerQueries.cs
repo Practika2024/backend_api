@@ -1,4 +1,4 @@
-﻿using Domain.ContainerModels;
+﻿using Domain.Containers;
 using Optional;
 
 namespace Application.Common.Interfaces.Queries

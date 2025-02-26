@@ -1,5 +1,4 @@
 ﻿using Domain.Common.Interfaces;
-using Domain.UserModels;
 
 namespace Domain.Common.Abstractions;
 

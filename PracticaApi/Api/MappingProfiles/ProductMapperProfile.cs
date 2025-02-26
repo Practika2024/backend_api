@@ -1,6 +1,6 @@
 ﻿using Api.Dtos.Products;
 using AutoMapper;
-using Domain.ProductModels;
+using Domain.Products;
 
 namespace Api.MappingProfiles;
 

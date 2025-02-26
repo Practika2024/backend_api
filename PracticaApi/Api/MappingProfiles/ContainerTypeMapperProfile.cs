@@ -1,7 +1,8 @@
 ﻿using Api.Dtos.ContainersType;
 using AutoMapper;
 using DataAccessLayer.Entities.Containers;
-using Domain.ContainerTypeModels;
+using Domain.ContainerTypes;
+using Domain.ContainerTypes.Models;
 
 namespace Api.MappingProfiles;
 

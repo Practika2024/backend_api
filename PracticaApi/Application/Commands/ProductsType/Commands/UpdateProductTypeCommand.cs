@@ -1,7 +1,8 @@
 ﻿using Application.Commands.ProductsType.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
-using Domain.ProductTypeModels;
+using Domain.ProductTypes;
+using Domain.ProductTypes.Models;
 using MediatR;
 
 namespace Application.Commands.ProductsType.Commands;

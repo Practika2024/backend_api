@@ -2,7 +2,7 @@
 // using Application.Common;
 // using Application.Common.Interfaces.Repositories;
 // using Application.Services.TokenService;
-// using Domain.UserModels;
+// using Domain.Users;
 // using MediatR;
 //
 // namespace Application.Commands.Users.Commands;

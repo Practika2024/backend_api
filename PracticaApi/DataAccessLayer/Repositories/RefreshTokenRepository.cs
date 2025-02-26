@@ -3,7 +3,8 @@ using Application.Common.Interfaces.Repositories;
 using AutoMapper;
 using DataAccessLayer.Data;
 using DataAccessLayer.Entities.RefreshTokens;
-using Domain.RefreshTokenModels;
+using Domain.RefreshTokens;
+using Domain.RefreshTokens.Models;
 using Microsoft.EntityFrameworkCore;
 using Optional;
 

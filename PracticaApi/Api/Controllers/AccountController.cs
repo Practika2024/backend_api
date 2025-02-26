@@ -2,7 +2,7 @@
 using Api.Modules.Errors;
 using Application.Commands.Authentications.Commands;
 using AutoMapper;
-using Domain.UserModels;
+using Domain.Users.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DataAccessLayer.Entities.Products;
-using Domain.ProductModels;
+using Domain.Products;
+using Domain.Products.Models;
 
 namespace DataAccessLayer.MappingProfiles;
 

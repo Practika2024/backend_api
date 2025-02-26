@@ -1,8 +1,9 @@
 ﻿using AutoMapper;
 using DataAccessLayer.Entities.Roles;
 using DataAccessLayer.Entities.Users;
-using Domain.RoleModels;
-using Domain.UserModels;
+using Domain.Roles;
+using Domain.Users;
+using Domain.Users.Models;
 
 namespace DataAccessLayer.MappingProfiles;
 

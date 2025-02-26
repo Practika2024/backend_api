@@ -1,7 +1,8 @@
 using Application.Commands.Users.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
-using Domain.UserModels;
+using Domain.Users;
+using Domain.Users.Models;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
 

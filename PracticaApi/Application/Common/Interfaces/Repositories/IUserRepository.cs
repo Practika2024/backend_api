@@ -1,4 +1,5 @@
-﻿using Domain.UserModels;
+﻿using Domain.Users;
+using Domain.Users.Models;
 using Microsoft.AspNetCore.Identity;
 using Optional;
 

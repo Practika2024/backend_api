@@ -2,8 +2,9 @@
 using Application.Common;
 using Application.Common.Interfaces.Queries;
 using Application.Common.Interfaces.Repositories;
-using Domain.ProductModels;
-using Domain.ProductTypeModels;
+using Domain.Products;
+using Domain.Products.Models;
+using Domain.ProductTypes;
 using MediatR;
 
 namespace Application.Commands.Products.Commands;

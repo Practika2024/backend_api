@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
-using Domain.ContainerModels;
+using Domain.Containers;
+using Domain.Containers.Models;
 
 namespace Application.MappingProfiles;
 

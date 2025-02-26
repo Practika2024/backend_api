@@ -2,7 +2,8 @@
 using Application.Common;
 using Application.Common.Interfaces.Queries;
 using Application.Common.Interfaces.Repositories;
-using Domain.ContainerModels;
+using Domain.Containers;
+using Domain.Containers.Models;
 using MediatR;
 
 namespace Application.Commands.Containers.Commands;
