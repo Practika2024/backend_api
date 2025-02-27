@@ -1,6 +1,38 @@
 ﻿services:
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: final_project
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: FinalProject
+    ports:
+      - "5433:5432"
+    volumes:
+      - final_project_db_data:/var/lib/postgresql/data
+    networks:
+      - finalback_network
+
   api:
-    image: api
     build:
       context: .
       dockerfile: ./Dockerfile
+    environment:
+      - ConnectionStrings__Default=Server=db;Port=5432;Database=FinalProject;Username=final_project;Password=12345;
+      - ASPNETCORE_ENVIRONMENT=Production
+      - AllowSeeders=true
+      - AuthSettings__Key=sItTJw6q2Pc7uFScU3JLrUF4S3S6krpgGhZeT9ZyWd2HA5vDNcyPLvo7BSGTeFYQ
+      - AuthSettings__Issuer=oa.edu.ua
+      - AuthSettings__Audience=oa.edu.ua
+    depends_on:
+      - db
+    ports:
+      - "4312:8080"
+    networks:
+      - finalback_network
+
+networks:
+  finalback_network:
+
+
+volumes:
+  final_project_db_data:
