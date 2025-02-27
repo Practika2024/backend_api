@@ -21,6 +21,6 @@ RUN dotnet publish -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
-COPY src/Api/docker-compose.yml /app/docker-compose.yml
+COPY ./docker-compose.yml /app/docker-compose.yml
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Api.dll"]
