@@ -1,12 +1,14 @@
-﻿services:
+﻿version: '3.8'
+
+services:
   db:
     image: postgres:latest
     environment:
-      POSTGRES_USER: final_project
-      POSTGRES_PASSWORD: 12345
-      POSTGRES_DB: FinalProject
+      POSTGRES_USER: postgres       # Matches the User Id in appsettings.Development.json
+      POSTGRES_PASSWORD: postgres   # Matches the Password in appsettings.Development.json
+      POSTGRES_DB: postgres         # Matches the Database in appsettings.Development.json
     ports:
-      - "5433:5432"
+      - "5432:5432"                 # Maps port 5432 on the host to 5432 inside the container
     volumes:
       - final_project_db_data:/var/lib/postgresql/data
     networks:
@@ -17,22 +19,21 @@
       context: .
       dockerfile: ./Dockerfile
     environment:
-      - ConnectionStrings__Default=Server=db;Port=5432;Database=FinalProject;Username=final_project;Password=12345;
-      - ASPNETCORE_ENVIRONMENT=Production
-      - AllowSeeders=true
-      - AuthSettings__Key=sItTJw6q2Pc7uFScU3JLrUF4S3S6krpgGhZeT9ZyWd2HA5vDNcyPLvo7BSGTeFYQ
-      - AuthSettings__Issuer=oa.edu.ua
-      - AuthSettings__Audience=oa.edu.ua
+      - ConnectionStrings__Default=Server=db;Port=5432;Database=postgres;User Id=postgres;Password=postgres;
+      - ASPNETCORE_ENVIRONMENT=Development
+      - GoogleAuthSettings__ClientId=219955824362-0rhvb42q1827djp1m7ao56921c6ivn9o.apps.googleusercontent.com
+      - AuthSettings__key=sItTJw6q2Pc7uFScU3JLrUF4S3S6krpgGhZeT9ZyWd2HA5vDNcyPLvo7BSGTeFYQ
+      - AuthSettings__issuer=oa.edu.ua
+      - AuthSettings__audience=oa.edu.ua
     depends_on:
       - db
     ports:
-      - "4312:8080"
+      - "8080:8080"
     networks:
       - finalback_network
 
 networks:
   finalback_network:
-
 
 volumes:
   final_project_db_data:
