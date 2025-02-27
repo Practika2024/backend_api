@@ -1,32 +1,17 @@
 ﻿version: '3.8'
 
 services:
-  db:
-    image: postgres:latest
-    environment:
-      POSTGRES_USER: postgres       # Matches the User Id in appsettings.Development.json
-      POSTGRES_PASSWORD: postgres   # Matches the Password in appsettings.Development.json
-      POSTGRES_DB: postgres         # Matches the Database in appsettings.Development.json
-    ports:
-      - "5432:5432"                 # Maps port 5432 on the host to 5432 inside the container
-    volumes:
-      - final_project_db_data:/var/lib/postgresql/data
-    networks:
-      - finalback_network
-
   api:
     build:
       context: .
       dockerfile: ./Dockerfile
     environment:
-      - ConnectionStrings__Default=Server=db;Port=5432;Database=postgres;User Id=postgres;Password=postgres;
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__Default=Host=dpg-cv06cf2n91rc73fl46s0-a.oregon-postgres.render.com;Port=5432;Database=db_wywu;Username=userdb;Password=jRNIf4uGBatrNlniu2leBsAEmA7b05Yb;
+      - ASPNETCORE_ENVIRONMENT=Production
       - GoogleAuthSettings__ClientId=219955824362-0rhvb42q1827djp1m7ao56921c6ivn9o.apps.googleusercontent.com
       - AuthSettings__key=sItTJw6q2Pc7uFScU3JLrUF4S3S6krpgGhZeT9ZyWd2HA5vDNcyPLvo7BSGTeFYQ
       - AuthSettings__issuer=oa.edu.ua
       - AuthSettings__audience=oa.edu.ua
-    depends_on:
-      - db
     ports:
       - "8080:8080"
     networks:
@@ -34,6 +19,3 @@ services:
 
 networks:
   finalback_network:
-
-volumes:
-  final_project_db_data:
