@@ -104,55 +104,6 @@ public class ContainerHistoryRepository(ApplicationDbContext context, IMapper ma
         
         return mapper.Map<IReadOnlyList<ContainerHistory>>(containersHistory);
     }
-
-    // public async Task<IReadOnlyList<ContainerHistory>> GetByContainerId(Guid containerId,
-    //     CancellationToken cancellationToken)
-    // {
-    //     var historyEntities = await context.ContainerHistories
-    //         .Where(h => h.ContainerId == containerId)
-    //         .AsNoTracking()
-    //         .ToListAsync(cancellationToken);
-    //
-    //     return mapper.Map<IReadOnlyList<ContainerHistory>>(historyEntities);
-    // }
-    //
-    // public async Task<IReadOnlyList<ContainerHistory>> GetByContainerIdFromTo(Guid containerId, DateTime startDate, DateTime endDate,
-    //     CancellationToken cancellationToken)
-    // {
-    //     var historyEntities = await context.ContainerHistories
-    //         .Where(h => h.ContainerId == containerId && h.StartDate >= startDate && h.StartDate <= endDate)
-    //         .AsNoTracking()
-    //         .ToListAsync(cancellationToken);
-    //
-    //     return mapper.Map<IReadOnlyList<ContainerHistory>>(historyEntities);
-    // }
-    //
-    // public async Task<IReadOnlyList<ContainerHistory>> GetByProductId(Guid productId, CancellationToken cancellationToken)
-    // {
-    //     var historyEntities = await context.ContainerHistories
-    //         .Where(h => h.ContainerId == productId && h.StartDate >= startDate && h.StartDate <= endDate)
-    //         .AsNoTracking()
-    //         .ToListAsync(cancellationToken);
-    //
-    //     return mapper.Map<IReadOnlyList<ContainerHistory>>(historyEntities);
-    // }
-    //
-    // public async Task<IReadOnlyList<ContainerHistory>> GetByProductIdFromTo(Guid containerId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
-    // {
-    //     throw new NotImplementedException();
-    // }
-    //
-    // public async Task<IReadOnlyList<ContainerHistory>> GetByContainerIdAndProductId(Guid containerId, Guid productId, CancellationToken cancellationToken)
-    // {
-    //     throw new NotImplementedException();
-    // }
-    //
-    // public async Task<IReadOnlyList<ContainerHistory>> GetByContainerIdAndProductIdFromTo(Guid containerId, Guid productId, DateTime startDate, DateTime endDate,
-    //     CancellationToken cancellationToken)
-    // {
-    //     throw new NotImplementedException();
-    // }
-
     private async Task<ContainerHistoryEntity?> GetHistoryAsync(
         Expression<Func<ContainerHistoryEntity, bool>> predicate,
         CancellationToken cancellationToken,
