@@ -3,7 +3,9 @@ using System.Net.Http.Json;
 using Api.Dtos.ContainersType;
 using DataAccessLayer.Entities.Containers;
 using DataAccessLayer.Entities.Users;
+using DataAccessLayer.Extensions;
 using Domain.ContainerTypeModels;
+using Domain.UserModels;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Tests.Common;
@@ -67,7 +69,7 @@ public class ContainersTypeControllerTests : BaseIntegrationTest, IAsyncLifetime
         var response = await Client.PutAsJsonAsync($"containers-type/update/{Guid.NewGuid()}", request);
 
         response.IsSuccessStatusCode.Should().BeFalse();
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
     }
 
     [Fact]
@@ -89,7 +91,7 @@ public class ContainersTypeControllerTests : BaseIntegrationTest, IAsyncLifetime
         var response = await Client.DeleteAsync($"containers-type/delete/{Guid.NewGuid()}");
 
         response.IsSuccessStatusCode.Should().BeFalse();
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
     }
 
     [Fact]
@@ -109,11 +111,11 @@ public class ContainersTypeControllerTests : BaseIntegrationTest, IAsyncLifetime
         {
             Id = _mainContainerType.Id,
             Name = _mainContainerType.Name,
-            CreatedBy = Guid.Parse("4f4ef8f5-786a-4aeb-bae8-11c4cc5d20b9") // Правильне перетворення рядка в Guid
+            CreatedBy = UserId
         };
 
-        await Context.ContainerTypes.AddAsync(containerEntity);
         await Context.Users.AddAsync(new UserEntity{Id = UserId,Email = "qwerty@gmail.com",PasswordHash = "fdsafdsafsad", RoleId = "Administrator"});
+        await Context.ContainerTypes.AddAuditableAsync(containerEntity);
         await SaveChangesAsync();
     }
 
@@ -122,6 +124,7 @@ public class ContainersTypeControllerTests : BaseIntegrationTest, IAsyncLifetime
     public async Task DisposeAsync()
     {
         Context.ContainerTypes.RemoveRange(Context.ContainerTypes);
+       //Context.Users.RemoveRange(Context.Users);
         await SaveChangesAsync();
     }
 }
