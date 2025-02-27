@@ -1,13 +1,19 @@
-﻿namespace Application.Common.Interfaces.Repositories;
-using Domain.Containers;
+﻿using Domain.Containers;
+using Domain.Containers.Models;
 using Optional;
 
-public interface IContainerRepository
+namespace Application.Common.Interfaces.Repositories
 {
-    Task<Container> Create(Container container, CancellationToken cancellationToken);
-    Task<Container> Update(Container container, CancellationToken cancellationToken);
-    Task<Container> Delete(Container container, CancellationToken cancellationToken);
-    Task<Option<Container>> GetById(ContainerId id, CancellationToken cancellationToken);
-    Task<Option<Container>> SearchByUniqueCode(string uniqueCode, CancellationToken cancellationToken);
-    Task<Option<Container>> SearchByName(string name, CancellationToken cancellationToken);
+    public interface IContainerRepository
+    {
+        Task<Container> Create(CreateContainerModel model, CancellationToken cancellationToken);
+        Task<Container> Update(UpdateContainerModel model, CancellationToken cancellationToken);
+        Task<Container> Delete(DeleteContainerModel model, CancellationToken cancellationToken);
+        Task<Option<Container>> GetById(Guid id, CancellationToken cancellationToken);
+        Task<Option<Container>> SearchByUniqueCode(string uniqueCode, CancellationToken cancellationToken);
+        Task<Option<Container>> SearchByName(string name, CancellationToken cancellationToken);
+        Task<Container> SetContainerContent(SetContainerContentModel model, CancellationToken cancellationToken);
+        Task<Container> ClearContainerContent(ClearContainerContentModel model, CancellationToken cancellationToken);
+        Task<int> GetLastSequenceForPrefixAsync(string codePrefix, CancellationToken cancellationToken);
+    }
 }

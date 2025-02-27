@@ -3,10 +3,12 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Application.Common.Interfaces.Repositories;
-using Application.ViewModels;
-using Domain.Authentications;
-using Domain.Authentications.Users;
+using Application.Settings;
 using Domain.RefreshTokens;
+using Domain.RefreshTokens.Models;
+using Domain.Users;
+using Domain.Users.Models;
+using Google.Apis.Auth;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -24,25 +26,11 @@ namespace Application.Services.TokenService
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim("id", user.Id.Value.ToString()),
+                new Claim("id", user.Id.ToString()),
                 new Claim("email", user.Email!),
                 new Claim("name", user.Name ?? "N/A"),
-                new Claim("image", user.UserImage?.FilePath ?? "N/A"),
+                new Claim("role", user.RoleId)
             };
-
-            if (user.Roles.Count() > 0)
-            {
-                var roleClaims = user.Roles.Select(ur => new Claim(
-                    "role",
-                    ur.Name
-                )).ToArray();
-
-                claims.AddRange(roleClaims);
-            }
-            else
-            {
-                claims.Add(new Claim("role", AuthSettings.OperatorRole));
-            }
             
             var token = new JwtSecurityToken(
                 issuer: issuer,
@@ -66,19 +54,22 @@ namespace Application.Services.TokenService
             }
         }
 
-        private async Task<RefreshToken?> SaveRefreshTokenAsync(User user, string refreshToken, string jwtId, CancellationToken cancellationToken)
+        private async Task<RefreshToken?> SaveRefreshTokenAsync(User userEntity, string refreshToken, string jwtId, CancellationToken cancellationToken)
         {
-            var token = RefreshToken.New(Guid.NewGuid(),
-                refreshToken,
-                jwtId, DateTime.UtcNow,
-                DateTime.UtcNow.AddDays(7),
-                user.Id);
+            var model = new CreateRefreshTokenModel
+            {
+                Id = Guid.NewGuid(),
+                Token = refreshToken,
+                JwtId = jwtId,
+                CreateDate = DateTime.UtcNow,
+                ExpiredDate = DateTime.UtcNow.AddDays(7),
+                UserId = userEntity.Id
+            };
 
             try
             {
-                await refreshTokenRepository.Create(token, cancellationToken);
-                
-                return token;
+                var tokenEntity = await refreshTokenRepository.Create(model, cancellationToken);
+                return tokenEntity;
             }
             catch (Exception e)
             {
@@ -113,7 +104,7 @@ namespace Application.Services.TokenService
             return principals;
         }
         
-        public async Task<JwtVM> GenerateTokensAsync(User user, CancellationToken cancellationToken)
+        public async Task<JwtModel> GenerateTokensAsync(User user, CancellationToken cancellationToken)
         {
             var accessToken = GenerateAccessToken(user);
             var refreshToken = GenerateRefreshToken();
@@ -122,13 +113,25 @@ namespace Application.Services.TokenService
             
             var saveResult = await SaveRefreshTokenAsync(user, refreshToken, accessToken.Id, cancellationToken);
 
-            var tokens = new JwtVM
+            var tokens = new JwtModel
             {
                 AccessToken = new JwtSecurityTokenHandler().WriteToken(accessToken),
                 RefreshToken = refreshToken
             };
 
             return tokens;
+        }
+        
+        public async Task<GoogleJsonWebSignature.Payload> VerifyGoogleToken(ExternalLoginModel model)
+        {
+            string clientId = configuration["GoogleAuthSettings:ClientId"];
+            var settings = new GoogleJsonWebSignature.ValidationSettings()
+            {
+                Audience = new List<string> { clientId }
+            };
+
+            var payload = await GoogleJsonWebSignature.ValidateAsync(model.Token, settings);
+            return payload;
         }
     }
 }

@@ -1,19 +1,11 @@
-﻿using Domain.Authentications.Users;
+﻿namespace Api.Dtos.Users;
 
-namespace Api.Dtos.Users;
-
-public record UserDto(
-    Guid? Id, 
-    string Email,
-    string? Name, 
-    UserImageDto? Image,
-    List<RoleDto>? Roles) 
+public record UserDto
 {
-    public static UserDto FromDomainModel(User user)
-        => new(
-            user.Id.Value,
-            user.Email, 
-            user.Name,
-            user.UserImage != null ? UserImageDto.FromDomainModel(user.UserImage) : null,
-            user.Roles.Select(RoleDto.FromDomainModel).ToList()); 
+    public Guid? Id { get; set; }
+    public string Email { get; set; }
+    public string? Name { get; set; }
+    public string? Surname { get; set; }
+    public string? Patronymic { get; set; }
+    public string? Role { get; set; }
 }

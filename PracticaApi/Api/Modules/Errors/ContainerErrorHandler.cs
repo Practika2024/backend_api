@@ -1,4 +1,4 @@
-﻿using Application.Exceptions;
+﻿using Application.Commands.Containers.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Modules.Errors;
@@ -10,7 +10,9 @@ public static class ContainerErrorHandler
         {
             StatusCode = exception switch
             {
-                ContainerNotFoundException => StatusCodes.Status404NotFound,
+                ContainerNotFoundException
+                    or UserNotFoundException
+                    or ContainerTypeNotFoundException => StatusCodes.Status404NotFound,
                 ContainerAlreadyExistsException or ContainerByThisUniqueCodeAlreadyExistsException =>
                     StatusCodes.Status409Conflict,
                 ContainerCreationException or ContainerUnknownException =>

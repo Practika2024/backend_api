@@ -1,4 +1,4 @@
-using Domain.Authentications.Roles;
+using Domain.Roles;
 using Optional;
 
 namespace Application.Common.Interfaces.Queries;

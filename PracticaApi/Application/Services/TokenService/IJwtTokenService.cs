@@ -1,12 +1,14 @@
 ﻿using System.Security.Claims;
-using Application.ViewModels;
-using Domain.Authentications.Users;
+using Domain.Users;
+using Domain.Users.Models;
+using Google.Apis.Auth;
 
 namespace Application.Services.TokenService
 {
     public interface IJwtTokenService
     {
-        Task<JwtVM> GenerateTokensAsync(User user, CancellationToken cancellationToken);
+        Task<JwtModel> GenerateTokensAsync(User user, CancellationToken cancellationToken);
         ClaimsPrincipal GetPrincipals(string accessToken);
+        Task<GoogleJsonWebSignature.Payload> VerifyGoogleToken(ExternalLoginModel model);
     }
 }

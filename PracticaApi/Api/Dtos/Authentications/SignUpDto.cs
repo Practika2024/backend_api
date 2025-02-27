@@ -1,9 +1,10 @@
-using Domain.Authentications.Users;
-
 namespace Api.Dtos.Authentications;
 
-public record SignUpDto(string Email, string Password, string? Name, string? Surname, string? Patronymic)
+public record SignUpDto
 {
-    public static SignUpDto FromDomainModel(User user)
-        => new(user.Email, user.PasswordHash, user.Name, user.Surname, user.Patronymic);
+    public string Email { get; set; }
+    public string Password { get; set; }
+    public string? Name { get; set; }
+    public string? Surname { get; set; }
+    public string? Patronymic { get; set; }
 }

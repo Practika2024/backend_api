@@ -1,9 +1,7 @@
 using Api.Modules;
 using Application;
 using Application.Middlewares;
-using Application.Services.ContainerServices.AddContainerService;
-using Infrastructure;
-using Infrastructure.Persistence;
+using DataAccessLayer;
 using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,10 +11,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
+builder.Services.AddApplication(builder);
 builder.Services.AddInfrastructure(builder);
-builder.Services.AddApplication();
 builder.Services.SetupServices();
 
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
 
@@ -33,12 +32,12 @@ app.UseCors(options => options
     .AllowAnyHeader()
     .AllowCredentials()
 );
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 await app.InitialiseDb();
 app.MapControllers();
-
 
 var imagesPath = Path.Combine(builder.Environment.ContentRootPath, "data/images");
 
@@ -55,7 +54,7 @@ app.UseStaticFiles(new StaticFileOptions
     FileProvider = new PhysicalFileProvider(imagesPath),
     RequestPath = "/images"
 });
-//
+
 // app.SeedData();
 
 app.Run();
