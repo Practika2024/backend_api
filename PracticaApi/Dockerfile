@@ -6,10 +6,10 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY ["Api/Api.csproj", "Api/"]
-COPY ["Application/Application.csproj", "Application/"]
-COPY ["Domain/Domain.csproj", "Domain/"]
-COPY ["DataAccessLayer/DataAccessLayer.csproj", "DataAccessLayer/"]
+COPY ["src/Api/Api.csproj", "src/Api/"]
+COPY ["src/Application/Application.csproj", "src/Application/"]
+COPY ["src/Domain/Domain.csproj", "src/Domain/"]
+COPY ["src/DataAccessLayer/DataAccessLayer.csproj", "src/DataAccessLayer/"]
 RUN dotnet restore "Api/Api.csproj"
 
 COPY . .
