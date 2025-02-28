@@ -81,9 +81,8 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
         {
             Id = containerId,
             Name = model.Name,
-            Notes = model?.Notes,
+            Notes = model.Notes,
             Volume = model.Volume,
-            TypeId = model.TypeId,
             ModifiedBy = GetUserId()!.Value,
         };
 

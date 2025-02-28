@@ -12,7 +12,7 @@ namespace Api.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Authorize(Roles = AuthSettings.AdminRole)]
 [ApiController]
-public class RolesController(IRoleQueries roleQueries, IMapper mapper) : ControllerBase
+public class RolesController(IRoleQueries roleQueries, IMapper mapper) : BaseController
 {
     [HttpGet("get-all")]
     public async Task<ActionResult<IReadOnlyList<RoleDto>>> GetAll(CancellationToken cancellationToken)
