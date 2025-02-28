@@ -4,7 +4,8 @@ using Application.Common.Interfaces.Repositories;
 using AutoMapper;
 using DataAccessLayer.Data;
 using DataAccessLayer.Entities.Users;
-using Domain.UserModels;
+using Domain.Users;
+using Domain.Users.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Optional;
@@ -90,22 +91,16 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper) : IUse
         return user == null ? Option.None<User>() : Option.Some(user);
     }
 
-    // public async Task<User> UpdateRoles(UpdateRolesModel model, CancellationToken cancellationToken)
-    // {
-    //     var userEntity = await GetUserAsync(x => x.Id == model.UserId, cancellationToken);
-    //
-    //     if (userEntity == null)
-    //     {
-    //         throw new InvalidOperationException("User not found.");
-    //     }
-    //
-    //     var roleEntity = await context.Roles.FirstOrDefaultAsync(r => r.Id == roleId, cancellationToken);
-    //
-    //     userEntity.Roles = roleEntities;
-    //     await context.SaveChangesAsync(cancellationToken);
-    //
-    //     return mapper.Map<User>(userEntity);
-    // }
+    public async Task<User> UpdateRole(UpdateRoleModel model, CancellationToken cancellationToken)
+    {
+        var userEntity = await context.Users.FirstOrDefaultAsync(u=> u.Id == model.UserId, cancellationToken);
+        
+        userEntity!.RoleId = model.RoleId;
+        
+        await context.SaveChangesAsync(cancellationToken);
+    
+        return mapper.Map<User>(userEntity);
+    }
 
     private async Task<UserEntity?> GetUserAsync(Expression<Func<UserEntity, bool>> predicate,
         CancellationToken cancellationToken,

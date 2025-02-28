@@ -2,7 +2,7 @@
 using Api.Modules.Errors;
 using Application.Commands.Authentications.Commands;
 using AutoMapper;
-using Domain.UserModels;
+using Domain.Users.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,7 +10,7 @@ namespace Api.Controllers;
 
 [Route("account")]
 [ApiController]
-public class AccountController(ISender sender, IMapper mapper) : ControllerBase
+public class AccountController(ISender sender, IMapper mapper) : BaseController
 {
     [HttpPost("signup")]
     public async Task<ActionResult<JwtModel>> SignUpAsync(

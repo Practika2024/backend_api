@@ -22,6 +22,17 @@ public class ContainersTypeController(ISender sender, IContainerTypeQueries cont
         return Ok(entities.Select(mapper.Map<ContainerTypeDto>).ToList());
     }
     
+    [HttpGet("get-by-id/{containerTypeId:guid}")]
+    public async Task<ActionResult<ContainerTypeDto>> GetById([FromRoute] Guid containerTypeId,
+        CancellationToken cancellationToken)
+    {
+        var entity = await containerTypeQueries.GetById(containerTypeId, cancellationToken);
+        
+        return entity.Match<ActionResult<ContainerTypeDto>>(
+            p => Ok(mapper.Map<ContainerTypeDto>(p)),
+            () => NotFound());
+    }
+    
     [HttpPost("add")]
     public async Task<ActionResult<ContainerTypeDto>> AddContainerType(
         [FromBody] CreateUpdateContainerTypeDto model,

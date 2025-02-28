@@ -4,7 +4,8 @@ using Application.Common.Interfaces.Repositories;
 using Application.Services.HashPasswordService;
 using Application.Services.TokenService;
 using Application.Settings;
-using Domain.UserModels;
+using Domain.Users;
+using Domain.Users.Models;
 using MediatR;
 
 namespace Application.Commands.Authentications.Commands;

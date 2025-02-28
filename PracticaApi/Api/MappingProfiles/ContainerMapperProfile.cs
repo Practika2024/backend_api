@@ -1,6 +1,6 @@
 ﻿using Api.Dtos.Containers;
 using AutoMapper;
-using Domain.ContainerModels;
+using Domain.Containers;
 
 namespace Api.MappingProfiles;
 

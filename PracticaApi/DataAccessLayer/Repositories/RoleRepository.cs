@@ -3,7 +3,7 @@ using Application.Common.Interfaces.Queries;
 using AutoMapper;
 using DataAccessLayer.Data;
 using DataAccessLayer.Entities.Roles;
-using Domain.RoleModels;
+using Domain.Roles;
 using Microsoft.EntityFrameworkCore;
 using Optional;
 

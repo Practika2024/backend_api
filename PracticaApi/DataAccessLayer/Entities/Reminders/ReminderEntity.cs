@@ -1,7 +1,7 @@
 ﻿using DataAccessLayer.Entities.Containers;
 using DataAccessLayer.Entities.Users;
 using Domain.Common.Abstractions;
-using Domain.ReminderModels;
+using Domain.Reminders;
 
 namespace DataAccessLayer.Entities.Reminders;
 public class ReminderEntity : AuditableEntity<UserEntity>

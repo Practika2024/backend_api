@@ -7,5 +7,4 @@ public record ContainerHistoryDto
     public Guid ProductId { get; init; }
     public DateTime StartDate { get; init; }
     public DateTime? EndDate { get; init; }
-    public Guid CreatedBy { get; init; }
 }

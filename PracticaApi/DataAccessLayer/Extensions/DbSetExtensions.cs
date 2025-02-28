@@ -19,7 +19,7 @@ public static class DbSetExtensions
         await dbSet.AddAsync(entity, cancellationToken);
     }
     
-    public static void UpdateAuditableAsync<TEntity>(
+    public static void UpdateAuditable<TEntity>(
         this DbSet<TEntity> dbSet,
         TEntity entity)
         where TEntity : AuditableEntity<UserEntity>
