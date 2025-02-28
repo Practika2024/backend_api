@@ -16,7 +16,6 @@ namespace Application.Common.Interfaces.Repositories
         Task<User> UpdateRole(UpdateRoleModel model, CancellationToken cancellationToken);
         
         
-        
         Task<User?> FindByLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken);
         Task<User?> FindByEmailAsync(string email, CancellationToken cancellationToken);
         Task<IdentityResult> AddLoginAsync(User user, UserLoginInfo loginInfo, CancellationToken cancellationToken);

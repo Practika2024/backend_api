@@ -1,9 +1,10 @@
-﻿using Domain.RefreshTokens;
+﻿using Domain.Common.Abstractions;
+using Domain.RefreshTokens;
 using Domain.Roles;
 
 namespace Domain.Users;
 
-public class User
+public class User : AuditableEntity<User>
 {
     public Guid Id { get; set; }
     public string Email { get; set; }

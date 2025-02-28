@@ -4,6 +4,7 @@ using Application.Common.Interfaces.Repositories;
 using AutoMapper;
 using DataAccessLayer.Data;
 using DataAccessLayer.Entities.Users;
+using DataAccessLayer.Extensions;
 using Domain.Users;
 using Domain.Users.Models;
 using Microsoft.AspNetCore.Identity;
@@ -18,7 +19,7 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper) : IUse
     {
         var userEntity = mapper.Map<UserEntity>(model);
 
-        await context.Users.AddAsync(userEntity, cancellationToken);
+        await context.Users.AddAuditableAsync(userEntity, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
         return mapper.Map<User>(userEntity);
@@ -34,6 +35,7 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper) : IUse
         }
 
         mapper.Map(model, userEntity);
+        context.Users.UpdateAuditable(userEntity);
         await context.SaveChangesAsync(cancellationToken);
 
         return mapper.Map<User>(userEntity);

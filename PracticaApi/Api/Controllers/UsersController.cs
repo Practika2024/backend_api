@@ -1,4 +1,5 @@
 ﻿using Api.Dtos.Users;
+using Application.Commands.Authentications.Commands;
 using Application.Commands.Users.Commands;
 using Application.Common.Interfaces.Queries;
 using Application.Settings;
@@ -16,7 +17,6 @@ namespace Api.Controllers;
 [Authorize(Roles = AuthSettings.AdminRole)]
 public class UsersController(ISender sender, IUserQueries userQueries, IMapper mapper) : ControllerBase
 {
-    // [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpGet("get-all")]
     public async Task<ActionResult<IReadOnlyList<UserDto>>> GetAll(CancellationToken cancellationToken)
     {
@@ -25,7 +25,6 @@ public class UsersController(ISender sender, IUserQueries userQueries, IMapper m
         return entities.Select(mapper.Map<UserDto>).ToList();
     }
     
-    // [Authorize(Roles = $"{AuthSettings.AdminRole},{AuthSettings.OperatorRole}")]
     [HttpGet("get-by-id/{userId:guid}")]
     public async Task<ActionResult<UserDto>> Get([FromRoute] Guid userId, CancellationToken cancellationToken)
     {
@@ -36,7 +35,27 @@ public class UsersController(ISender sender, IUserQueries userQueries, IMapper m
             () => NotFound());
     }
     
-    [Authorize(Roles = AuthSettings.AdminRole)]
+    [HttpPost("create")]
+    public async Task<ActionResult<UserDto>> SignUpAsync(
+        [FromBody] CreateUserDto request,
+        CancellationToken cancellationToken)
+    {
+        var input = new CreateUserCommand
+        {
+            Email = request.Email,
+            Surname = request.Surname,
+            Patronymic = request.Patronymic,
+            Password = request.Password,
+            Name = request.Name,
+        };
+        
+        var result = await sender.Send(input, cancellationToken);
+
+        return result.Match<ActionResult<UserDto>>(
+            u => mapper.Map<UserDto>(u),
+            e => Problem(e.Message));
+    }
+    
     [HttpPut("update-role/{userId:guid}")]
     public async Task<ActionResult<UserDto>> UpdateRoles(
         [FromRoute] Guid userId,
@@ -55,8 +74,7 @@ public class UsersController(ISender sender, IUserQueries userQueries, IMapper m
             u => mapper.Map<UserDto>(u),
             e => Problem(e.Message));
     }
-
-    // [Authorize(Roles = AuthSettings.AdminRole)]
+    
     [HttpDelete("delete/{userId:guid}")]
     public async Task<ActionResult> Delete([FromRoute] Guid userId, CancellationToken cancellationToken)
     {
@@ -67,27 +85,26 @@ public class UsersController(ISender sender, IUserQueries userQueries, IMapper m
             _ => NoContent(),
             e => Problem(e.Message));
     }
-
-    // [Authorize(Roles = AuthSettings.OperatorRole)]
-    // [HttpPut("update/{userId:guid}")]
-    // public async Task<ActionResult<JwtModel>> UpdateUser(
-    //     [FromRoute] Guid userId,
-    //     [FromBody] UpdateUserDto model,
-    //     CancellationToken cancellationToken)
-    // {
-    //     var command = new UpdateUserCommand
-    //     {
-    //         UserId = userId,
-    //         Email = model.Email,
-    //         Name = model.Name,
-    //         Surname = model.Surname,
-    //         Patronymic = model.Patronymic
-    //     };
-    //
-    //     var result = await sender.Send(command, cancellationToken);
-    //
-    //     return result.Match<ActionResult<JwtModel>>(
-    //         jwt => Ok(jwt),
-    //         e => Problem(e.Message));
-    // }
+    
+    [HttpPut("update/{userId:guid}")]
+    public async Task<ActionResult<UserDto>> UpdateUser(
+        [FromRoute] Guid userId,
+        [FromBody] UpdateUserDto model,
+        CancellationToken cancellationToken)
+    {
+        var command = new UpdateUserCommand
+        {
+            UserId = userId,
+            Email = model.Email,
+            Name = model.Name,
+            Surname = model.Surname,
+            Patronymic = model.Patronymic
+        };
+    
+        var result = await sender.Send(command, cancellationToken);
+    
+        return result.Match<ActionResult<UserDto>>(
+            u => Ok(mapper.Map<UserDto>(u)),
+            e => Problem(e.Message));
+    }
 }

@@ -1,11 +1,10 @@
-﻿namespace Domain.Users.Models;
+namespace Api.Dtos.Users;
 
-public class UpdateUserModel
+public record CreateUserDto
 {
-    public Guid Id { get; set; }
     public string Email { get; set; }
+    public string Password { get; set; }
     public string? Name { get; set; }
     public string? Surname { get; set; }
     public string? Patronymic { get; set; }
-    public Guid ModifiedBy { get; set; }
 }
