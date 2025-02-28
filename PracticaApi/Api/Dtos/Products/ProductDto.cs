@@ -6,4 +6,5 @@ public record ProductDto
     public string Name { get; init; } = null!;
     public string? Description { get; init; }
     public DateTime ManufactureDate { get; init; }
+    public Guid TypeId { get; init; }
 }

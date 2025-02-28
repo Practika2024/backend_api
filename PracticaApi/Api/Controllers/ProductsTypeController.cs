@@ -13,7 +13,7 @@ namespace Api.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 //[Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
 [ApiController]
-public class ProductsTypeController(ISender sender, IProductTypeQueries productTypeQueries, IMapper mapper) : BaseController
+public class ProductsTypeController(ISender sender, IProductTypeQueries productTypeQueries, IMapper mapper) : ControllerBase
 {
     [HttpGet("get-all")]
     public async Task<ActionResult<IReadOnlyList<ProductTypeDto>>> GetAll(CancellationToken cancellationToken)
@@ -40,8 +40,7 @@ public class ProductsTypeController(ISender sender, IProductTypeQueries productT
     {
         var command = new AddProductTypeCommand()
         {
-            Name = model.Name,
-            CreatedBy = GetUserId()!.Value
+            Name = model.Name
         };
 
         var result = await sender.Send(command, cancellationToken);
@@ -60,8 +59,7 @@ public class ProductsTypeController(ISender sender, IProductTypeQueries productT
         var command = new UpdateProductTypeCommand
         {
             Id = productId,
-            Name = model.Name,
-            ModifiedBy = GetUserId()!.Value,
+            Name = model.Name
         };
 
         var result = await sender.Send(command, cancellationToken);

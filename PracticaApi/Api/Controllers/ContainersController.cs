@@ -14,7 +14,7 @@ namespace Api.Controllers;
 [Route("containers")]
 [ApiController]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-public class ContainersController(ISender sender, IContainerQueries containerQueries, IMapper mapper) : BaseController
+public class ContainersController(ISender sender, IContainerQueries containerQueries, IMapper mapper) : ControllerBase
 {
     //[Authorize(Roles = AuthSettings.AdminRole)]
     [HttpGet("get-all")]
@@ -59,7 +59,6 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
             Name = model.Name,
             Volume = model.Volume,
             Notes = model.Notes,
-            UserId = GetUserId()!.Value,
             TypeId = model.TypeId
         };
 
@@ -83,13 +82,12 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
             Name = model.Name,
             Notes = model.Notes,
             Volume = model.Volume,
-            ModifiedBy = GetUserId()!.Value,
         };
 
         var result = await sender.Send(command, cancellationToken);
 
         return result.Match<ActionResult<ContainerDto>>(
-            dto => Ok(dto),
+            dto => Ok(mapper.Map<ContainerDto>(dto)),
             e => Problem(e.Message));
     }
 
@@ -121,8 +119,7 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
         var command = new SetContainerContentCommand
         {
             ContainerId = containerId,
-            ProductId = model.ProductId,
-            ModifiedBy = GetUserId()!.Value,
+            ProductId = model.ProductId
         };
 
         var result = await sender.Send(command, cancellationToken);
@@ -141,8 +138,7 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
     {
         var command = new ClearContainerContentCommand
         {
-            ContainerId = containerId,
-            ModifiedBy = GetUserId()!.Value
+            ContainerId = containerId
         };
 
         var result = await sender.Send(command, cancellationToken);

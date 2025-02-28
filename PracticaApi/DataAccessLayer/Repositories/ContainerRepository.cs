@@ -33,7 +33,9 @@ public class ContainerRepository(ApplicationDbContext context, IMapper mapper)
             throw new InvalidOperationException("Container not found.");
         }
 
-        context.Entry(containerEntity).CurrentValues.SetValues(model);
+        containerEntity.Name = model.Name;
+        containerEntity.Notes = model.Notes;
+        containerEntity.Volume = model.Volume;
     
         context.Containers.UpdateAuditable(containerEntity);
         await context.SaveChangesAsync(cancellationToken);
