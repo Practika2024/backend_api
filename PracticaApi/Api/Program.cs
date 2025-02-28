@@ -46,7 +46,7 @@ if (!Directory.Exists(imagesPath))
     Directory.CreateDirectory(imagesPath);
 }
 
-app.UseMiddleware<MiddlewareValidationExceptionHandling>();
+app.UseMiddleware<MiddlewareExceptionHandling>();
 
 
 app.UseStaticFiles(new StaticFileOptions
