@@ -1,5 +1,6 @@
 ﻿using Application.Commands.ProductsType.Exceptions;
 using Application.Common;
+using Application.Common.Interfaces;
 using Application.Common.Interfaces.Repositories;
 using Domain.ProductTypes;
 using Domain.ProductTypes.Models;
@@ -11,18 +12,17 @@ public record UpdateProductTypeCommand : IRequest<Result<ProductType, ProductTyp
 {
     public Guid Id { get; set; }
     public string Name { get; init; }
-    public Guid ModifiedBy { get; init; }
 }
 
 public class UpdateProductTypeCommandHandler(
-    IProductTypeRepository productTypeRepository)
+    IProductTypeRepository productTypeRepository, IUserProvider userProvider)
     : IRequestHandler<UpdateProductTypeCommand, Result<ProductType, ProductTypeException>>
 {
     public async Task<Result<ProductType, ProductTypeException>> Handle(
         UpdateProductTypeCommand request,
         CancellationToken cancellationToken)
     {
-        var userId = request.ModifiedBy;
+        var userId = userProvider.GetUserId();
         var productTypeId = request.Id;
 
         var existingProductType = await productTypeRepository.GetById(productTypeId, cancellationToken);

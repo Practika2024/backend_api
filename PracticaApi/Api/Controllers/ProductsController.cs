@@ -14,7 +14,7 @@ namespace Api.Controllers;
 [Route("products")]
 [ApiController]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-public class ProductsController(ISender sender, IProductQueries productQueries, IMapper mapper) : BaseController
+public class ProductsController(ISender sender, IProductQueries productQueries, IMapper mapper) : ControllerBase
 {
     //[Authorize(Roles = AuthSettings.AdminRole)]
     [HttpGet("get-all")]
@@ -46,7 +46,6 @@ public class ProductsController(ISender sender, IProductQueries productQueries, 
             Name = model.Name,
             Description = model.Description,
             ManufactureDate = model.ManufactureDate,
-            UserId = GetUserId()!.Value,
             TypeId = model.TypeId
         };
 

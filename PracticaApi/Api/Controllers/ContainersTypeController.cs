@@ -13,7 +13,7 @@ namespace Api.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 //[Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
 [ApiController]
-public class ContainersTypeController(ISender sender, IContainerTypeQueries containerTypeQueries, IMapper mapper) : BaseController
+public class ContainersTypeController(ISender sender, IContainerTypeQueries containerTypeQueries, IMapper mapper) : ControllerBase
 {
     [HttpGet("get-all")]
     public async Task<ActionResult<IReadOnlyList<ContainerTypeDto>>> GetAll(CancellationToken cancellationToken)
@@ -40,8 +40,7 @@ public class ContainersTypeController(ISender sender, IContainerTypeQueries cont
     {
         var command = new AddContainerTypeCommand()
         {
-            Name = model.Name,
-            CreatedBy = GetUserId()!.Value
+            Name = model.Name
         };
 
         var result = await sender.Send(command, cancellationToken);
@@ -60,8 +59,7 @@ public class ContainersTypeController(ISender sender, IContainerTypeQueries cont
         var command = new UpdateContainerTypeCommand
         {
             Id = containerId,
-            Name = model.Name,
-            ModifiedBy = GetUserId()!.Value,
+            Name = model.Name
         };
 
         var result = await sender.Send(command, cancellationToken);

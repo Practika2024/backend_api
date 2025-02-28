@@ -1,5 +1,6 @@
 ﻿using Application.Commands.Containers.Exceptions;
 using Application.Common;
+using Application.Common.Interfaces;
 using Application.Common.Interfaces.Queries;
 using Application.Common.Interfaces.Repositories;
 using Domain.Containers;
@@ -10,14 +11,14 @@ namespace Application.Commands.Containers.Commands;
 
 public record ClearContainerContentCommand : IRequest<Result<Container, ContainerException>>
 {
-    public required Guid ContainerId { get; init; } 
-    public required Guid ModifiedBy { get; init; }
+    public required Guid ContainerId { get; init; }
 }
 
 public class ClearContainerContentCommandHandler(
     IContainerRepository containerRepository,
     IContainerQueries containerQueries,
-    IContainerHistoryRepository containerHistoryRepository) : IRequestHandler<ClearContainerContentCommand, Result<Container, ContainerException>>
+    IContainerHistoryRepository containerHistoryRepository,
+    IUserProvider userProvider) : IRequestHandler<ClearContainerContentCommand, Result<Container, ContainerException>>
 {
     public async Task<Result<Container, ContainerException>> Handle(
         ClearContainerContentCommand request,
@@ -36,7 +37,7 @@ public class ClearContainerContentCommandHandler(
                         throw new Exception("Container already is empty");
                     }
                     
-                    var userId = request.ModifiedBy;
+                    var userId = userProvider.GetUserId();
 
                     var clearContainerContentModel = new ClearContainerContentModel
                     {

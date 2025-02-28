@@ -1,5 +1,7 @@
 using Api.Modules;
+using Api.Services.UserProvider;
 using Application;
+using Application.Common.Interfaces;
 using Application.Middlewares;
 using DataAccessLayer;
 using Microsoft.Extensions.FileProviders;
@@ -11,6 +13,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IUserProvider, UserProvider>();
+
 builder.Services.AddApplication(builder);
 builder.Services.AddInfrastructure(builder);
 builder.Services.SetupServices();

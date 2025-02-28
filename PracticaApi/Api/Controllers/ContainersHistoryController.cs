@@ -13,7 +13,7 @@ namespace Api.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 //[Authorize(Roles = AuthSettings.AdminRole)]
 [ApiController]
-public class ContainersHistoryController(IContainerHistoryQueries containerHistoryQueries, IMapper mapper) : BaseController
+public class ContainersHistoryController(IContainerHistoryQueries containerHistoryQueries, IMapper mapper) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<ContainerHistoryDto>>> GetAll(
