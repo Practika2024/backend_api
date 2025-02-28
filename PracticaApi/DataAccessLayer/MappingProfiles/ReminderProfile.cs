@@ -10,6 +10,7 @@ public class ReminderProfile : Profile
     public ReminderProfile()
     {
         CreateMap<CreateReminderModel, ReminderEntity>();
+        CreateMap<UpdateReminderModel, ReminderEntity>();
         CreateMap<ReminderEntity, Reminder>();
         CreateMap<Reminder, UpdateReminderModel>()
             .ForMember(dest => dest.Title, opt => opt.Condition(src => src.Title != null))
