@@ -45,7 +45,7 @@ namespace Api.Controllers
                 Title = model.Title,
                 DueDate = model.DueDate,
                 Type = model.Type,
-                CreatedBy = model.CreatedBy
+                CreatedBy = GetUserId()!.Value
             };
 
             var result = await sender.Send(command, cancellationToken);
