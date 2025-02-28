@@ -54,5 +54,43 @@ namespace Api.Controllers
                 dto => CreatedAtAction(nameof(GetById), new { reminderId = dto.Id }, dto),
                 e => Problem(e.Message));
         }
+        
+        [HttpPut("update/{reminderId:guid}")]
+        public async Task<ActionResult<ReminderDto>> UpdateReminder(
+            [FromRoute] Guid reminderId,
+            [FromBody] UpdateReminderDto model,
+            CancellationToken cancellationToken)
+        {
+            var command = new UpdateReminderCommand
+            {
+                Id = reminderId,
+                Title = model.Title,
+                DueDate = model.DueDate,
+                Type = model.Type
+            };
+
+            var result = await sender.Send(command, cancellationToken);
+
+            return result.Match<ActionResult<ReminderDto>>(
+                dto => Ok(mapper.Map<ReminderDto>(dto)),
+                e => Problem(e.Message));
+        }
+
+        [HttpDelete("delete/{reminderId:guid}")]
+        public async Task<IActionResult> DeleteReminder(
+            [FromRoute] Guid reminderId,
+            CancellationToken cancellationToken)
+        {
+            var command = new DeleteReminderCommand
+            {
+                Id = reminderId
+            };
+
+            var result = await sender.Send(command, cancellationToken);
+
+            return result.Match<IActionResult>(
+                _ => NoContent(),
+                e => Problem(e.Message));
+        }
     }
 }
