@@ -39,7 +39,7 @@ public class UpdateContainerCommandHandler(
                     var updatedContainerModel = new UpdateContainerModel
                     {
                         Id = request.Id,
-                        Name = container.Name,
+                        Name = request.Name,
                         Notes = request.Notes,
                         Volume = request.Volume,
                         ModifiedBy = userId,
