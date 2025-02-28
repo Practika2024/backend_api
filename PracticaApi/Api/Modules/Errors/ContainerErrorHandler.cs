@@ -13,10 +13,12 @@ public static class ContainerErrorHandler
                 ContainerNotFoundException
                     or UserNotFoundException
                     or ContainerTypeNotFoundException => StatusCodes.Status404NotFound,
-                ContainerAlreadyExistsException or ContainerByThisUniqueCodeAlreadyExistsException =>
-                    StatusCodes.Status409Conflict,
-                ContainerCreationException or ContainerUnknownException =>
-                    StatusCodes.Status500InternalServerError,
+                ContainerAlreadyExistsException 
+                    or ContainerByThisUniqueCodeAlreadyExistsException => StatusCodes.Status409Conflict,
+                ContainerCreationException 
+                    or ContainerUnknownException => StatusCodes.Status500InternalServerError,
+                ProductNotFoundException 
+                    or ProductForContainerNotFoundException => StatusCodes.Status404NotFound,
                 _ => throw new NotImplementedException("Container error handler does not implemented for this exception type")
             }
         };

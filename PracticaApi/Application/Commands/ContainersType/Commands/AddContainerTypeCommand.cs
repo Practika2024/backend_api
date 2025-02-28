@@ -28,7 +28,7 @@ public class AddContainerTypeCommandHandler(IContainerTypeRepository containerTy
         var existingContainerType = await containerTypeRepository.SearchByName(request.Name, cancellationToken);
 
         return await existingContainerType.Match<Task<Result<ContainerType, ContainerTypeException>>>(
-            c => throw new Exception("Container already exists"),
+            c => Task.FromResult<Result<ContainerType, ContainerTypeException>>(new ContainerTypeAlreadyExists(c.Id)),
             async () =>
             {
                 return await CreateEntity(request.Name, request.CreatedBy, cancellationToken);
