@@ -2,6 +2,7 @@
 using Api.Modules.Errors;
 using Application.Commands.ProductsType.Commands;
 using Application.Common.Interfaces.Queries;
+using Application.Settings;
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -12,10 +13,11 @@ namespace Api.Controllers;
 
 [Route("products-type")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-//[Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
+[Authorize(Roles = AuthSettings.AdminRole)]
 [ApiController]
 public class ProductsTypeController(ISender sender, IProductTypeQueries productTypeQueries, IMapper mapper) : ControllerBase
 {
+    [Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
     [HttpGet("get-all")]
     public async Task<ActionResult<IReadOnlyList<ProductTypeDto>>> GetAll(CancellationToken cancellationToken)
     {
@@ -23,6 +25,7 @@ public class ProductsTypeController(ISender sender, IProductTypeQueries productT
         return Ok(entities.Select(mapper.Map<ProductTypeDto>).ToList());
     }
     
+    [Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
     [HttpGet("get-by-id/{productTypeId:guid}")]
     public async Task<ActionResult<ProductTypeDto>> GetById([FromRoute] Guid productTypeId,
         CancellationToken cancellationToken)

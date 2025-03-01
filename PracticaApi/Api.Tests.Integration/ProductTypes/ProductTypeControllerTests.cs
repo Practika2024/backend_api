@@ -4,7 +4,7 @@ using Api.Dtos.ProductsType;
 using DataAccessLayer.Entities.Products;
 using DataAccessLayer.Entities.Users;
 using DataAccessLayer.Extensions;
-using Domain.ProductTypeModels;
+using Domain.ProductTypes;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Tests.Common;

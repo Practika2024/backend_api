@@ -1,7 +1,8 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net;
+using System.Net.Http.Json;
 using Api.Dtos.Products;
 using DataAccessLayer.Entities.Products;
-using Domain.ProductModels;
+using Domain.Products;
 using FluentAssertions;
 using Tests.Common;
 using Tests.Data;
@@ -53,7 +54,7 @@ public class ProductsControllerTests : BaseIntegrationTest, IAsyncLifetime
         var response = await Client.GetAsync($"products/get-by-id/{nonExistentProductId}");
 
         // Assert
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.NotFound);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]

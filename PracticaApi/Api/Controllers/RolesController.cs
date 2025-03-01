@@ -10,7 +10,7 @@ namespace Api.Controllers;
 
 [Route("roles")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-[Authorize(Roles = AuthSettings.AdminRole)]
+[Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
 [ApiController]
 public class RolesController(IRoleQueries roleQueries, IMapper mapper) : ControllerBase
 {

@@ -1,4 +1,4 @@
-﻿using Domain.ContainerTypeModels;
+﻿using Domain.ContainerTypes;
 
 namespace Tests.Data;
 

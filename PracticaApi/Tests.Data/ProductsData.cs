@@ -1,4 +1,4 @@
-﻿using Domain.ProductModels;
+﻿using Domain.Products;
 
 namespace Tests.Data;
 
