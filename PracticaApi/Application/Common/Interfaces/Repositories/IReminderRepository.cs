@@ -1,4 +1,5 @@
-﻿using Domain.ReminderModels;
+﻿using Domain.Reminders;
+using Domain.Reminders.Models;
 using Optional;
 
 namespace Application.Common.Interfaces.Repositories

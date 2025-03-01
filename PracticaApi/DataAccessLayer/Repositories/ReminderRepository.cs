@@ -5,7 +5,8 @@ using AutoMapper;
 using DataAccessLayer.Data;
 using DataAccessLayer.Entities.Reminders;
 using DataAccessLayer.Extensions;
-using Domain.ReminderModels;
+using Domain.Reminders;
+using Domain.Reminders.Models;
 using Microsoft.EntityFrameworkCore;
 using Optional;
 

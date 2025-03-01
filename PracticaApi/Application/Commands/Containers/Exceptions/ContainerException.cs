@@ -10,6 +10,7 @@ public class ContainerByThisUniqueCodeAlreadyExistsException(string uniqueCode) 
 public class ContainerCreationException() : ContainerException(Guid.Empty, $"Container by this unique code already exists! Code: ");
 public class ContainerAlreadyExistsException(Guid id) : ContainerException(id, $"Container already exists: {id}");
 public class ContainerTypeNotFoundException(Guid id) : ContainerException(id, $"Container type not found! ID: {id}");
+public class ProductNotFoundException(Guid id) : ContainerException(id, $"Product not found! ID: {id}");
 public class UserNotFoundException(Guid id) : ContainerException(id, $"User not found! ID: {id}");
 
 public class ProductForContainerNotFoundException(Guid id) : ContainerException(id, $"Not found product for container under id: {id}");

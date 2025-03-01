@@ -1,4 +1,5 @@
-﻿using Domain.ProductTypeModels;
+﻿using Domain.ProductTypes;
+using Domain.ProductTypes.Models;
 using Optional;
 
 namespace Application.Common.Interfaces.Repositories

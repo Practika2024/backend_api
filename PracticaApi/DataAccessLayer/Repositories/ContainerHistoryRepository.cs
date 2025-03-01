@@ -5,7 +5,8 @@ using AutoMapper;
 using DataAccessLayer.Data;
 using DataAccessLayer.Entities.ContainerHistories;
 using DataAccessLayer.Extensions;
-using Domain.ContainerHistoryModels;
+using Domain.ContainersHistory;
+using Domain.ContainersHistory.Models;
 using Microsoft.EntityFrameworkCore;
 using Optional;
 
@@ -24,17 +25,19 @@ public class ContainerHistoryRepository(ApplicationDbContext context, IMapper ma
         return mapper.Map<ContainerHistory>(historyEntity);
     }
 
-    public async Task<ContainerHistory> Update(UpdateContainerHistoryModel model, CancellationToken cancellationToken)
+    public async Task<ContainerHistory> Update(Guid contentId, CancellationToken cancellationToken)
     {
-        var historyEntity = await GetHistoryAsync(x => x.Id == model.Id, cancellationToken);
+        var containerEntity =
+            await context.Containers.FirstOrDefaultAsync(x => x.Id == contentId, cancellationToken);
 
-        if (historyEntity == null)
-        {
-            throw new InvalidOperationException("Container history not found.");
-        }
+        var productId = containerEntity!.ProductId;
 
-        mapper.Map(model, historyEntity);
+        var historyEntity =
+            context.ContainerHistories.FirstOrDefault(x => x.ProductId == productId && x.EndDate == null);
 
+        historyEntity!.EndDate = DateTime.UtcNow;
+        
+        context.ContainerHistories.UpdateAuditable(historyEntity);
         await context.SaveChangesAsync(cancellationToken);
 
         return mapper.Map<ContainerHistory>(historyEntity);
@@ -74,18 +77,33 @@ public class ContainerHistoryRepository(ApplicationDbContext context, IMapper ma
         return history == null ? Option.None<ContainerHistory>() : Option.Some(history);
     }
 
-    public async Task<IReadOnlyList<ContainerHistory>> GetByContainerId(Guid containerId,
+    public async Task<IReadOnlyList<ContainerHistory>> GetByQuery(Guid? containerId, Guid? productId, DateTime? starDate, DateTime? endDate,
         CancellationToken cancellationToken)
     {
-        var historyEntities = await context.ContainerHistories
-            .Where(h => h.ContainerId == containerId)
-            .AsNoTracking()
-            .Include(h => h.Product)
-            .ToListAsync(cancellationToken);
+        var containersHistory = await context.ContainerHistories.AsNoTracking().ToListAsync(cancellationToken);
 
-        return mapper.Map<IReadOnlyList<ContainerHistory>>(historyEntities);
+        if (containerId.HasValue)
+        {
+            containersHistory = containersHistory.Where(ch => ch.ContainerId == containerId.Value).ToList();
+        }
+
+        if (productId.HasValue)
+        {
+            containersHistory = containersHistory.Where(ch => ch.ProductId == productId.Value).ToList();
+        }
+
+        if (starDate.HasValue)
+        {
+            containersHistory = containersHistory.Where(ch => ch.StartDate >= starDate).ToList();
+        }
+
+        if (endDate.HasValue)
+        {
+            containersHistory = containersHistory.Where(ch => ch.EndDate <= endDate).ToList();
+        }
+        
+        return mapper.Map<IReadOnlyList<ContainerHistory>>(containersHistory);
     }
-
     private async Task<ContainerHistoryEntity?> GetHistoryAsync(
         Expression<Func<ContainerHistoryEntity, bool>> predicate,
         CancellationToken cancellationToken,

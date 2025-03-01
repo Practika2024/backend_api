@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DataAccessLayer.Entities.Containers;
-using Domain.ContainerModels;
+using Domain.Containers;
+using Domain.Containers.Models;
 
 namespace DataAccessLayer.MappingProfiles;
 
@@ -13,8 +14,5 @@ public class ContainersMapperProfile : Profile
         CreateMap<ContainerEntity, Container>().ReverseMap();
         CreateMap<ContainerEntity, CreateContainerModel>().ReverseMap();
         CreateMap<ContainerEntity, SetContainerContentModel>().ReverseMap();
-        
-        CreateMap<SetContainerContentModel, ContainerContentEntity>().ReverseMap();
-        CreateMap<ContainerContentEntity, ContainerContent>().ReverseMap();
     }
 }

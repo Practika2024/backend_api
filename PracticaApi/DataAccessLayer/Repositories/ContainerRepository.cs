@@ -5,7 +5,8 @@ using AutoMapper;
 using DataAccessLayer.Data;
 using DataAccessLayer.Entities.Containers;
 using DataAccessLayer.Extensions;
-using Domain.ContainerModels;
+using Domain.Containers;
+using Domain.Containers.Models;
 using Microsoft.EntityFrameworkCore;
 using Optional;
 
@@ -17,17 +18,6 @@ public class ContainerRepository(ApplicationDbContext context, IMapper mapper)
     public async Task<Container> Create(CreateContainerModel model, CancellationToken cancellationToken)
     {
         var containerEntity = mapper.Map<ContainerEntity>(model);
-        
-        var containerContentId = Guid.NewGuid();
-        var containerContentEntity = new ContainerContentEntity
-        {
-            Id = containerContentId,
-            CreatedBy = model.CreatedBy
-        };
-
-        containerEntity.ContentId = containerContentId;
-
-        await context.ContainerContents.AddAuditableAsync(containerContentEntity, cancellationToken);
         await context.Containers.AddAuditableAsync(containerEntity, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
@@ -43,8 +33,11 @@ public class ContainerRepository(ApplicationDbContext context, IMapper mapper)
             throw new InvalidOperationException("Container not found.");
         }
 
-        containerEntity = mapper.Map<ContainerEntity>(model);
-
+        containerEntity.Name = model.Name;
+        containerEntity.Notes = model.Notes;
+        containerEntity.Volume = model.Volume;
+    
+        context.Containers.UpdateAuditable(containerEntity);
         await context.SaveChangesAsync(cancellationToken);
 
         return mapper.Map<Container>(containerEntity);
@@ -69,7 +62,6 @@ public class ContainerRepository(ApplicationDbContext context, IMapper mapper)
     {
         var containersEntity = await context.Containers
             .AsNoTracking()
-            .Include(c => c.Content)
             .ToListAsync(cancellationToken);
 
         return mapper.Map<IReadOnlyList<Container>>(containersEntity);
@@ -77,11 +69,31 @@ public class ContainerRepository(ApplicationDbContext context, IMapper mapper)
 
     public async Task<Option<Container>> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var entity = await GetContainerAsync(x => x.Id == id, cancellationToken);
+        var entity = await GetContainerAsync(x => x.Id == id, cancellationToken, true);
 
         var container = mapper.Map<Container>(entity);
 
         return container == null ? Option.None<Container>() : Option.Some(container);
+    }
+
+    public async Task<Option<Container>> GetByUniqueCode(string uniqueCode, CancellationToken cancellationToken)
+    {
+        var entity = await GetContainerAsync(x => x.UniqueCode == uniqueCode, cancellationToken);
+
+        var container = mapper.Map<Container>(entity);
+
+        return container == null ? Option.None<Container>() : Option.Some(container);
+    }
+
+    public async Task<bool> IsProductInContainer(Guid productId, CancellationToken cancellationToken)
+    {
+       return await context.Containers.AnyAsync(x => x.ProductId == productId, cancellationToken);
+    }
+
+    public async Task<bool> IsContainerIsEmpty(Guid containerId, CancellationToken cancellationToken)
+    {
+        var containerContent = await context.Containers.FirstOrDefaultAsync(x => x.Id == containerId, cancellationToken);
+        return containerContent?.ProductId == null;
     }
 
     public async Task<Option<Container>> SearchByName(string name, CancellationToken cancellationToken)
@@ -98,7 +110,7 @@ public class ContainerRepository(ApplicationDbContext context, IMapper mapper)
         var entity = await context.Containers
             .AsNoTracking()
             .FirstOrDefaultAsync(c => c.UniqueCode == uniqueCode, cancellationToken);
-        
+
         var container = mapper.Map<Container>(entity);
 
         return container == null ? Option.None<Container>() : Option.Some(container);
@@ -107,24 +119,18 @@ public class ContainerRepository(ApplicationDbContext context, IMapper mapper)
     public async Task<Container> SetContainerContent(SetContainerContentModel model,
         CancellationToken cancellationToken)
     {
-        var containerEntity = await GetContainerAsync(x => x.Id == model.ContainerId, cancellationToken, true);
-        var contentEntity = await context.ContainerContents.FirstOrDefaultAsync(c => c.Id == containerEntity!.ContentId, cancellationToken);
+        var containerEntity = await GetContainerAsync(x => x.Id == model.ContainerId, cancellationToken);
 
         if (containerEntity == null)
         {
             throw new InvalidOperationException("Container not found.");
         }
 
-        if (contentEntity == null)
-        {
-            throw new InvalidOperationException("Container not found.");
-        }
+        containerEntity.ModifiedBy = model.ModifiedBy;
+        containerEntity.ProductId = model.ProductId;
 
-        contentEntity.ModifiedBy = model.ModifiedBy;
-        contentEntity.ProductId = model.ProductId;
+        context.Containers.UpdateAuditable(containerEntity);
 
-        context.ContainerContents.UpdateAuditable(contentEntity);
-        
         await context.SaveChangesAsync(cancellationToken);
 
         return mapper.Map<Container>(containerEntity);
@@ -140,8 +146,10 @@ public class ContainerRepository(ApplicationDbContext context, IMapper mapper)
             throw new InvalidOperationException("Container not found.");
         }
 
-        containerEntity.Content = null;
+        containerEntity.ModifiedBy = model.ModifiedBy;
+        containerEntity.ProductId = null;
 
+        context.Containers.UpdateAuditable(containerEntity);
         await context.SaveChangesAsync(cancellationToken);
 
         return mapper.Map<Container>(containerEntity);
@@ -171,18 +179,16 @@ public class ContainerRepository(ApplicationDbContext context, IMapper mapper)
 
     private async Task<ContainerEntity?> GetContainerAsync(Expression<Func<ContainerEntity, bool>> predicate,
         CancellationToken cancellationToken,
-        bool asNoTracking = false)
+        bool asNotTracking = false)
     {
-        if (asNoTracking)
+        if (asNotTracking)
         {
             return await context.Containers
                 .AsNoTracking()
-                .Include(c => c.Content)
                 .FirstOrDefaultAsync(predicate, cancellationToken);
         }
 
         return await context.Containers
-            .Include(c => c.Content)
             .FirstOrDefaultAsync(predicate, cancellationToken);
     }
 }

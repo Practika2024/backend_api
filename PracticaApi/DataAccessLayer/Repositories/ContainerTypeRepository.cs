@@ -6,7 +6,8 @@ using DataAccessLayer.Data;
 using DataAccessLayer.Entities.Containers;
 using DataAccessLayer.Entities.Users;
 using DataAccessLayer.Extensions;
-using Domain.ContainerTypeModels;
+using Domain.ContainerTypes;
+using Domain.ContainerTypes.Models;
 using Microsoft.EntityFrameworkCore;
 using Optional;
 

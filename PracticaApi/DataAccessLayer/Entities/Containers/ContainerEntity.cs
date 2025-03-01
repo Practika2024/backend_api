@@ -1,4 +1,5 @@
 ﻿using DataAccessLayer.Entities.ContainerHistories;
+using DataAccessLayer.Entities.Products;
 using DataAccessLayer.Entities.Users;
 using Domain.Common.Abstractions;
 
@@ -13,6 +14,6 @@ public class ContainerEntity : AuditableEntity<UserEntity>
     public string UniqueCode { get; set; }
     public Guid TypeId { get; set; }
     public ContainerTypeEntity? Type { get; set; }
-    public Guid ContentId { get; set; }
-    public ContainerContentEntity? Content { get; set; }
+    public Guid? ProductId { get; set; }
+    public ProductEntity? Product { get; set; }
 }

@@ -1,4 +1,5 @@
-﻿using Domain.ContainerTypeModels;
+﻿using Domain.ContainerTypes;
+using Domain.ContainerTypes.Models;
 using Optional;
 
 namespace Application.Common.Interfaces.Repositories

@@ -14,7 +14,7 @@ namespace Api.Controllers;
 [Route("containers")]
 [ApiController]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-public class ContainersController(ISender sender, IContainerQueries containerQueries, IMapper mapper) : BaseController
+public class ContainersController(ISender sender, IContainerQueries containerQueries, IMapper mapper) : ControllerBase
 {
     //[Authorize(Roles = AuthSettings.AdminRole)]
     [HttpGet("get-all")]
@@ -30,6 +30,19 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
         CancellationToken cancellationToken)
     {
         var entity = await containerQueries.GetById(containerId, cancellationToken);
+        
+        return entity.Match<ActionResult<ContainerDto>>(
+            p => Ok(mapper.Map<ContainerDto>(p)),
+            () => NotFound());
+    }
+    
+    //[Authorize(Roles = $"{AuthSettings.AdminRole},{AuthSettings.OperatorRole}")]
+    [HttpGet("get-unique-code-id/{uniqueCode}")]
+    public async Task<ActionResult<ContainerDto>> GetById([FromRoute] string uniqueCode,
+        CancellationToken cancellationToken)
+    {
+        var entity = await containerQueries.GetByUniqueCode(uniqueCode, cancellationToken);
+        
         return entity.Match<ActionResult<ContainerDto>>(
             p => Ok(mapper.Map<ContainerDto>(p)),
             () => NotFound());
@@ -46,7 +59,6 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
             Name = model.Name,
             Volume = model.Volume,
             Notes = model.Notes,
-            UserId = GetUserId()!.Value,
             TypeId = model.TypeId
         };
 
@@ -68,16 +80,14 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
         {
             Id = containerId,
             Name = model.Name,
-            Notes = model?.Notes,
+            Notes = model.Notes,
             Volume = model.Volume,
-            TypeId = model.TypeId,
-            ModifiedBy = GetUserId()!.Value,
         };
 
         var result = await sender.Send(command, cancellationToken);
 
         return result.Match<ActionResult<ContainerDto>>(
-            dto => Ok(dto),
+            dto => Ok(mapper.Map<ContainerDto>(dto)),
             e => Problem(e.Message));
     }
 
@@ -109,14 +119,13 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
         var command = new SetContainerContentCommand
         {
             ContainerId = containerId,
-            ProductId = model.ProductId,
-            ModifiedBy = GetUserId()!.Value,
+            ProductId = model.ProductId
         };
 
         var result = await sender.Send(command, cancellationToken);
 
         return result.Match<ActionResult<ContainerDto>>(
-            dto => Ok(dto),
+            dto => Ok(mapper.Map<ContainerDto>(dto)),
             e => Problem(e.Message));
     }
 
@@ -125,19 +134,17 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
     [HttpPut("clear-content/{containerId:guid}")]
     public async Task<ActionResult<ContainerDto>> ClearContainerContent(
         [FromRoute] Guid containerId,
-        [FromBody] ClearContainerContentDto model,
         CancellationToken cancellationToken)
     {
         var command = new ClearContainerContentCommand
         {
-            ContainerId = containerId,
-            ModifiedBy = model.ModifiedBy
+            ContainerId = containerId
         };
 
         var result = await sender.Send(command, cancellationToken);
 
         return result.Match<ActionResult<ContainerDto>>(
-            dto => Ok(dto),
+            dto => Ok(mapper.Map<ContainerDto>(dto)),
             e => Problem(e.Message));
     }
 }

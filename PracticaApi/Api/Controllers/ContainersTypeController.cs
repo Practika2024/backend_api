@@ -13,13 +13,24 @@ namespace Api.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 //[Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
 [ApiController]
-public class ContainersTypeController(ISender sender, IContainerTypeQueries containerTypeQueries, IMapper mapper) : BaseController
+public class ContainersTypeController(ISender sender, IContainerTypeQueries containerTypeQueries, IMapper mapper) : ControllerBase
 {
     [HttpGet("get-all")]
     public async Task<ActionResult<IReadOnlyList<ContainerTypeDto>>> GetAll(CancellationToken cancellationToken)
     {
         var entities = await containerTypeQueries.GetAll(cancellationToken);
         return Ok(entities.Select(mapper.Map<ContainerTypeDto>).ToList());
+    }
+    
+    [HttpGet("get-by-id/{containerTypeId:guid}")]
+    public async Task<ActionResult<ContainerTypeDto>> GetById([FromRoute] Guid containerTypeId,
+        CancellationToken cancellationToken)
+    {
+        var entity = await containerTypeQueries.GetById(containerTypeId, cancellationToken);
+        
+        return entity.Match<ActionResult<ContainerTypeDto>>(
+            p => Ok(mapper.Map<ContainerTypeDto>(p)),
+            () => NotFound());
     }
     
     [HttpPost("add")]
@@ -29,8 +40,7 @@ public class ContainersTypeController(ISender sender, IContainerTypeQueries cont
     {
         var command = new AddContainerTypeCommand()
         {
-            Name = model.Name,
-            CreatedBy = GetUserId()!.Value
+            Name = model.Name
         };
 
         var result = await sender.Send(command, cancellationToken);
@@ -49,8 +59,7 @@ public class ContainersTypeController(ISender sender, IContainerTypeQueries cont
         var command = new UpdateContainerTypeCommand
         {
             Id = containerId,
-            Name = model.Name,
-            ModifiedBy = GetUserId()!.Value,
+            Name = model.Name
         };
 
         var result = await sender.Send(command, cancellationToken);

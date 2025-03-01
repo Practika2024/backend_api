@@ -46,7 +46,11 @@ namespace DataAccessLayer.Data.Initializer
                 Name = "admin",
                 Surname = "admin",
                 Patronymic = "admin",
-                PasswordHash = hashPasswordService.HashPassword("123456")
+                PasswordHash = hashPasswordService.HashPassword("123456"),
+                CreatedBy = adminId,
+                CreatedAt = DateTime.UtcNow,
+                ModifiedBy = adminId,
+                ModifiedAt = DateTime.UtcNow
             };
 
             var operatorUser = new UserEntity
@@ -57,7 +61,11 @@ namespace DataAccessLayer.Data.Initializer
                 Name = "operator",
                 Surname = "operator",
                 Patronymic = "operator",
-                PasswordHash = hashPasswordService.HashPassword("123456")
+                PasswordHash = hashPasswordService.HashPassword("123456"),
+                CreatedBy = adminId,
+                CreatedAt = DateTime.UtcNow,
+                ModifiedBy = adminId,
+                ModifiedAt = DateTime.UtcNow
             };
 
             modelBuilder.Entity<UserEntity>().HasData(admin, operatorUser);

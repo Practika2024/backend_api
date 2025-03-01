@@ -1,6 +1,6 @@
 ﻿using Api.Dtos.Products;
 using AutoMapper;
-using Domain.ProductModels;
+using Domain.Products;
 
 namespace Api.MappingProfiles;
 
@@ -10,5 +10,6 @@ public class ProductMapperProfile : Profile
     {
         CreateMap<ProductDto, Product>().ReverseMap();
         CreateMap<CreateProductDto, Product>().ReverseMap();
+        CreateMap<UpdateProductDto, Product>().ReverseMap();
     }
 }

@@ -1,6 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using Domain.UserModels;
+using Domain.Users.Models;
 using FluentAssertions;
 using Tests.Common;
 using Tests.Data;

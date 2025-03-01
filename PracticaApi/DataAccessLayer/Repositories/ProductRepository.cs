@@ -5,7 +5,8 @@ using AutoMapper;
 using DataAccessLayer.Data;
 using DataAccessLayer.Entities.Products;
 using DataAccessLayer.Extensions;
-using Domain.ProductModels;
+using Domain.Products;
+using Domain.Products.Models;
 using Microsoft.EntityFrameworkCore;
 using Optional;
 
@@ -33,7 +34,10 @@ public class ProductRepository(ApplicationDbContext context, IMapper mapper)
             throw new InvalidOperationException("Product not found.");
         }
 
-        productEntity = mapper.Map(model, productEntity);
+        productEntity.Name = model.Name;
+        productEntity.Description = model.Description;
+        productEntity.ManufactureDate = model.ManufactureDate;
+        productEntity.TypeId = model.TypeId;
 
         await context.SaveChangesAsync(cancellationToken);
 

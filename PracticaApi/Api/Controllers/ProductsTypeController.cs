@@ -13,13 +13,24 @@ namespace Api.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 //[Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
 [ApiController]
-public class ProductsTypeController(ISender sender, IProductTypeQueries productTypeQueries, IMapper mapper) : BaseController
+public class ProductsTypeController(ISender sender, IProductTypeQueries productTypeQueries, IMapper mapper) : ControllerBase
 {
     [HttpGet("get-all")]
     public async Task<ActionResult<IReadOnlyList<ProductTypeDto>>> GetAll(CancellationToken cancellationToken)
     {
         var entities = await productTypeQueries.GetAll(cancellationToken);
         return Ok(entities.Select(mapper.Map<ProductTypeDto>).ToList());
+    }
+    
+    [HttpGet("get-by-id/{productTypeId:guid}")]
+    public async Task<ActionResult<ProductTypeDto>> GetById([FromRoute] Guid productTypeId,
+        CancellationToken cancellationToken)
+    {
+        var entity = await productTypeQueries.GetById(productTypeId, cancellationToken);
+        
+        return entity.Match<ActionResult<ProductTypeDto>>(
+            p => Ok(mapper.Map<ProductTypeDto>(p)),
+            () => NotFound());
     }
     
     [HttpPost("add")]
@@ -29,8 +40,7 @@ public class ProductsTypeController(ISender sender, IProductTypeQueries productT
     {
         var command = new AddProductTypeCommand()
         {
-            Name = model.Name,
-            CreatedBy = GetUserId()!.Value
+            Name = model.Name
         };
 
         var result = await sender.Send(command, cancellationToken);
@@ -49,8 +59,7 @@ public class ProductsTypeController(ISender sender, IProductTypeQueries productT
         var command = new UpdateProductTypeCommand
         {
             Id = productId,
-            Name = model.Name,
-            ModifiedBy = GetUserId()!.Value,
+            Name = model.Name
         };
 
         var result = await sender.Send(command, cancellationToken);

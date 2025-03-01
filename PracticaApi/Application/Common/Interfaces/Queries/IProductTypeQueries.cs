@@ -1,5 +1,4 @@
-﻿using Domain.ProductModels;
-using Domain.ProductTypeModels;
+﻿using Domain.ProductTypes;
 using Optional;
 
 namespace Application.Common.Interfaces.Queries

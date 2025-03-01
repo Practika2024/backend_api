@@ -1,9 +1,11 @@
 ﻿using Application.Commands.Containers.Exceptions;
 using Application.Common;
+using Application.Common.Interfaces;
 using Application.Common.Interfaces.Queries;
 using Application.Common.Interfaces.Repositories;
-using Domain.ContainerModels;
-using Domain.ContainerTypeModels;
+using Domain.Containers;
+using Domain.Containers.Models;
+using Domain.ContainerTypes;
 using MediatR;
 
 namespace Application.Commands.Containers.Commands;
@@ -13,14 +15,14 @@ public record AddContainerCommand : IRequest<Result<Container, ContainerExceptio
     public required string Name { get; init; }
     public required decimal Volume { get; init; }
     public required string? Notes { get; init; }
-    public required Guid UserId { get; init; }
     public required Guid TypeId { get; init; }
 }
 
 public class AddContainerCommandHandler(
     IContainerRepository containerRepository,
     IContainerTypeQueries containerTypeQueries,
-    IUserQueries userQueries)
+    IUserQueries userQueries,
+    IUserProvider userProvider)
     : IRequestHandler<AddContainerCommand, Result<Container, ContainerException>>
 {
     public async Task<Result<Container, ContainerException>> Handle(
@@ -34,7 +36,7 @@ public class AddContainerCommandHandler(
                 new ContainerAlreadyExistsException(c.Id)),
             async () =>
             {
-                var userResult = await userQueries.GetById(request.UserId, cancellationToken);
+                var userResult = await userQueries.GetById(userProvider.GetUserId(), cancellationToken);
                 return await userResult.Match<Task<Result<Container, ContainerException>>>(
                     async user =>
                     {
@@ -45,7 +47,6 @@ public class AddContainerCommandHandler(
                                 return await CreateEntity(
                                     request.Name,
                                     request.Volume,
-                                    request.UserId,
                                     request.Notes,
                                     type,
                                     cancellationToken);
@@ -55,7 +56,7 @@ public class AddContainerCommandHandler(
                         );
                     },
                     () => Task.FromResult<Result<Container, ContainerException>>(
-                        new UserNotFoundException(request.UserId))
+                        new UserNotFoundException(userProvider.GetUserId()))
                 );
             });
     }
@@ -63,7 +64,6 @@ public class AddContainerCommandHandler(
     private async Task<Result<Container, ContainerException>> CreateEntity(
         string name,
         decimal volume,
-        Guid userId,
         string? notes,
         ContainerType type,
         CancellationToken cancellationToken)
@@ -78,7 +78,7 @@ public class AddContainerCommandHandler(
                 Name = name,
                 Volume = volume,
                 Notes = notes,
-                CreatedBy = userId,
+                CreatedBy = userProvider.GetUserId(),
                 TypeId = type.Id,
                 UniqueCode = uniqueCode
             };

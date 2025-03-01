@@ -1,8 +1,9 @@
 ﻿using Application.Commands.ContainersType.Exceptions;
 using Application.Common;
+using Application.Common.Interfaces;
 using Application.Common.Interfaces.Repositories;
-using Domain.ContainerModels;
-using Domain.ContainerTypeModels;
+using Domain.ContainerTypes;
+using Domain.ContainerTypes.Models;
 using MediatR;
 
 namespace Application.Commands.ContainersType.Commands;
@@ -11,18 +12,17 @@ public record UpdateContainerTypeCommand : IRequest<Result<ContainerType, Contai
 {
     public Guid Id { get; set; }
     public string Name { get; init; }
-    public Guid ModifiedBy { get; init; }
 }
 
 public class UpdateContainerTypeCommandHandler(
-    IContainerTypeRepository containerTypeRepository)
+    IContainerTypeRepository containerTypeRepository, IUserProvider userProvider)
     : IRequestHandler<UpdateContainerTypeCommand, Result<ContainerType, ContainerTypeException>>
 {
     public async Task<Result<ContainerType, ContainerTypeException>> Handle(
         UpdateContainerTypeCommand request,
         CancellationToken cancellationToken)
     {
-        var userId = request.ModifiedBy;
+        var userId = userProvider.GetUserId();
         var containerTypeId = request.Id;
 
         var existingContainerType = await containerTypeRepository.GetById(containerTypeId, cancellationToken);

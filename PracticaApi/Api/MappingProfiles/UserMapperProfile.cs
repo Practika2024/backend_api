@@ -3,8 +3,9 @@ using Api.Dtos.ContainersType;
 using Api.Dtos.Users;
 using AutoMapper;
 using DataAccessLayer.Entities.Containers;
-using Domain.ContainerTypeModels;
-using Domain.UserModels;
+using Domain.Roles;
+using Domain.Users;
+using Domain.Users.Models;
 
 namespace Api.MappingProfiles;
 
@@ -14,5 +15,6 @@ public class UserMapperProfile: Profile
     {
         CreateMap<UserDto, User>().ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.Role)).ReverseMap();
         CreateMap<ExternalLoginDto, ExternalLoginModel>().ReverseMap();
+        CreateMap<RoleDto, Role>().ReverseMap();
     }
 }

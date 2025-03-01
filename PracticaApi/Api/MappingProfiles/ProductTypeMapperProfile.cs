@@ -1,8 +1,8 @@
 ﻿using Api.Dtos.ProductsType;
 using AutoMapper;
 using DataAccessLayer.Entities.Products;
-using Domain.ProductTypeModels;
-using ProductType = Domain.ProductTypeModels.ProductType;
+using Domain.ProductTypes.Models;
+using ProductType = Domain.ProductTypes.ProductType;
 
 namespace Api.MappingProfiles;
 
