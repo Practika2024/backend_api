@@ -1,7 +1,7 @@
+using Application.Commands.Users.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Queries;
 using Application.Common.Interfaces.Repositories;
-using Application.Exceptions;
 using Domain.Users;
 using Domain.Users.Models;
 using MediatR;

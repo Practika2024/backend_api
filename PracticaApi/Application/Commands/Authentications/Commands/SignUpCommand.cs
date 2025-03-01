@@ -47,7 +47,6 @@ public class SignUpUserCommandHandler(
     {
         try
         {
-            //TODO logic for first who sign up is admin
             var userId = Guid.NewGuid();
             var isAnyUsersInDb = await userQueries.GetAll(cancellationToken);
             var userModel = new CreateUserModel

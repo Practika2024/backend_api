@@ -23,11 +23,9 @@ public class AddProductTypeCommandHandler(IProductTypeRepository productTypeRepo
         var existingProductType = await productTypeRepository.SearchByName(request.Name, cancellationToken);
 
         return await existingProductType.Match<Task<Result<ProductType, ProductTypeException>>>(
-            c => throw new Exception("Product type already exists"),
-            async () =>
-            {
-                return await CreateEntity(request.Name, userProvider.GetUserId(), cancellationToken);
-            });
+            c => Task.FromResult<Result<ProductType, ProductTypeException>>(
+                new ProductTypeAlreadyExistsException(c.Id)),
+            async () => { return await CreateEntity(request.Name, userProvider.GetUserId(), cancellationToken); });
     }
 
     private async Task<Result<ProductType, ProductTypeException>> CreateEntity(
