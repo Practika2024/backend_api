@@ -20,7 +20,16 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper) : IUse
         var userEntity = mapper.Map<UserEntity>(model);
 
         await context.Users.AddAuditableAsync(userEntity, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await context.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+       
 
         return mapper.Map<User>(userEntity);
     }

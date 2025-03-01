@@ -16,12 +16,18 @@
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=0cf7d045_002Ddaca_002D4b07_002Da570_002D956aced51a3b/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="All tests from Solution #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;Solution /&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=82dd27bf_002D60a3_002D49fe_002D9bf8_002D1caa3dd784a2/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="All tests from Solution" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;Solution /&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=7d009aba_002Dd18e_002D4a58_002D9792_002D8e8ee29dcf35/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="ShouldCreateProductType" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;xUnit::1C1E9F3B-80D2-4A15-B1AF-C156B2815674::net8.0::Api.Tests.Integration.ProductTypes.ProductTypeControllerTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::1C1E9F3B-80D2-4A15-B1AF-C156B2815674::net8.0::Api.Tests.Integration.ContainerTypes.ContainersTypeControllerTests&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=9d0b42ee_002D4c49_002D4ee8_002D8041_002D5fb50f50c399/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from Solution #3" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;Solution /&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
+	
+	
+	
+	
+	
+	
 	
 	
 	</wpf:ResourceDictionary>

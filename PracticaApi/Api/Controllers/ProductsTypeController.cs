@@ -2,6 +2,7 @@
 using Api.Modules.Errors;
 using Application.Commands.ProductsType.Commands;
 using Application.Common.Interfaces.Queries;
+using Application.Settings;
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -12,7 +13,7 @@ namespace Api.Controllers;
 
 [Route("products-type")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-//[Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
+[Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
 [ApiController]
 public class ProductsTypeController(ISender sender, IProductTypeQueries productTypeQueries, IMapper mapper) : ControllerBase
 {
@@ -34,6 +35,7 @@ public class ProductsTypeController(ISender sender, IProductTypeQueries productT
             () => NotFound());
     }
     
+    [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpPost("add")]
     public async Task<ActionResult<ProductTypeDto>> AddProductType(
         [FromBody] CreateUpdateProductTypeDto model,
@@ -51,6 +53,7 @@ public class ProductsTypeController(ISender sender, IProductTypeQueries productT
             e => e.ToObjectResult()); 
     }
     
+    [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpPut("update/{productId:guid}")]
     public async Task<ActionResult<ProductTypeDto>> UpdateProductType(
         [FromRoute] Guid productId,
@@ -70,6 +73,7 @@ public class ProductsTypeController(ISender sender, IProductTypeQueries productT
             e => e.ToObjectResult()); 
     }
     
+    [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpDelete("delete/{productId:guid}")]
     public async Task<ActionResult<ProductTypeDto>> DeleteProductType(
         [FromRoute] Guid productId,

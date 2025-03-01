@@ -14,7 +14,7 @@ namespace Api.Controllers;
 [Route("users")]
 [ApiController]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-[Authorize(Roles = AuthSettings.AdminRole)]
+[Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
 public class UsersController(ISender sender, IUserQueries userQueries, IMapper mapper) : ControllerBase
 {
     [HttpGet("get-all")]
@@ -34,6 +34,7 @@ public class UsersController(ISender sender, IUserQueries userQueries, IMapper m
             () => NotFound());
     }
     
+    [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpPost("create")]
     public async Task<ActionResult<UserDto>> SignUpAsync(
         [FromBody] CreateUserDto request,
@@ -55,6 +56,7 @@ public class UsersController(ISender sender, IUserQueries userQueries, IMapper m
             e => e.ToObjectResult()); 
     }
     
+    [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpPut("update-role/{userId:guid}")]
     public async Task<ActionResult<UserDto>> UpdateRoles(
         [FromRoute] Guid userId,
@@ -74,6 +76,7 @@ public class UsersController(ISender sender, IUserQueries userQueries, IMapper m
             e => e.ToObjectResult()); 
     }
     
+    [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpDelete("delete/{userId:guid}")]
     public async Task<ActionResult> Delete([FromRoute] Guid userId, CancellationToken cancellationToken)
     {
@@ -85,6 +88,7 @@ public class UsersController(ISender sender, IUserQueries userQueries, IMapper m
             e => e.ToObjectResult()); 
     }
     
+    [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpPut("update/{userId:guid}")]
     public async Task<ActionResult<UserDto>> UpdateUser(
         [FromRoute] Guid userId,

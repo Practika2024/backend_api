@@ -13,9 +13,9 @@ namespace DataAccessLayer.Data.Initializer
         public static void Seed(ModelBuilder modelBuilder, IHashPasswordService hashPasswordService)
         {
             SeedRoles(modelBuilder);
-            var seededUsers = SeedUsers(modelBuilder, hashPasswordService);
-            SeedTypes(modelBuilder, seededUsers);
-            SeedProductTypes(modelBuilder, seededUsers);
+            // var seededUsers = SeedUsers(modelBuilder, hashPasswordService);
+            // SeedTypes(modelBuilder, seededUsers);
+            // SeedProductTypes(modelBuilder, seededUsers);
         }
 
         private static void SeedRoles(ModelBuilder modelBuilder)
