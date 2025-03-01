@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using Api.Dtos.Products;
+using Api.Modules.Errors;
 using Application.Commands.Products.Commands;
 using Application.Common.Interfaces.Queries;
 using Application.Settings;
@@ -53,7 +54,7 @@ public class ProductsController(ISender sender, IProductQueries productQueries, 
 
         return result.Match<ActionResult<ProductDto>>(
             dto => Ok(mapper.Map<ProductDto>(dto)),
-            e => Problem(e.Message));
+            e => e.ToObjectResult());
     }
 
     [HttpPut("update/{productId:guid}")]
@@ -75,7 +76,7 @@ public class ProductsController(ISender sender, IProductQueries productQueries, 
 
         return result.Match<ActionResult<ProductDto>>(
             dto => Ok(mapper.Map<ProductDto>(dto)),
-            e => Problem(e.Message));
+            e => e.ToObjectResult());
     }
 
     //[Authorize(Roles = AuthSettings.OperatorRole)]
@@ -93,6 +94,6 @@ public class ProductsController(ISender sender, IProductQueries productQueries, 
 
         return result.Match<ActionResult<ProductDto>>(
             dto => Ok(mapper.Map<ProductDto>(dto)),
-            e => Problem(e.Message));
+            e => e.ToObjectResult());
     }
 }

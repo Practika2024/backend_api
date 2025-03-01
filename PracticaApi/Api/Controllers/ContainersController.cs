@@ -1,8 +1,7 @@
-﻿using System.Security.Claims;
-using Api.Dtos.Containers;
+﻿using Api.Dtos.Containers;
+using Api.Modules.Errors;
 using Application.Commands.Containers.Commands;
 using Application.Common.Interfaces.Queries;
-using Application.Settings;
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -66,7 +65,7 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
 
         return result.Match<ActionResult<ContainerDto>>(
             dto => mapper.Map<ContainerDto>(dto),
-            e => Problem(e.Message));
+            e => e.ToObjectResult());
     }
 
     //[Authorize(Roles = "Operator")]
@@ -88,7 +87,7 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
 
         return result.Match<ActionResult<ContainerDto>>(
             dto => Ok(mapper.Map<ContainerDto>(dto)),
-            e => Problem(e.Message));
+            e => e.ToObjectResult());
     }
 
     //[Authorize(Roles = AuthSettings.OperatorRole)]
@@ -106,7 +105,7 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
 
         return result.Match<ActionResult<ContainerDto>>(
             dto => Ok(mapper.Map<ContainerDto>(dto)),
-            e => Problem(e.Message));
+            e => e.ToObjectResult());
     }
 
     //[Authorize(Roles = "Operator")]
@@ -126,7 +125,7 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
 
         return result.Match<ActionResult<ContainerDto>>(
             dto => Ok(mapper.Map<ContainerDto>(dto)),
-            e => Problem(e.Message));
+            e => e.ToObjectResult());
     }
 
     // Clear container content (Operator role only)
@@ -145,6 +144,6 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
 
         return result.Match<ActionResult<ContainerDto>>(
             dto => Ok(mapper.Map<ContainerDto>(dto)),
-            e => Problem(e.Message));
+            e => e.ToObjectResult());
     }
 }

@@ -1,5 +1,5 @@
 ﻿using Api.Dtos.Users;
-using Application.Commands.Authentications.Commands;
+using Api.Modules.Errors;
 using Application.Commands.Users.Commands;
 using Application.Common.Interfaces.Queries;
 using Application.Settings;
@@ -21,17 +21,16 @@ public class UsersController(ISender sender, IUserQueries userQueries, IMapper m
     public async Task<ActionResult<IReadOnlyList<UserDto>>> GetAll(CancellationToken cancellationToken)
     {
         var entities = await userQueries.GetAll(cancellationToken);
-
-        return entities.Select(mapper.Map<UserDto>).ToList();
+        return Ok(entities.Select(mapper.Map<UserDto>).ToList());
     }
     
     [HttpGet("get-by-id/{userId:guid}")]
     public async Task<ActionResult<UserDto>> Get([FromRoute] Guid userId, CancellationToken cancellationToken)
     {
         var entity = await userQueries.GetById(userId, cancellationToken);
-
+        
         return entity.Match<ActionResult<UserDto>>(
-            p => mapper.Map<UserDto>(p),
+            p => Ok(mapper.Map<UserDto>(p)),
             () => NotFound());
     }
     
@@ -52,8 +51,8 @@ public class UsersController(ISender sender, IUserQueries userQueries, IMapper m
         var result = await sender.Send(input, cancellationToken);
 
         return result.Match<ActionResult<UserDto>>(
-            u => mapper.Map<UserDto>(u),
-            e => Problem(e.Message));
+            u => Ok(mapper.Map<UserDto>(u)),
+            e => e.ToObjectResult()); 
     }
     
     [HttpPut("update-role/{userId:guid}")]
@@ -71,8 +70,8 @@ public class UsersController(ISender sender, IUserQueries userQueries, IMapper m
         var result = await sender.Send(command, cancellationToken);
     
         return result.Match<ActionResult<UserDto>>(
-            u => mapper.Map<UserDto>(u),
-            e => Problem(e.Message));
+            u => Ok(mapper.Map<UserDto>(u)),
+            e => e.ToObjectResult()); 
     }
     
     [HttpDelete("delete/{userId:guid}")]
@@ -83,7 +82,7 @@ public class UsersController(ISender sender, IUserQueries userQueries, IMapper m
 
         return result.Match<ActionResult>(
             _ => NoContent(),
-            e => Problem(e.Message));
+            e => e.ToObjectResult()); 
     }
     
     [HttpPut("update/{userId:guid}")]
@@ -105,6 +104,6 @@ public class UsersController(ISender sender, IUserQueries userQueries, IMapper m
     
         return result.Match<ActionResult<UserDto>>(
             u => Ok(mapper.Map<UserDto>(u)),
-            e => Problem(e.Message));
+            e => e.ToObjectResult()); 
     }
 }

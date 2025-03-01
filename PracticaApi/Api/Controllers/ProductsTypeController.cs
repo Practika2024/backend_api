@@ -1,4 +1,5 @@
 ﻿using Api.Dtos.ProductsType;
+using Api.Modules.Errors;
 using Application.Commands.ProductsType.Commands;
 using Application.Common.Interfaces.Queries;
 using AutoMapper;
@@ -47,7 +48,7 @@ public class ProductsTypeController(ISender sender, IProductTypeQueries productT
 
         return result.Match<ActionResult<ProductTypeDto>>(
             dto => mapper.Map<ProductTypeDto>(dto),
-            e => Problem(e.Message));
+            e => e.ToObjectResult()); 
     }
     
     [HttpPut("update/{productId:guid}")]
@@ -66,7 +67,7 @@ public class ProductsTypeController(ISender sender, IProductTypeQueries productT
 
         return result.Match<ActionResult<ProductTypeDto>>(
             dto => Ok(mapper.Map<ProductTypeDto>(dto)),
-            e => Problem(e.Message));
+            e => e.ToObjectResult()); 
     }
     
     [HttpDelete("delete/{productId:guid}")]
@@ -83,6 +84,6 @@ public class ProductsTypeController(ISender sender, IProductTypeQueries productT
 
         return result.Match<ActionResult<ProductTypeDto>>(
             dto => Ok(mapper.Map<ProductTypeDto>(dto)),
-            e => Problem(e.Message));
+            e => e.ToObjectResult()); 
     }
 }
