@@ -1,6 +1,30 @@
-﻿services:
-  api:
-    image: api
-    build:
-      context: .
-      dockerfile: Api/Dockerfile
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - dashboard_network
+
+  webapi:
+    image: androman/practice_softstream_api
+    ports:
+      - "5001:8080"
+    depends_on:
+      - postgres
+    environment:
+      ConnectionStrings__PostgreSqlUbuntu: "User ID=postgres;Password=postgres;Host=postgres;Port=5432;Database=postgres;"
+    networks:
+      - dashboard_network
+
+networks:
+  dashboard_network:
+
+volumes:
+  postgres_data:

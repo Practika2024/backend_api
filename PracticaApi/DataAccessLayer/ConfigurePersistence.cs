@@ -15,7 +15,10 @@ public static class ConfigurePersistence
 {
     public static void AddPersistence(this IServiceCollection services, WebApplicationBuilder builder)
     {
-        var dataSourceBuild = new NpgsqlDataSourceBuilder(builder.Configuration.GetConnectionString("Default"));
+        var dataSourceBuild = new NpgsqlDataSourceBuilder(
+            //builder.Configuration.GetConnectionString("Default")
+            builder.Configuration.GetConnectionString("PostgresDocker")
+            );
         dataSourceBuild.EnableDynamicJson();
         var dataSource = dataSourceBuild.Build();
 
