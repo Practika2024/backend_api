@@ -2,6 +2,7 @@
 using Api.Modules.Errors;
 using Application.Commands.ContainersType.Commands;
 using Application.Common.Interfaces.Queries;
+using Application.Settings;
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -12,7 +13,7 @@ namespace Api.Controllers;
 
 [Route("containers-type")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-//[Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
+[Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
 [ApiController]
 public class ContainersTypeController(ISender sender, IContainerTypeQueries containerTypeQueries, IMapper mapper)
     : ControllerBase
@@ -35,6 +36,7 @@ public class ContainersTypeController(ISender sender, IContainerTypeQueries cont
             () => NotFound());
     }
 
+    [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpPost("add")]
     public async Task<ActionResult<ContainerTypeDto>> AddContainerType(
         [FromBody] CreateUpdateContainerTypeDto model,
@@ -52,6 +54,7 @@ public class ContainersTypeController(ISender sender, IContainerTypeQueries cont
             e => e.ToObjectResult());
     }
 
+    [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpPut("update/{containerId:guid}")]
     public async Task<ActionResult<ContainerTypeDto>> UpdateContainerType(
         [FromRoute] Guid containerId,
@@ -71,6 +74,7 @@ public class ContainersTypeController(ISender sender, IContainerTypeQueries cont
             e => e.ToObjectResult());
     }
 
+    [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpDelete("delete/{containerId:guid}")]
     public async Task<ActionResult<ContainerTypeDto>> DeleteContainerType(
         [FromRoute] Guid containerId,

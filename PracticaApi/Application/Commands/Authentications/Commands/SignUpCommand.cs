@@ -48,7 +48,7 @@ public class SignUpUserCommandHandler(
         try
         {
             var userId = Guid.NewGuid();
-            var isAnyUsersInDb = await userQueries.GetAll(cancellationToken);
+            var isUsersNullOrEmpty = (await userQueries.GetAll(cancellationToken)).IsNullOrEmpty();
             var userModel = new CreateUserModel
             {
                 Id = userId,
@@ -57,7 +57,7 @@ public class SignUpUserCommandHandler(
                 Surname = request.Surname,
                 Patronymic = request.Patronymic,
                 PasswordHash = hashPasswordService.HashPassword(request.Password),
-                RoleId = isAnyUsersInDb.IsNullOrEmpty() ? AuthSettings.AdminRole : AuthSettings.OperatorRole,
+                RoleId = isUsersNullOrEmpty ? AuthSettings.AdminRole : AuthSettings.OperatorRole,
                 CreatedBy = userId
             };
             User userEntity = await userRepository.Create(userModel, cancellationToken);

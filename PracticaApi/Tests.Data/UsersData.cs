@@ -5,10 +5,13 @@ namespace Tests.Data;
 
 public static class UsersData
 {
-
-    public static User MainUser = new User
+    public static User MainUser() => new()
     {
         Id = Guid.NewGuid(),
-
+        Email = "test@example.com",
+        Name = "Test",
+        Surname = "User",
+        Patronymic = "Testovich",
+        RoleId = "Admin"
     };
 }

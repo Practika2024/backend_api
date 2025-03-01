@@ -30,6 +30,6 @@ public class ApplicationDbContext(
     {
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         base.OnModelCreating(builder);
-       // DataSeed.Seed(builder, hashPasswordService);
+        DataSeed.Seed(builder, hashPasswordService);
     }
 }

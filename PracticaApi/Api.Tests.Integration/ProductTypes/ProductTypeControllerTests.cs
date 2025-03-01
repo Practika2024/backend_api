@@ -67,7 +67,7 @@ public class ProductTypeControllerTests : BaseIntegrationTest, IAsyncLifetime
         var response = await Client.PutAsJsonAsync($"products-type/update/{Guid.NewGuid()}", request);
 
         response.IsSuccessStatusCode.Should().BeFalse();
-        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
@@ -89,7 +89,7 @@ public class ProductTypeControllerTests : BaseIntegrationTest, IAsyncLifetime
         var response = await Client.DeleteAsync($"products-type/delete/{Guid.NewGuid()}");
 
         response.IsSuccessStatusCode.Should().BeFalse();
-        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
@@ -112,7 +112,8 @@ public class ProductTypeControllerTests : BaseIntegrationTest, IAsyncLifetime
             CreatedBy = UserId
         };
 
-        await Context.Users.AddAsync(new UserEntity { Id = UserId, Email = "qwerty@gmail.com", PasswordHash = "fdsafdsafsad", RoleId = "Administrator" });
+        await Context.Users.AddAsync(new UserEntity
+            { Id = UserId, Email = "qwerty@gmail.com", PasswordHash = "fdsafdsafsad", RoleId = "Administrator" });
         await Context.ProductTypes.AddAuditableAsync(productEntity);
         await SaveChangesAsync();
     }
@@ -120,7 +121,7 @@ public class ProductTypeControllerTests : BaseIntegrationTest, IAsyncLifetime
     public async Task DisposeAsync()
     {
         Context.ProductTypes.RemoveRange(Context.ProductTypes);
-       // Context.Users.RemoveRange(Context.Users);
+        Context.Users.RemoveRange(Context.Users);
         await SaveChangesAsync();
     }
 }

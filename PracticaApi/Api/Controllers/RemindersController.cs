@@ -34,7 +34,6 @@ public class RemindersController(ISender sender, IReminderQueries reminderQuerie
     }
 
     [HttpPost("add{containerId}")]
-    // [Authorize(Roles = "Operator")]
     public async Task<ActionResult<ReminderDto>> AddReminderToContainer(
         [FromRoute] Guid containerId,
         [FromBody] AddReminderToContainerDto model,

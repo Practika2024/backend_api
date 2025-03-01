@@ -15,10 +15,9 @@ namespace Api.Controllers;
 [Route("products")]
 [ApiController]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-[Authorize(Roles = AuthSettings.AdminRole)]
+[Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
 public class ProductsController(ISender sender, IProductQueries productQueries, IMapper mapper) : ControllerBase
 {
-    [Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
     [HttpGet("get-all")]
     public async Task<ActionResult<IReadOnlyList<ProductDto>>> GetAll(CancellationToken cancellationToken)
     {
@@ -26,7 +25,6 @@ public class ProductsController(ISender sender, IProductQueries productQueries, 
         return Ok(entities.Select(mapper.Map<ProductDto>).ToList());
     }
 
-    [Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
     [HttpGet("get-by-id/{productId:guid}")]
     public async Task<ActionResult<ProductDto>> GetById([FromRoute] Guid productId,
         CancellationToken cancellationToken)
@@ -37,6 +35,7 @@ public class ProductsController(ISender sender, IProductQueries productQueries, 
             () => NotFound());
     }
 
+    [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpPost("add")]
     public async Task<ActionResult<ProductDto>> AddProduct(
         [FromBody] CreateProductDto model,
@@ -57,6 +56,7 @@ public class ProductsController(ISender sender, IProductQueries productQueries, 
             e => e.ToObjectResult());
     }
 
+    [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpPut("update/{productId:guid}")]
     public async Task<ActionResult<ProductDto>> UpdateProduct(
         [FromRoute] Guid productId,
@@ -79,6 +79,7 @@ public class ProductsController(ISender sender, IProductQueries productQueries, 
             e => e.ToObjectResult());
     }
 
+    [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpDelete("delete/{productId:guid}")]
     public async Task<ActionResult<ProductDto>> DeleteProduct(
         [FromRoute] Guid productId,

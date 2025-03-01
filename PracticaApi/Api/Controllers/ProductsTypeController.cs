@@ -13,11 +13,10 @@ namespace Api.Controllers;
 
 [Route("products-type")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-[Authorize(Roles = AuthSettings.AdminRole)]
+[Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
 [ApiController]
 public class ProductsTypeController(ISender sender, IProductTypeQueries productTypeQueries, IMapper mapper) : ControllerBase
 {
-    [Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
     [HttpGet("get-all")]
     public async Task<ActionResult<IReadOnlyList<ProductTypeDto>>> GetAll(CancellationToken cancellationToken)
     {
@@ -25,7 +24,6 @@ public class ProductsTypeController(ISender sender, IProductTypeQueries productT
         return Ok(entities.Select(mapper.Map<ProductTypeDto>).ToList());
     }
     
-    [Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
     [HttpGet("get-by-id/{productTypeId:guid}")]
     public async Task<ActionResult<ProductTypeDto>> GetById([FromRoute] Guid productTypeId,
         CancellationToken cancellationToken)
@@ -37,6 +35,7 @@ public class ProductsTypeController(ISender sender, IProductTypeQueries productT
             () => NotFound());
     }
     
+    [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpPost("add")]
     public async Task<ActionResult<ProductTypeDto>> AddProductType(
         [FromBody] CreateUpdateProductTypeDto model,
@@ -54,6 +53,7 @@ public class ProductsTypeController(ISender sender, IProductTypeQueries productT
             e => e.ToObjectResult()); 
     }
     
+    [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpPut("update/{productId:guid}")]
     public async Task<ActionResult<ProductTypeDto>> UpdateProductType(
         [FromRoute] Guid productId,
@@ -73,6 +73,7 @@ public class ProductsTypeController(ISender sender, IProductTypeQueries productT
             e => e.ToObjectResult()); 
     }
     
+    [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpDelete("delete/{productId:guid}")]
     public async Task<ActionResult<ProductTypeDto>> DeleteProductType(
         [FromRoute] Guid productId,

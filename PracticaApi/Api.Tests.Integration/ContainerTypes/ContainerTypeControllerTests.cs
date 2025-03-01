@@ -55,7 +55,8 @@ public class ContainersTypeControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         response.IsSuccessStatusCode.Should().BeTrue();
 
-        var containerTypeFromDatabase = await Context.ContainerTypes.FirstOrDefaultAsync(x => x.Id == _mainContainerType.Id);
+        var containerTypeFromDatabase =
+            await Context.ContainerTypes.FirstOrDefaultAsync(x => x.Id == _mainContainerType.Id);
         containerTypeFromDatabase.Should().NotBeNull();
         containerTypeFromDatabase!.Name.Should().Be(newName);
     }
@@ -68,7 +69,7 @@ public class ContainersTypeControllerTests : BaseIntegrationTest, IAsyncLifetime
         var response = await Client.PutAsJsonAsync($"containers-type/update/{Guid.NewGuid()}", request);
 
         response.IsSuccessStatusCode.Should().BeFalse();
-        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
@@ -90,7 +91,7 @@ public class ContainersTypeControllerTests : BaseIntegrationTest, IAsyncLifetime
         var response = await Client.DeleteAsync($"containers-type/delete/{Guid.NewGuid()}");
 
         response.IsSuccessStatusCode.Should().BeFalse();
-        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
@@ -113,17 +114,17 @@ public class ContainersTypeControllerTests : BaseIntegrationTest, IAsyncLifetime
             CreatedBy = UserId
         };
 
-        await Context.Users.AddAsync(new UserEntity{Id = UserId,Email = "qwerty@gmail.com",PasswordHash = "fdsafdsafsad", RoleId = "Administrator"});
+        await Context.Users.AddAsync(new UserEntity
+            { Id = UserId, Email = "qwerty@gmail.com", PasswordHash = "fdsafdsafsad", RoleId = "Administrator" });
         await Context.ContainerTypes.AddAuditableAsync(containerEntity);
         await SaveChangesAsync();
     }
 
 
-
     public async Task DisposeAsync()
     {
         Context.ContainerTypes.RemoveRange(Context.ContainerTypes);
-       //Context.Users.RemoveRange(Context.Users);
+        Context.Users.RemoveRange(Context.Users);
         await SaveChangesAsync();
     }
 }

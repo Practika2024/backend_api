@@ -2,8 +2,12 @@
 using System.Net.Http.Json;
 using Api.Dtos.Products;
 using DataAccessLayer.Entities.Products;
+using DataAccessLayer.Entities.Users;
+using DataAccessLayer.Extensions;
 using Domain.Products;
+using Domain.ProductTypes;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using Tests.Common;
 using Tests.Data;
 using Xunit;
@@ -12,9 +16,13 @@ namespace Api.Tests.Integration.Products;
 
 public class ProductsControllerTests : BaseIntegrationTest, IAsyncLifetime
 {
-    private readonly Product _mainProduct = ProductsData.MainProduct;
+    private readonly Product _mainProduct;
+    private readonly ProductType _mainProductType = ProductTypeData.MainProductType;
 
-    public ProductsControllerTests(IntegrationTestWebFactory factory) : base(factory) {}
+    public ProductsControllerTests(IntegrationTestWebFactory factory) : base(factory)
+    {
+        _mainProduct = ProductsData.MainProduct(_mainProductType.Id);
+    }
 
     [Fact]
     public async Task ShouldGetAllProducts()
@@ -66,7 +74,7 @@ public class ProductsControllerTests : BaseIntegrationTest, IAsyncLifetime
             Name = "New Test Product",
             Description = "Test description",
             ManufactureDate = DateTime.UtcNow,
-            TypeId = Guid.NewGuid()
+            TypeId = _mainProductType.Id,
         };
 
         // Act
@@ -78,6 +86,38 @@ public class ProductsControllerTests : BaseIntegrationTest, IAsyncLifetime
         createdProduct.Should().NotBeNull();
         createdProduct!.Name.Should().Be(newProduct.Name);
     }
+    
+    [Fact]
+    public async Task ShouldUpdateProduct()
+    {
+        // Arrange
+        var newName = "New Test Product Updated";
+        var newDescription = "Test description Updated";
+        
+        var updateProductDto = new UpdateProductDto
+        {
+            Name = newName,
+            Description = newDescription,
+            ManufactureDate = DateTime.UtcNow,
+            TypeId = _mainProductType.Id,
+        };
+
+        // Act
+        var response = await Client.PutAsJsonAsync($"products/update/{_mainProduct.Id}", updateProductDto);
+
+        // Assert
+        response.IsSuccessStatusCode.Should().BeTrue();
+        var updatedProduct = await response.Content.ReadFromJsonAsync<ProductDto>();
+        
+        var manufacturerFromDataBase = await Context.Products
+            .FirstOrDefaultAsync(x => x.Id == updatedProduct!.Id);
+        
+        manufacturerFromDataBase.Should().NotBeNull();
+        
+        manufacturerFromDataBase!.Name.Should().Be(newName);
+        manufacturerFromDataBase!.Description.Should().Be(newDescription);
+    }
+    
 
     [Fact]
     public async Task ShouldDeleteProduct()
@@ -100,10 +140,21 @@ public class ProductsControllerTests : BaseIntegrationTest, IAsyncLifetime
             Name = _mainProduct.Name,
             Description = _mainProduct.Description,
             ManufactureDate = _mainProduct.ManufactureDate,
-            TypeId = _mainProduct.TypeId
+            TypeId = _mainProduct.TypeId,
+            CreatedBy = UserId
         };
 
-        await Context.Products.AddAsync(productEntity);
+        var productTypeEntity = new ProductTypeEntity
+        {
+            Id = _mainProductType.Id,
+            Name = _mainProductType.Name,
+            CreatedBy = UserId
+        };
+        
+        await Context.Users.AddAsync(new UserEntity
+            { Id = UserId, Email = "qwerty@gmail.com", PasswordHash = "fdsafdsafsad", RoleId = "Administrator" });
+        await Context.ProductTypes.AddAuditableAsync(productTypeEntity);
+        await Context.Products.AddAuditableAsync(productEntity);
         await SaveChangesAsync();
     }
 
@@ -111,6 +162,8 @@ public class ProductsControllerTests : BaseIntegrationTest, IAsyncLifetime
     public async Task DisposeAsync()
     {
         Context.Products.RemoveRange(Context.Products);
+        Context.ProductTypes.RemoveRange(Context.ProductTypes);
+        Context.Users.RemoveRange(Context.Users);
         await SaveChangesAsync();
     }
 }

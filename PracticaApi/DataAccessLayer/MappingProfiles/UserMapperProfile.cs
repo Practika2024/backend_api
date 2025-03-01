@@ -14,7 +14,7 @@ public class UserMapperProfile: Profile
         CreateMap<UserEntity, User>().ReverseMap();
         
         CreateMap<CreateUserModel, UserEntity>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore()) // Ігноруємо Id, оскільки воно генерується автоматично
+            //.ForMember(dest => dest.Id, opt => opt.Ignore()) // Ігноруємо Id, оскільки воно генерується автоматично
             .ForMember(dest => dest.ExternalProvider, opt => opt.Ignore()) // Ігноруємо ExternalProvider
             .ForMember(dest => dest.ExternalProviderKey, opt => opt.Ignore()); // Ігнору
         CreateMap<UserEntity, CreateUserModel>();
