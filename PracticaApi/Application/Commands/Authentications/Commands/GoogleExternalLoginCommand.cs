@@ -1,5 +1,6 @@
 ﻿using Application.Commands.Authentications.Exceptions;
 using Application.Common;
+using Application.Common.Interfaces.Queries;
 using Application.Common.Interfaces.Repositories;
 using Application.Services.HashPasswordService;
 using Application.Services.TokenService;
@@ -8,6 +9,7 @@ using Domain.Users.Models;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Application.Commands.Authentications.Commands;
 
@@ -15,25 +17,14 @@ public record GoogleExternalLoginCommand : IRequest<Result<JwtModel, Authenticat
 {
     public required ExternalLoginModel Model { get; init; }
 }
-public class GoogleExternalLoginCommandHandler : IRequestHandler<GoogleExternalLoginCommand, Result<JwtModel, AuthenticationException>>
+public class GoogleExternalLoginCommandHandler(
+    IUserRepository userRepository,
+    IJwtTokenService jwtTokenService,
+    IConfiguration configuration,
+    IHashPasswordService hashPasswordService,
+    IUserQueries userQueries)
+    : IRequestHandler<GoogleExternalLoginCommand, Result<JwtModel, AuthenticationException>>
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IJwtTokenService _jwtTokenService;
-    private readonly IConfiguration _configuration;
-    private readonly IHashPasswordService _hashPasswordService;
-
-    public GoogleExternalLoginCommandHandler(
-        IUserRepository userRepository,
-        IJwtTokenService jwtTokenService,
-        IConfiguration configuration,
-        IHashPasswordService hashPasswordService)
-    {
-        _userRepository = userRepository;
-        _jwtTokenService = jwtTokenService;
-        _configuration = configuration;
-        _hashPasswordService = hashPasswordService;
-    }
-
     public async Task<Result<JwtModel, AuthenticationException>> Handle(GoogleExternalLoginCommand request, CancellationToken cancellationToken)
     {
         try
@@ -43,8 +34,8 @@ public class GoogleExternalLoginCommandHandler : IRequestHandler<GoogleExternalL
                 return new MissingGoogleTokenException();
             }
 
-            var clientId = _configuration["GoogleAuthSettings:ClientId"];
-            var payload = await _jwtTokenService.VerifyGoogleToken(request.Model);
+            var clientId = configuration["GoogleAuthSettings:ClientId"];
+            var payload = await jwtTokenService.VerifyGoogleToken(request.Model);
 
             if (payload == null)
             {
@@ -52,39 +43,40 @@ public class GoogleExternalLoginCommandHandler : IRequestHandler<GoogleExternalL
             }
 
             var info = new UserLoginInfo(request.Model.Provider, payload.Subject, request.Model.Provider);
-            var user = await _userRepository.FindByLoginAsync(info.LoginProvider, info.ProviderKey, cancellationToken);
+            var user = await userRepository.FindByLoginAsync(info.LoginProvider, info.ProviderKey, cancellationToken);
 
             if (user == null)
             {
-                user = await _userRepository.FindByEmailAsync(payload.Email, cancellationToken);
+                user = await userRepository.FindByEmailAsync(payload.Email, cancellationToken);
 
                 if (user == null)
                 {
                     var userId = Guid.NewGuid();
-
+                    
                     var randomPassword = GenerateRandomPassword();
-
+                    var isUsersNullOrEmpty = (await userQueries.GetAll(cancellationToken)).IsNullOrEmpty();
                     var userModel = new CreateUserModel
                     {
                         Id = userId,
                         Email = payload.Email,
                         Name = payload.GivenName,
                         Surname = payload.FamilyName,
-                        RoleId = AuthSettings.OperatorRole,
-                        PasswordHash = _hashPasswordService.HashPassword(randomPassword)
+                        RoleId = isUsersNullOrEmpty ? AuthSettings.AdminRole : AuthSettings.OperatorRole,
+                        PasswordHash = hashPasswordService.HashPassword(randomPassword),
+                        CreatedBy = userId
                     };
 
-                    user = await _userRepository.Create(userModel, cancellationToken);
+                    user = await userRepository.Create(userModel, cancellationToken);
                 }
 
-                var loginResult = await _userRepository.AddLoginAsync(user, info, cancellationToken);
+                var loginResult = await userRepository.AddLoginAsync(user, info, cancellationToken);
                 if (!loginResult.Succeeded)
                 {
                     return new FailedToAddGoogleLoginException();
                 }
             }
 
-            var tokens = await _jwtTokenService.GenerateTokensAsync(user, cancellationToken);
+            var tokens = await jwtTokenService.GenerateTokensAsync(user, cancellationToken);
             return tokens;
         }
         catch (Exception ex)
