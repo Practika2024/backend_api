@@ -33,8 +33,10 @@ public class ContainerRepository(ApplicationDbContext context, IMapper mapper)
             throw new InvalidOperationException("Container not found.");
         }
 
-        context.Entry(containerEntity).CurrentValues.SetValues(model);
-    
+        containerEntity.Name = model.Name;
+        containerEntity.Notes = model.Notes;
+        containerEntity.Volume = model.Volume;
+
         context.Containers.UpdateAuditable(containerEntity);
         await context.SaveChangesAsync(cancellationToken);
 
@@ -85,12 +87,13 @@ public class ContainerRepository(ApplicationDbContext context, IMapper mapper)
 
     public async Task<bool> IsProductInContainer(Guid productId, CancellationToken cancellationToken)
     {
-       return await context.Containers.AnyAsync(x => x.ProductId == productId, cancellationToken);
+        return await context.Containers.AnyAsync(x => x.ProductId == productId, cancellationToken);
     }
 
     public async Task<bool> IsContainerIsEmpty(Guid containerId, CancellationToken cancellationToken)
     {
-        var containerContent = await context.Containers.FirstOrDefaultAsync(x => x.Id == containerId, cancellationToken);
+        var containerContent =
+            await context.Containers.FirstOrDefaultAsync(x => x.Id == containerId, cancellationToken);
         return containerContent?.ProductId == null;
     }
 
@@ -188,5 +191,69 @@ public class ContainerRepository(ApplicationDbContext context, IMapper mapper)
 
         return await context.Containers
             .FirstOrDefaultAsync(predicate, cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Container>> GetContainersByFillStatus(bool isEmpty,
+        CancellationToken cancellationToken)
+    {
+        var containers = await context.Containers
+            .AsNoTracking()
+            .Where(c => isEmpty ? c.ProductId == null : c.ProductId != null)
+            .ToListAsync(cancellationToken);
+
+        return mapper.Map<IReadOnlyList<Container>>(containers);
+    }
+
+    public async Task<IReadOnlyList<Container>> GetContainersByProductType(Guid productTypeId,
+        CancellationToken cancellationToken)
+    {
+        var containers = await context.Containers
+            .AsNoTracking()
+            .Include(c => c.Product)
+            .Where(c => c.Product != null && c.Product.TypeId == productTypeId)
+            .ToListAsync(cancellationToken);
+
+        return mapper.Map<IReadOnlyList<Container>>(containers);
+    }
+
+    public async Task<IReadOnlyList<Container>> GetContainersByProduct(Guid productId,
+        CancellationToken cancellationToken)
+    {
+        var containers = await context.Containers
+            .AsNoTracking()
+            .Where(c => c.ProductId == productId)
+            .ToListAsync(cancellationToken);
+
+        return mapper.Map<IReadOnlyList<Container>>(containers);
+    }
+
+    public async Task<IReadOnlyList<Container>> GetEmptyContainersByLastProduct(Guid lastProductId,
+        CancellationToken cancellationToken)
+    {
+        var emptyContainers = await context.Containers
+            .AsNoTracking()
+            .Where(c => c.ProductId == null)
+            .ToListAsync(cancellationToken);
+
+        var containerIds = emptyContainers.Select(c => c.Id).ToList();
+
+        var containerHistories = await context.ContainerHistories
+            .AsNoTracking()
+            .Where(h => containerIds.Contains(h.ContainerId) && h.ProductId == lastProductId)
+            .OrderByDescending(h => h.EndDate)
+            .ToListAsync(cancellationToken);
+
+        var lastProductHistories = containerHistories
+            .GroupBy(h => h.ContainerId)
+            .Select(g => g.First())
+            .ToList();
+
+        var containerIdsWithLastProduct = lastProductHistories.Select(h => h.ContainerId).ToList();
+
+        var resultContainers = emptyContainers
+            .Where(c => containerIdsWithLastProduct.Contains(c.Id))
+            .ToList();
+
+        return mapper.Map<IReadOnlyList<Container>>(resultContainers);
     }
 }

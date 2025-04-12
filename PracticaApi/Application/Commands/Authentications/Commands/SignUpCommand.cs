@@ -1,5 +1,6 @@
 ﻿using Application.Commands.Authentications.Exceptions;
 using Application.Common;
+using Application.Common.Interfaces.Queries;
 using Application.Common.Interfaces.Repositories;
 using Application.Services.HashPasswordService;
 using Application.Services.TokenService;
@@ -7,6 +8,7 @@ using Application.Settings;
 using Domain.Users;
 using Domain.Users.Models;
 using MediatR;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Application.Commands.Authentications.Commands;
 
@@ -19,8 +21,9 @@ public class SignUpCommand : IRequest<Result<JwtModel, AuthenticationException>>
     public required string? Name { get; init; }
 }
 
-public class CreateUserCommandHandler(
+public class SignUpUserCommandHandler(
     IUserRepository userRepository,
+    IUserQueries userQueries,
     IJwtTokenService jwtTokenService,
     IHashPasswordService hashPasswordService)
     : IRequestHandler<SignUpCommand, Result<JwtModel, AuthenticationException>>
@@ -44,8 +47,8 @@ public class CreateUserCommandHandler(
     {
         try
         {
-            //TODO logic for first who sign up is admin
             var userId = Guid.NewGuid();
+            var isUsersNullOrEmpty = (await userQueries.GetAll(cancellationToken)).IsNullOrEmpty();
             var userModel = new CreateUserModel
             {
                 Id = userId,
@@ -54,15 +57,11 @@ public class CreateUserCommandHandler(
                 Surname = request.Surname,
                 Patronymic = request.Patronymic,
                 PasswordHash = hashPasswordService.HashPassword(request.Password),
-                RoleId = AuthSettings.OperatorRole
+                RoleId = isUsersNullOrEmpty ? AuthSettings.AdminRole : AuthSettings.OperatorRole,
+                CreatedBy = userId
             };
             User userEntity = await userRepository.Create(userModel, cancellationToken);
-            // var addRoleModel = new AddRoleToUserModel
-            // {
-            //     UserId = userEntity.Id,
-            //     RoleId = AuthSettings.OperatorRole
-            // };
-            //var updatedUser = await userRepository.AddRole(addRoleModel, cancellationToken);
+            
             var token = await jwtTokenService.GenerateTokensAsync(userEntity, cancellationToken);
 
             return token;

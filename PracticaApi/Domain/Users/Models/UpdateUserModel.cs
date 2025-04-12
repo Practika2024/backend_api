@@ -7,4 +7,5 @@ public class UpdateUserModel
     public string? Name { get; set; }
     public string? Surname { get; set; }
     public string? Patronymic { get; set; }
+    public Guid ModifiedBy { get; set; }
 }

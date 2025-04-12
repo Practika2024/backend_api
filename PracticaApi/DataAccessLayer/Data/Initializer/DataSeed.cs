@@ -13,9 +13,9 @@ namespace DataAccessLayer.Data.Initializer
         public static void Seed(ModelBuilder modelBuilder, IHashPasswordService hashPasswordService)
         {
             SeedRoles(modelBuilder);
-            var seededUsers = SeedUsers(modelBuilder, hashPasswordService);
-            SeedTypes(modelBuilder, seededUsers);
-            SeedProductTypes(modelBuilder, seededUsers);
+            // var seededUsers = SeedUsers(modelBuilder, hashPasswordService);
+            // SeedTypes(modelBuilder, seededUsers);
+            // SeedProductTypes(modelBuilder, seededUsers);
         }
 
         private static void SeedRoles(ModelBuilder modelBuilder)
@@ -46,7 +46,11 @@ namespace DataAccessLayer.Data.Initializer
                 Name = "admin",
                 Surname = "admin",
                 Patronymic = "admin",
-                PasswordHash = hashPasswordService.HashPassword("123456")
+                PasswordHash = hashPasswordService.HashPassword("123456"),
+                CreatedBy = adminId,
+                CreatedAt = DateTime.UtcNow,
+                ModifiedBy = adminId,
+                ModifiedAt = DateTime.UtcNow
             };
 
             var operatorUser = new UserEntity
@@ -57,7 +61,11 @@ namespace DataAccessLayer.Data.Initializer
                 Name = "operator",
                 Surname = "operator",
                 Patronymic = "operator",
-                PasswordHash = hashPasswordService.HashPassword("123456")
+                PasswordHash = hashPasswordService.HashPassword("123456"),
+                CreatedBy = adminId,
+                CreatedAt = DateTime.UtcNow,
+                ModifiedBy = adminId,
+                ModifiedAt = DateTime.UtcNow
             };
 
             modelBuilder.Entity<UserEntity>().HasData(admin, operatorUser);

@@ -1,5 +1,6 @@
 ﻿using Application.Commands.Products.Exceptions;
 using Application.Common;
+using Application.Common.Interfaces;
 using Application.Common.Interfaces.Queries;
 using Application.Common.Interfaces.Repositories;
 using Domain.Products;
@@ -14,7 +15,6 @@ public record AddProductCommand : IRequest<Result<Product, ProductException>>
     public required string Name { get; init; }
     public required string? Description { get; init; }
     public required DateTime ManufactureDate { get; init; }
-    public required Guid UserId { get; init; }
     public required Guid TypeId { get; init; }
 }
 
@@ -22,7 +22,7 @@ public class AddProductCommandHandler(
     IProductRepository productRepository,
     IProductQueries productQueries,
     IProductTypeQueries productTypeQueries,
-    IUserQueries userQueries)
+    IUserQueries userQueries, IUserProvider userProvider)
     : IRequestHandler<AddProductCommand, Result<Product, ProductException>>
 {
     public async Task<Result<Product, ProductException>> Handle(
@@ -36,7 +36,7 @@ public class AddProductCommandHandler(
                 new ProductAlreadyExistsException(c.Id)),
             async () =>
             {
-                var userResult = await userQueries.GetById(request.UserId, cancellationToken);
+                var userResult = await userQueries.GetById(userProvider.GetUserId(), cancellationToken);
                 return await userResult.Match<Task<Result<Product, ProductException>>>(
                     async user =>
                     {
@@ -48,7 +48,6 @@ public class AddProductCommandHandler(
                                     request.Name,
                                     request.Description,
                                     request.ManufactureDate,
-                                    request.UserId,
                                     type,
                                     cancellationToken);
                             },
@@ -57,7 +56,7 @@ public class AddProductCommandHandler(
                         );
                     },
                     () => Task.FromResult<Result<Product, ProductException>>(
-                        new UserNotFoundException(request.UserId))
+                        new UserNotFoundException(userProvider.GetUserId()))
                 );
             });
     }
@@ -66,7 +65,6 @@ public class AddProductCommandHandler(
         string name,
         string? description,
         DateTime manufactureDate,
-        Guid userId,
         ProductType type,
         CancellationToken cancellationToken)
     {
@@ -79,7 +77,7 @@ public class AddProductCommandHandler(
                 Description = description,
                 ManufactureDate = manufactureDate,
                 Name = name,
-                CreatedBy = userId,
+                CreatedBy = userProvider.GetUserId(),
                 TypeId = type.Id,
             };
 

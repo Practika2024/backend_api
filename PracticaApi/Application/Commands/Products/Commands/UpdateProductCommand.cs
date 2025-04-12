@@ -1,59 +1,63 @@
-﻿// using Application.Commands.Containers.Exceptions;
-// using Application.Common;
-// using Application.Common.Interfaces.Repositories;
-// using Domain.ContainerModels;
-// using MediatR;
-//
-// namespace Application.Commands.Containers.Commands;
-//
-// public record UpdateContainerCommand : IRequest<Result<Container, ContainerException>>
-// {
-//     public Guid Id { get; set; }
-//     public string Name { get; init; }
-//     public decimal Volume { get; init; }
-//     public string? Notes { get; init; }
-//     public Guid ModifiedBy { get; init; }
-//     public Guid TypeId { get; init; }
-// }
-//
-// public class UpdateContainerCommandHandler(
-//     IContainerRepository containerRepository)
-//     : IRequestHandler<UpdateContainerCommand, Result<Container, ContainerException>>
-// {
-//     public async Task<Result<Container, ContainerException>> Handle(
-//         UpdateContainerCommand request,
-//         CancellationToken cancellationToken)
-//     {
-//         var userId = request.ModifiedBy;
-//         var containerId = request.Id;
-//
-//         var existingContainer = await containerRepository.GetById(containerId, cancellationToken);
-//
-//         return await existingContainer.Match(
-//             async container =>
-//             {
-//                 try
-//                 {
-//                     var typeId = request.TypeId;
-//                     var updateContainerModel = new UpdateContainerModel
-//                     {
-//                         Id = containerId,
-//                         Name = request.Name,
-//                         Volume = request.Volume,
-//                         Notes = request.Notes,
-//                         ModifiedBy = userId,
-//                         TypeId = typeId,
-//                     };
-//                     var updatedContainer = await containerRepository.Update(updateContainerModel, cancellationToken);
-//                     return updatedContainer;
-//                 }
-//                 catch (ContainerException exception)
-//                 {
-//                     return new ContainerUnknownException(containerId, exception);
-//                 }
-//             },
-//             () => Task.FromResult<Result<Container, ContainerException>>(
-//                 new ContainerNotFoundException(containerId))
-//         );
-//     }
-// }
+﻿using Application.Commands.Products.Exceptions;
+using Application.Common;
+using Application.Common.Interfaces;
+using Application.Common.Interfaces.Queries;
+using Application.Common.Interfaces.Repositories;
+using Domain.Products;
+using Domain.Products.Models;
+using MediatR;
+
+namespace Application.Commands.Products.Commands;
+
+public record UpdateProductCommand : IRequest<Result<Product, ProductException>>
+{
+    public Guid Id { get; set; }
+    public string Name { get; init; }
+    public Guid TypeId { get; init; }
+    public string? Description { get; init; }
+    public DateTime ManufactureDate { get; init; } 
+}
+
+public class UpdateProductCommandHandler(
+    IProductRepository productRepository, IUserProvider userProvider, IProductTypeQueries productTypeQueries)
+    : IRequestHandler<UpdateProductCommand, Result<Product, ProductException>>
+{
+    public async Task<Result<Product, ProductException>> Handle(
+        UpdateProductCommand request,
+        CancellationToken cancellationToken)
+    {
+        var userId = userProvider.GetUserId();
+        var productId = request.Id;
+
+        var existingProduct = await productRepository.GetById(productId, cancellationToken);
+        var existingProductType = await productTypeQueries.GetById(request.TypeId, cancellationToken);
+
+        return await existingProduct.Match(
+            async _ => await existingProductType.Match(
+                async _ =>
+                {
+                    try
+                    {
+                        var updateProductModel = new UpdateProductModel
+                        {
+                            Id = productId,
+                            Name = request.Name,
+                            Description = request.Description,
+                            ManufactureDate = request.ManufactureDate,
+                            ModifiedBy = userId,
+                            TypeId = request.TypeId,
+                        };
+                        var updatedProduct = await productRepository.Update(updateProductModel, cancellationToken);
+                        return updatedProduct;
+                    }
+                    catch (ProductException exception)
+                    {
+                        return new ProductUnknownException(productId, exception);
+                    }
+                },
+                () => Task.FromResult<Result<Product, ProductException>>(new ProductTypeNotFoundException(request.TypeId))
+            ),
+            () => Task.FromResult<Result<Product, ProductException>>(new ProductNotFoundException(productId))
+        );
+    }
+}

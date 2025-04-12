@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using Api.Dtos.Products;
+using Api.Modules.Errors;
 using Application.Commands.Products.Commands;
 using Application.Common.Interfaces.Queries;
 using Application.Settings;
@@ -14,9 +15,9 @@ namespace Api.Controllers;
 [Route("products")]
 [ApiController]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-public class ProductsController(ISender sender, IProductQueries productQueries, IMapper mapper) : BaseController
+[Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
+public class ProductsController(ISender sender, IProductQueries productQueries, IMapper mapper) : ControllerBase
 {
-    //[Authorize(Roles = AuthSettings.AdminRole)]
     [HttpGet("get-all")]
     public async Task<ActionResult<IReadOnlyList<ProductDto>>> GetAll(CancellationToken cancellationToken)
     {
@@ -24,7 +25,6 @@ public class ProductsController(ISender sender, IProductQueries productQueries, 
         return Ok(entities.Select(mapper.Map<ProductDto>).ToList());
     }
 
-    //[Authorize(Roles = $"{AuthSettings.AdminRole},{AuthSettings.OperatorRole}")]
     [HttpGet("get-by-id/{productId:guid}")]
     public async Task<ActionResult<ProductDto>> GetById([FromRoute] Guid productId,
         CancellationToken cancellationToken)
@@ -34,8 +34,8 @@ public class ProductsController(ISender sender, IProductQueries productQueries, 
             p => Ok(mapper.Map<ProductDto>(p)),
             () => NotFound());
     }
-    
-    //[Authorize(Roles = AuthSettings.OperatorRole)]
+
+    [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpPost("add")]
     public async Task<ActionResult<ProductDto>> AddProduct(
         [FromBody] CreateProductDto model,
@@ -46,7 +46,6 @@ public class ProductsController(ISender sender, IProductQueries productQueries, 
             Name = model.Name,
             Description = model.Description,
             ManufactureDate = model.ManufactureDate,
-            UserId = GetUserId()!.Value,
             TypeId = model.TypeId
         };
 
@@ -54,34 +53,33 @@ public class ProductsController(ISender sender, IProductQueries productQueries, 
 
         return result.Match<ActionResult<ProductDto>>(
             dto => Ok(mapper.Map<ProductDto>(dto)),
-            e => Problem(e.Message));
+            e => e.ToObjectResult());
     }
 
-    //[Authorize(Roles = "Operator")]
-    // [HttpPut("update/{productId:guid}")]
-    // public async Task<ActionResult<ProductDto>> UpdateProduct(
-    //     [FromRoute] Guid productId,
-    //     [FromBody] UpdateProductDto model,
-    //     CancellationToken cancellationToken)
-    // {
-    //     var command = new UpdateProductCommand
-    //     {
-    //         Id = productId,
-    //         Name = model.Name,
-    //         Notes = model?.Notes,
-    //         Volume = model.Volume,
-    //         TypeId = model.TypeId,
-    //         ModifiedBy = model.ModifiedBy,
-    //     };
-    //
-    //     var result = await sender.Send(command, cancellationToken);
-    //
-    //     return result.Match<ActionResult<ProductDto>>(
-    //         dto => Ok(dto),
-    //         e => Problem(e.Message));
-    // }
+    [Authorize(Roles = AuthSettings.AdminRole)]
+    [HttpPut("update/{productId:guid}")]
+    public async Task<ActionResult<ProductDto>> UpdateProduct(
+        [FromRoute] Guid productId,
+        [FromBody] UpdateProductDto model,
+        CancellationToken cancellationToken)
+    {
+        var command = new UpdateProductCommand
+        {
+            Id = productId,
+            Name = model.Name,
+            TypeId = model.TypeId,
+            Description = model.Description,
+            ManufactureDate = model.ManufactureDate,
+        };
 
-    //[Authorize(Roles = AuthSettings.OperatorRole)]
+        var result = await sender.Send(command, cancellationToken);
+
+        return result.Match<ActionResult<ProductDto>>(
+            dto => Ok(mapper.Map<ProductDto>(dto)),
+            e => e.ToObjectResult());
+    }
+
+    [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpDelete("delete/{productId:guid}")]
     public async Task<ActionResult<ProductDto>> DeleteProduct(
         [FromRoute] Guid productId,
@@ -96,6 +94,6 @@ public class ProductsController(ISender sender, IProductQueries productQueries, 
 
         return result.Match<ActionResult<ProductDto>>(
             dto => Ok(mapper.Map<ProductDto>(dto)),
-            e => Problem(e.Message));
+            e => e.ToObjectResult());
     }
 }

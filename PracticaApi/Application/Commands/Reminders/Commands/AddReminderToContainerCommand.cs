@@ -1,5 +1,6 @@
 ﻿using Application.Commands.Reminders.Exceptions;
 using Application.Common;
+using Application.Common.Interfaces;
 using Application.Common.Interfaces.Repositories;
 using Domain.Reminders;
 using Domain.Reminders.Models;
@@ -12,12 +13,11 @@ public record AddReminderToContainerCommand : IRequest<Result<Reminder, Reminder
     public required Guid ContainerId { get; init; }
     public required string Title { get; init; } = null!; 
     public required DateTime DueDate { get; init; } 
-    public required ReminderType Type { get; init; } 
-    public required Guid CreatedBy { get; init; } 
+    public required ReminderType Type { get; init; }
 }
  public class AddReminderToContainerCommandHandler(
         IContainerRepository containerRepository,
-        IReminderRepository reminderRepository) : IRequestHandler<AddReminderToContainerCommand, Result<Reminder, ReminderException>>
+        IReminderRepository reminderRepository, IUserProvider userProvider) : IRequestHandler<AddReminderToContainerCommand, Result<Reminder, ReminderException>>
     {
         public async Task<Result<Reminder, ReminderException>> Handle(
             AddReminderToContainerCommand request,
@@ -32,7 +32,7 @@ public record AddReminderToContainerCommand : IRequest<Result<Reminder, Reminder
                 {
                     try
                     {
-                        var userId = request.CreatedBy;
+                        var userId = userProvider.GetUserId();
                         var createReminderModel = new CreateReminderModel {
                             Id = reminderId,
                             ContainerId = containerId,

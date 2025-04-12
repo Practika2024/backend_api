@@ -4,6 +4,7 @@ using Application.Common.Interfaces.Repositories;
 using AutoMapper;
 using DataAccessLayer.Data;
 using DataAccessLayer.Entities.Users;
+using DataAccessLayer.Extensions;
 using Domain.Users;
 using Domain.Users.Models;
 using Microsoft.AspNetCore.Identity;
@@ -18,8 +19,17 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper) : IUse
     {
         var userEntity = mapper.Map<UserEntity>(model);
 
-        await context.Users.AddAsync(userEntity, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
+        await context.Users.AddAuditableAsync(userEntity, cancellationToken);
+        try
+        {
+            await context.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+       
 
         return mapper.Map<User>(userEntity);
     }
@@ -34,6 +44,7 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper) : IUse
         }
 
         mapper.Map(model, userEntity);
+        context.Users.UpdateAuditable(userEntity);
         await context.SaveChangesAsync(cancellationToken);
 
         return mapper.Map<User>(userEntity);
@@ -91,22 +102,16 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper) : IUse
         return user == null ? Option.None<User>() : Option.Some(user);
     }
 
-    // public async Task<User> UpdateRoles(UpdateRolesModel model, CancellationToken cancellationToken)
-    // {
-    //     var userEntity = await GetUserAsync(x => x.Id == model.UserId, cancellationToken);
-    //
-    //     if (userEntity == null)
-    //     {
-    //         throw new InvalidOperationException("User not found.");
-    //     }
-    //
-    //     var roleEntity = await context.Roles.FirstOrDefaultAsync(r => r.Id == roleId, cancellationToken);
-    //
-    //     userEntity.Roles = roleEntities;
-    //     await context.SaveChangesAsync(cancellationToken);
-    //
-    //     return mapper.Map<User>(userEntity);
-    // }
+    public async Task<User> UpdateRole(UpdateRoleModel model, CancellationToken cancellationToken)
+    {
+        var userEntity = await context.Users.FirstOrDefaultAsync(u=> u.Id == model.UserId, cancellationToken);
+        
+        userEntity!.RoleId = model.RoleId;
+        
+        await context.SaveChangesAsync(cancellationToken);
+    
+        return mapper.Map<User>(userEntity);
+    }
 
     private async Task<UserEntity?> GetUserAsync(Expression<Func<UserEntity, bool>> predicate,
         CancellationToken cancellationToken,

@@ -11,17 +11,16 @@ public class UserMapperProfile: Profile
 {
     public UserMapperProfile()
     {
-        CreateMap<UserEntity, User>();
-        CreateMap<User, UserEntity>();
+        CreateMap<UserEntity, User>().ReverseMap();
         
         CreateMap<CreateUserModel, UserEntity>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore()) // Ігноруємо Id, оскільки воно генерується автоматично
+            //.ForMember(dest => dest.Id, opt => opt.Ignore()) // Ігноруємо Id, оскільки воно генерується автоматично
             .ForMember(dest => dest.ExternalProvider, opt => opt.Ignore()) // Ігноруємо ExternalProvider
             .ForMember(dest => dest.ExternalProviderKey, opt => opt.Ignore()); // Ігнору
-        
-        CreateMap<RoleEntity, Role>();
-        CreateMap<Role, RoleEntity>();
-        
         CreateMap<UserEntity, CreateUserModel>();
+        
+        CreateMap<RoleEntity, Role>().ReverseMap();
+        
+        CreateMap<UserEntity, UpdateUserModel>().ReverseMap();
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Application.Commands.Containers.Exceptions;
 using Application.Common;
+using Application.Common.Interfaces;
 using Application.Common.Interfaces.Queries;
 using Application.Common.Interfaces.Repositories;
 using Domain.Containers;
@@ -14,14 +15,14 @@ public record SetContainerContentCommand : IRequest<Result<Container, ContainerE
 {
     public required Guid ContainerId { get; init; }
     public required Guid? ProductId { get; init; }
-    public required Guid ModifiedBy { get; init; }
 }
 
 public class SetContainerContentCommandHandler(
     IContainerRepository containerRepository,
     IContainerQueries containerQueries,
     IProductQueries productQueries,
-    IContainerHistoryRepository containerHistoryRepository)
+    IContainerHistoryRepository containerHistoryRepository,
+    IUserProvider userProvider)
     : IRequestHandler<SetContainerContentCommand, Result<Container, ContainerException>>
 {
     public async Task<Result<Container, ContainerException>> Handle(
@@ -60,7 +61,7 @@ public class SetContainerContentCommandHandler(
 
         try
         {
-            var userId = request.ModifiedBy;
+            var userId = userProvider.GetUserId();
             var productId = request.ProductId != null
                 ? request.ProductId
                 : null;

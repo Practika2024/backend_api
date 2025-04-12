@@ -34,7 +34,10 @@ public class ProductRepository(ApplicationDbContext context, IMapper mapper)
             throw new InvalidOperationException("Product not found.");
         }
 
-        productEntity = mapper.Map(model, productEntity);
+        productEntity.Name = model.Name;
+        productEntity.Description = model.Description;
+        productEntity.ManufactureDate = model.ManufactureDate;
+        productEntity.TypeId = model.TypeId;
 
         await context.SaveChangesAsync(cancellationToken);
 
