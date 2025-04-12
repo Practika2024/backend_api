@@ -5,7 +5,7 @@ using Domain.Users;
 
 namespace Domain.Containers;
 
-public class Container : AuditableEntity<User>
+public class Container : AuditableEntity
 {
     public Guid Id { get; set; }
     public string Name { get; set; }

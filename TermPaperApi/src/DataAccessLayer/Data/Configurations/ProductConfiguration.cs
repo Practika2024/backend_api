@@ -1,4 +1,5 @@
 ﻿using DataAccessLayer.Entities.Products;
+using DataAccessLayer.Entities.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -18,9 +19,14 @@ public class ProductConfiguration : IEntityTypeConfiguration<ProductEntity>
             .HasForeignKey(x => x.TypeId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(x => x.CreatedByEntity)
+       builder.HasOne<UserEntity>()
             .WithMany()
             .HasForeignKey(x => x.CreatedBy)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        builder.HasOne<UserEntity>()
+            .WithMany()
+            .HasForeignKey(x => x.ModifiedBy)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

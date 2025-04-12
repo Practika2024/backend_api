@@ -5,7 +5,7 @@ using Domain.Users;
 
 namespace Domain.ContainersHistory;
 
-public class ContainerHistory : AuditableEntity<User>
+public class ContainerHistory : AuditableEntity
 {
     public Guid Id { get; set; }
     public Guid ContainerId { get; set; }

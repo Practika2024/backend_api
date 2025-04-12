@@ -3,7 +3,7 @@ using DataAccessLayer.Entities.Users;
 using Domain.Common.Abstractions;
 
 namespace DataAccessLayer.Entities.Products;
-public class ProductEntity : AuditableEntity<UserEntity>
+public class ProductEntity : AuditableEntity
 {
     public Guid Id { get; set; }
     public string Name { get; set; }

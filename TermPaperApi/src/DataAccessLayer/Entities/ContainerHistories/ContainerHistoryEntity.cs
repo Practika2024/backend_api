@@ -5,7 +5,7 @@ using Domain.Common.Abstractions;
 
 namespace DataAccessLayer.Entities.ContainerHistories;
 
-public class ContainerHistoryEntity : AuditableEntity<UserEntity>
+public class ContainerHistoryEntity : AuditableEntity
 {
     public Guid Id { get; set; }
     public Guid ContainerId { get; set; }

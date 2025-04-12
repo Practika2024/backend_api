@@ -10,7 +10,7 @@ public static class DbSetExtensions
         this DbSet<TEntity> dbSet,
         TEntity entity,
         CancellationToken cancellationToken = default)
-        where TEntity : AuditableEntity<UserEntity>
+        where TEntity : AuditableEntity
     {
         entity.CreatedAt = DateTime.UtcNow;
         entity.ModifiedBy = entity.CreatedBy;
@@ -22,7 +22,7 @@ public static class DbSetExtensions
     public static void UpdateAuditable<TEntity>(
         this DbSet<TEntity> dbSet,
         TEntity entity)
-        where TEntity : AuditableEntity<UserEntity>
+        where TEntity : AuditableEntity
     {
         entity.ModifiedBy = entity.ModifiedBy;
         entity.ModifiedAt = DateTime.UtcNow;

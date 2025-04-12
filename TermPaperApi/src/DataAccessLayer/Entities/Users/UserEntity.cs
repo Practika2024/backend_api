@@ -4,7 +4,7 @@ using Domain.Common.Abstractions;
 
 namespace DataAccessLayer.Entities.Users;
 
-public class UserEntity : AuditableEntity<UserEntity>
+public class UserEntity : AuditableEntity
 {
     public Guid Id { get; set; }
     public string Email { get; set; }

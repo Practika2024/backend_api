@@ -4,7 +4,7 @@ using Domain.Common.Abstractions;
 using Domain.Reminders;
 
 namespace DataAccessLayer.Entities.Reminders;
-public class ReminderEntity : AuditableEntity<UserEntity>
+public class ReminderEntity : AuditableEntity
 {
     public Guid Id { get; set; }
     public Guid ContainerId { get; set; }

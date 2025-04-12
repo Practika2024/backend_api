@@ -4,7 +4,7 @@ using Domain.Roles;
 
 namespace Domain.Users;
 
-public class User : AuditableEntity<User>
+public class User : AuditableEntity
 {
     public Guid Id { get; set; }
     public string Email { get; set; }

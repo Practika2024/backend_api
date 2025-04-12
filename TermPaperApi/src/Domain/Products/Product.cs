@@ -4,7 +4,7 @@ using Domain.ProductTypes;
 using Domain.Users;
 
 namespace Domain.Products;
-public class Product : AuditableEntity<User>
+public class Product : AuditableEntity
 {
     public Guid Id { get; set; }
     public string Name { get; set; }

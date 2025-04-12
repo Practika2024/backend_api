@@ -22,9 +22,14 @@ public class UserConfiguration : IEntityTypeConfiguration<UserEntity>
             .HasForeignKey(x => x.RoleId)
             .OnDelete(DeleteBehavior.Restrict);
         
-        builder.HasOne(x => x.CreatedByEntity)
+       builder.HasOne<UserEntity>()
             .WithMany()
             .HasForeignKey(x => x.CreatedBy)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        builder.HasOne<UserEntity>()
+            .WithMany()
+            .HasForeignKey(x => x.ModifiedBy)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

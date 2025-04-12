@@ -5,7 +5,7 @@ using Domain.Common.Abstractions;
 
 namespace DataAccessLayer.Entities.Containers;
 
-public class ContainerEntity : AuditableEntity<UserEntity>
+public class ContainerEntity : AuditableEntity
 {
     public Guid Id { get; set; }
     public string Name { get; set; }

@@ -1,4 +1,5 @@
 ﻿using DataAccessLayer.Entities.Containers;
+using DataAccessLayer.Entities.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -24,9 +25,14 @@ public class ContainerConfiguration : IEntityTypeConfiguration<ContainerEntity>
             .HasForeignKey(x => x.ProductId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(x => x.CreatedByEntity)
+        builder.HasOne<UserEntity>()
             .WithMany()
             .HasForeignKey(x => x.CreatedBy)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        builder.HasOne<UserEntity>()
+            .WithMany()
+            .HasForeignKey(x => x.ModifiedBy)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }
