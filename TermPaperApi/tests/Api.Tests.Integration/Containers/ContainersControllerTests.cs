@@ -168,9 +168,9 @@ public class ContainersControllerTests : BaseIntegrationTest, IAsyncLifetime
         {
             ProductId = productId
         };
-        
+
         await Client.PutAsJsonAsync($"containers/set-content/{_mainContainer.Id}", setContentDto);
-        
+
         var containerId = _mainContainer.Id;
 
         // Act
@@ -267,7 +267,7 @@ public class ContainersControllerTests : BaseIntegrationTest, IAsyncLifetime
             Name = _mainContainerType.Name,
             CreatedBy = UserId
         };
-        
+
         var productEntity = new ProductEntity
         {
             Id = _mainProduct.Id,
