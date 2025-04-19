@@ -96,4 +96,21 @@ public class ProductsController(ISender sender, IProductQueries productQueries, 
             dto => Ok(mapper.Map<ProductDto>(dto)),
             e => e.ToObjectResult());
     }
+    
+    [HttpPut("upload-images/{productId:guid}")]
+    public async Task<ActionResult<ProductDto>> Upload([FromRoute] Guid productId, IFormFileCollection imagesFiles,
+        CancellationToken cancellationToken)
+    {
+        var input = new UploadProductImagesCommand()
+        {
+            ProductId = productId,
+            ImagesFiles = imagesFiles
+        };
+
+        var result = await sender.Send(input, cancellationToken);
+
+        return result.Match<ActionResult<ProductDto>>(
+            r => Ok(mapper.Map<ProductDto>(r)),
+            e => e.ToObjectResult());
+    }
 }

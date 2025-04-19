@@ -17,4 +17,5 @@ public class UserEntity : AuditableEntity
     public List<RefreshTokenEntity> RefreshTokens { get; set; } = new();
     public string? ExternalProvider { get; set; }
     public string? ExternalProviderKey { get; set; }
+    public bool IsApprovedByAdmin { get; set; }
 }

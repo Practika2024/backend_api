@@ -24,6 +24,26 @@ public class UsersController(ISender sender, IUserQueries userQueries, IMapper m
         return Ok(entities.Select(mapper.Map<UserDto>).ToList());
     }
     
+    [Authorize(Roles = AuthSettings.AdminRole)]
+    [HttpGet("get-all-without-approval")]
+    public async Task<ActionResult<IReadOnlyList<UserDto>>> GetAllWithoutApproval(CancellationToken cancellationToken)
+    {
+        var entities = await userQueries.GetAllWithoutApproval(cancellationToken);
+        return Ok(entities.Select(mapper.Map<UserDto>).ToList());
+    }
+    
+    [Authorize(Roles = AuthSettings.AdminRole)]
+    [HttpPatch("approve/{userId:guid}")]
+    public async Task<ActionResult<IReadOnlyList<UserDto>>> ApproveUser([FromRoute] Guid userId, CancellationToken cancellationToken)
+    {
+        var command = new ApproveUserCommand() { UserId = userId };
+        var result = await sender.Send(command, cancellationToken);
+
+        return result.Match<ActionResult>(
+            user => Ok(mapper.Map<UserDto>(user)),
+            e => e.ToObjectResult());
+    }
+    
     [HttpGet("get-by-id/{userId:guid}")]
     public async Task<ActionResult<UserDto>> Get([FromRoute] Guid userId, CancellationToken cancellationToken)
     {

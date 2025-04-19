@@ -8,17 +8,17 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace Application.Commands.Users.Commands;
 
-public record DeleteUserCommand : IRequest<Result<User, UserException>>
+public record ApproveUserCommand : IRequest<Result<User, UserException>>
 {
     public required Guid UserId { get; init; }
 }
 
-public class DeleteUserCommandHandler(
+public class ApproveUserCommandHandler(
     IUserRepository userRepository)
-    : IRequestHandler<DeleteUserCommand, Result<User, UserException>>
+    : IRequestHandler<ApproveUserCommand, Result<User, UserException>>
 {
     public async Task<Result<User, UserException>> Handle(
-        DeleteUserCommand request,
+        ApproveUserCommand request,
         CancellationToken cancellationToken)
     {
         var userId = request.UserId;
@@ -30,9 +30,8 @@ public class DeleteUserCommandHandler(
             {
                 try
                 {
-                    var deleteModel = new DeleteUserModel { Id = userId };
-                    var deletedUser = await userRepository.Delete(deleteModel, cancellationToken);
-                    return deletedUser;
+                    var approvedUser = await userRepository.ApproveUser(user.Id, cancellationToken);
+                    return approvedUser;
                 }
                 catch (Exception exception)
                 {

@@ -9,7 +9,7 @@ public class UserProvider(IHttpContextAccessor context) : IUserProvider
 
     public Guid GetUserId()
     {
-        var userIdStr = _context.HttpContext.User.FindFirst("id")?.Value;
+        var userIdStr = _context.HttpContext!.User.FindFirst("id")?.Value;
         
         var userId = userIdStr != null ? Guid.Parse(userIdStr) : Guid.Empty;
         

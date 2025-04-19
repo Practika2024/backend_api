@@ -34,7 +34,7 @@ public class SignUpUserCommandHandler(
     {
         var existingUser = await userRepository.SearchByEmail(request.Email, cancellationToken);
 
-         return await existingUser.Match<Task<Result<JwtModel, AuthenticationException>>>(
+        return await existingUser.Match<Task<Result<JwtModel, AuthenticationException>>>(
             u => Task.FromResult<Result<JwtModel, AuthenticationException>>(
                 new UserByThisEmailAlreadyExistsAuthenticationException(u.Id)),
             async () => await SignUp(request, cancellationToken)
@@ -58,10 +58,22 @@ public class SignUpUserCommandHandler(
                 Patronymic = request.Patronymic,
                 PasswordHash = hashPasswordService.HashPassword(request.Password),
                 RoleId = isUsersNullOrEmpty ? AuthSettings.AdminRole : AuthSettings.OperatorRole,
-                CreatedBy = userId
+                CreatedBy = userId,
+                IsApprovedByAdmin = isUsersNullOrEmpty
             };
             User userEntity = await userRepository.Create(userModel, cancellationToken);
-            
+
+            if (!isUsersNullOrEmpty)
+            {
+                var noTokenAvailable = new JwtModel()
+                {
+                    AccessToken = "You don't have access token, please wait for admin approval",
+                    RefreshToken = "You don't have refresh token, please wait for admin approval"
+                };
+
+                return noTokenAvailable;
+            }
+
             var token = await jwtTokenService.GenerateTokensAsync(userEntity, cancellationToken);
 
             return token;

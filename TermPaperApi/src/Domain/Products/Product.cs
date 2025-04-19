@@ -13,4 +13,5 @@ public class Product : AuditableEntity
     public Guid TypeId { get; set; }
     public ProductType? Type { get; set; }
     public ICollection<ContainerHistory> Histories { get; set; } = new List<ContainerHistory>();
+    public List<ProductImage> Images { get; set; } = [];
 }

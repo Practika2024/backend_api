@@ -8,4 +8,5 @@ public class UpdateProductModel
     public DateTime ManufactureDate { get; set; }
     public Guid ModifiedBy { get; set; }
     public Guid TypeId { get; set; }
+    public List<ProductImage> Images { get; set; } = [];
 }

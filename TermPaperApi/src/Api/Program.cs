@@ -50,6 +50,18 @@ var imagesPath = Path.Combine(builder.Environment.ContentRootPath, "data/images"
 if (!Directory.Exists(imagesPath))
 {
     Directory.CreateDirectory(imagesPath);
+    
+    var containersPath = Path.Combine(imagesPath, "containers");
+    if (!Directory.Exists(containersPath))
+    {
+        Directory.CreateDirectory(containersPath);
+    }
+    
+    var productsPath = Path.Combine(imagesPath, "products");
+    if (!Directory.Exists(productsPath))
+    {
+        Directory.CreateDirectory(productsPath);
+    }
 }
 
 app.UseMiddleware<MiddlewareExceptionHandling>();

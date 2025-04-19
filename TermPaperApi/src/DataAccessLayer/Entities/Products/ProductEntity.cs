@@ -11,4 +11,5 @@ public class ProductEntity : AuditableEntity
     public DateTime ManufactureDate { get; set; }
     public Guid TypeId { get; set; }
     public ProductTypeEntity? Type { get; set; }
+    public List<ProductImageEntity> Images { get; set; } = [];
 }

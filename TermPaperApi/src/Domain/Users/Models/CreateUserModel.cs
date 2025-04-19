@@ -10,4 +10,5 @@ public class CreateUserModel
     public string? Patronymic { get; set; }
     public string PasswordHash { get; set; }
     public Guid CreatedBy { get; set; }
+    public bool IsApprovedByAdmin { get; set; }
 }

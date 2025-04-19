@@ -7,7 +7,7 @@ namespace Application.Services.ImageService
 {
     public class ImageService(IWebHostEnvironment webHostEnvironment) : IImageService
     {
-        public async Task<Option<string>> SaveImageFromFileAsync(string path, IFormFile image, string? oldImagePath)
+        public async Task<string>? SaveImageFromFileAsync(string path, IFormFile image, string? oldImagePath = null)
         {
             try
             {
@@ -24,7 +24,7 @@ namespace Application.Services.ImageService
 
                 if (types[0] != "image")
                 {
-                    return Option.None<string>();
+                    return null;
                 }
 
                 var root = webHostEnvironment.ContentRootPath;
@@ -39,47 +39,48 @@ namespace Application.Services.ImageService
                     }
                 }
 
-                return Option.Some(imageName);
+                return imageName;
             }
             catch (Exception ex)
             {
-                return Option.None<string>();
+                throw new Exception(message: ex.Message);
             }
         }
 
-        public async Task<Option<List<string>>> SaveImagesFromFilesAsync(
+        public async Task<List<string>>? SaveImagesFromFilesAsync(
             string path,
             IFormFileCollection images)
         {
             try
             {
                 var savedImageNames = new List<string>();
-                var root = webHostEnvironment.ContentRootPath;
 
                 foreach (var image in images)
                 {
-                    var type = image.ContentType.Split('/');
-                    if (type[0] != "image")
-                    {
-                        return Option.None<List<string>>();
-                    }
-
-                    var imageName = $"{Guid.NewGuid()}.{type[1]}";
-                    var filePath = Path.Combine(root, path, imageName);
-
-                    await using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await image.CopyToAsync(stream);
-                    }
+                    // var type = image.ContentType.Split('/');
+                    // if (type[0] != "image")
+                    // {
+                    //     return new List<string>();
+                    // }
+                    //
+                    // var imageName = $"{Guid.NewGuid()}.{type[1]}";
+                    // var filePath = Path.Combine(root, path, imageName);
+                    //
+                    // await using (var stream = new FileStream(filePath, FileMode.Create))
+                    // {
+                    //     await image.CopyToAsync(stream);
+                    // }
+                    
+                    var imageName = await SaveImageFromFileAsync(path, image);
 
                     savedImageNames.Add(imageName);
                 }
 
-                return Option.Some(savedImageNames);
+                return savedImageNames!;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Option.None<List<string>>();
+                throw new Exception(message: ex.Message);
             }
         }
 

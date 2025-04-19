@@ -20,17 +20,9 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper) : IUse
         var userEntity = mapper.Map<UserEntity>(model);
 
         await context.Users.AddAuditableAsync(userEntity, cancellationToken);
-        try
-        {
-            await context.SaveChangesAsync(cancellationToken);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
+        
+        await context.SaveChangesAsync(cancellationToken);
        
-
         return mapper.Map<User>(userEntity);
     }
 
@@ -75,6 +67,17 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper) : IUse
         return mapper.Map<IReadOnlyList<User>>(userEntities);
     }
 
+    public async Task<IReadOnlyList<User>> GetAllWithoutApproval(CancellationToken cancellationToken)
+    {
+        var userEntities = await context.Users
+            .AsNoTracking()
+            .AsSplitQuery()
+            .Where(u=> !u.IsApprovedByAdmin)
+            .ToListAsync(cancellationToken);
+
+        return mapper.Map<IReadOnlyList<User>>(userEntities);
+    }
+
     public async Task<Option<User>> GetById(Guid id, CancellationToken cancellationToken)
     {
         var entity = await GetUserAsync(x => x.Id == id, cancellationToken);
@@ -91,6 +94,17 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper) : IUse
         var user = mapper.Map<User>(entity);
 
         return user == null ? Option.None<User>() : Option.Some(user);
+    }
+
+    public async Task<User> ApproveUser(Guid userId, CancellationToken cancellationToken)
+    {
+        var entity = await GetUserAsync(x => x.Id == userId, cancellationToken);
+
+        entity!.IsApprovedByAdmin = true;
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        return mapper.Map<User>(entity);
     }
 
     public async Task<Option<User>> SearchByEmailForUpdate(Guid userId, string email, CancellationToken cancellationToken)
