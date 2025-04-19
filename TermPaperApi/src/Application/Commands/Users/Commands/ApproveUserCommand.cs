@@ -25,7 +25,7 @@ public class ApproveUserCommandHandler(
 
         var existingUser = await userRepository.GetById(userId, cancellationToken);
 
-        return await existingUser.Match<Task<Result<User, UserException>>>(
+        return await existingUser.Match(
             async user =>
             {
                 try

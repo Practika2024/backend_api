@@ -21,12 +21,31 @@ public static class ConfigureApplication
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
-        
+
         services.AddServices();
         services.AddJwtTokenAuth(builder);
         services.AddSwaggerAuth();
+        services.AddFluentEmailConfirmation(builder);
     }
-    
+
+    private static void AddFluentEmailConfirmation(this IServiceCollection services, WebApplicationBuilder builder)
+    {
+        var smtpServer = builder.Configuration["MailSettings:SMTP"];
+        var smtpPort = int.Parse(builder.Configuration["MailSettings:Port"]);
+        var email = builder.Configuration["MailSettings:Email"];
+        var password = builder.Configuration["MailSettings:Password"];
+
+        services.AddFluentEmail(email)
+            .AddSmtpSender(new System.Net.Mail.SmtpClient
+            {
+                Host = smtpServer,
+                Port = smtpPort,
+                EnableSsl = true,
+                Credentials = new System.Net.NetworkCredential(email, password),
+                DeliveryMethod = System.Net.Mail.SmtpDeliveryMethod.Network
+            });
+    }
+
     private static void AddServices(this IServiceCollection services)
     {
         services.AddScoped<IJwtTokenService, JwtTokenService>();

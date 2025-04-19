@@ -130,4 +130,19 @@ public class UsersController(ISender sender, IUserQueries userQueries, IMapper m
             u => Ok(mapper.Map<UserDto>(u)),
             e => e.ToObjectResult()); 
     }
+    
+    [HttpPatch("send-email-confirmation")]
+    public async Task<ActionResult<UserDto>> EmailConfirmation(
+        CancellationToken cancellationToken)
+    {
+        var command = new SendEmailConfirmationCommand
+        {
+        };
+    
+        var result = await sender.Send(command, cancellationToken);
+    
+        return result.Match<ActionResult<UserDto>>(
+            u => Ok(mapper.Map<UserDto>(u)),
+            e => e.ToObjectResult()); 
+    }
 }

@@ -7,7 +7,7 @@ namespace Application.Services.ImageService
 {
     public class ImageService(IWebHostEnvironment webHostEnvironment) : IImageService
     {
-        public async Task<string>? SaveImageFromFileAsync(string path, IFormFile image, string? oldImagePath = null)
+        public async Task<string?> SaveImageFromFileAsync(string path, IFormFile image, string? oldImagePath = null)
         {
             try
             {
@@ -47,7 +47,7 @@ namespace Application.Services.ImageService
             }
         }
 
-        public async Task<List<string>>? SaveImagesFromFilesAsync(
+        public async Task<List<string?>> SaveImagesFromFilesAsync(
             string path,
             IFormFileCollection images)
         {
@@ -57,23 +57,9 @@ namespace Application.Services.ImageService
 
                 foreach (var image in images)
                 {
-                    // var type = image.ContentType.Split('/');
-                    // if (type[0] != "image")
-                    // {
-                    //     return new List<string>();
-                    // }
-                    //
-                    // var imageName = $"{Guid.NewGuid()}.{type[1]}";
-                    // var filePath = Path.Combine(root, path, imageName);
-                    //
-                    // await using (var stream = new FileStream(filePath, FileMode.Create))
-                    // {
-                    //     await image.CopyToAsync(stream);
-                    // }
-                    
                     var imageName = await SaveImageFromFileAsync(path, image);
 
-                    savedImageNames.Add(imageName);
+                    savedImageNames.Add(imageName!);
                 }
 
                 return savedImageNames!;

@@ -18,4 +18,5 @@ public class UserEntity : AuditableEntity
     public string? ExternalProvider { get; set; }
     public string? ExternalProviderKey { get; set; }
     public bool IsApprovedByAdmin { get; set; }
+    public bool EmailConfirmed { get; set; }
 }

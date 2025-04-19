@@ -42,7 +42,7 @@ public class UploadProductImagesCommandHandler(
     {
         var imageSaveResult = await imageService.SaveImagesFromFilesAsync(ImagePaths.ProductImagesPath, imagesFiles);
 
-        if (imageSaveResult == null)
+        if (imageSaveResult.Count == 0)
         {
             return new ImageSaveException(product.Id);
         }
