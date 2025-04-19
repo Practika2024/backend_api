@@ -3,6 +3,7 @@ using Application.Services.HashPasswordService;
 using DataAccessLayer.Data.Initializer;
 using DataAccessLayer.Entities.ContainerHistories;
 using DataAccessLayer.Entities.Containers;
+using DataAccessLayer.Entities.EmailVerificationTokens;
 using DataAccessLayer.Entities.Products;
 using DataAccessLayer.Entities.RefreshTokens;
 using DataAccessLayer.Entities.Reminders;
@@ -25,6 +26,8 @@ public class ApplicationDbContext(
     public DbSet<ReminderEntity> Reminders { get; set; }
     public DbSet<ContainerTypeEntity> ContainerTypes { get; set; }
     public DbSet<ProductTypeEntity> ProductTypes { get; set; }
+    public DbSet<EmailVerificationTokenEntity> EmailVerificationTokens { get; set; }
+    
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

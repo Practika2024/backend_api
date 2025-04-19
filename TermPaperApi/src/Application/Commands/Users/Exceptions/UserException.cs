@@ -15,6 +15,8 @@ public class UserNotFoundException(Guid id) : UserException(id, $"User under id:
 
 public class ImageSaveException(Guid id) : UserException(id, $"User under id: {id} have problems with image save!");
 
+public class EmailVerificationException(Guid id) : UserException(id, $"User under id: {id} can't be verified! Token is expired!");
+
 public class RoleNotFoundException(string role)
     : UserException(Guid.Empty, $"Roles under name: {role} was not found!");
 

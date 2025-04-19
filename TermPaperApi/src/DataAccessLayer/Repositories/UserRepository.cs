@@ -107,6 +107,17 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper) : IUse
         return mapper.Map<User>(entity);
     }
 
+    public async Task<User> VerifyEmailUser(Guid userId, CancellationToken cancellationToken)
+    {
+        var entity = await GetUserAsync(x => x.Id == userId, cancellationToken);
+
+        entity!.EmailConfirmed = true;
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        return mapper.Map<User>(entity);
+    }
+
     public async Task<Option<User>> SearchByEmailForUpdate(Guid userId, string email, CancellationToken cancellationToken)
     {
         var entity = await GetUserAsync(x => x.Email == email && x.Id != userId, cancellationToken);
@@ -171,5 +182,14 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper) : IUse
 
         await context.SaveChangesAsync(cancellationToken);
         return IdentityResult.Success;
+    }
+
+    public async Task<User?> FindUserByEmailVerificationToken(Guid tokenId, CancellationToken cancellationToken)
+    {
+        var emailVerificationToken = await context.EmailVerificationTokens.FirstOrDefaultAsync(e=> e.Id == tokenId, cancellationToken);
+        
+        var userEntity = await GetUserAsync(x => x.Id == emailVerificationToken!.UserId, cancellationToken);
+
+        return mapper.Map<User>(userEntity);
     }
 }

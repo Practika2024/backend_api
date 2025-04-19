@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Text;
 using Application.Common.Behaviours;
+using Application.Services.EmailVerificationLinkFactory;
 using Application.Services.HashPasswordService;
 using Application.Services.ImageService;
 using Application.Services.TokenService;
@@ -21,6 +22,9 @@ public static class ConfigureApplication
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
+
+        services.AddScoped<EmailVerificationLinkFactory>();
+        services.AddHttpContextAccessor();
 
         services.AddServices();
         services.AddJwtTokenAuth(builder);
