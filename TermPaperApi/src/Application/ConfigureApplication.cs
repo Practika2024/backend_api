@@ -5,8 +5,11 @@ using Application.Services.EmailService;
 using Application.Services.EmailVerificationLinkFactory;
 using Application.Services.HashPasswordService;
 using Application.Services.ImageService;
+using Application.Services.ReminderService;
 using Application.Services.TokenService;
 using FluentValidation;
+using Hangfire;
+using Hangfire.MemoryStorage;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -27,23 +30,34 @@ public static class ConfigureApplication
         services.AddScoped<EmailVerificationLinkFactory>();
         services.AddHttpContextAccessor();
 
+        services.AddHangfireReminder();
         services.AddServices();
         services.AddJwtTokenAuth(builder);
         services.AddSwaggerAuth();
         services.AddFluentEmailConfirmation(builder);
     }
 
+    private static void AddHangfireReminder(this IServiceCollection services)
+    {
+        services.AddHangfire(config =>
+        {
+            config.UseMemoryStorage();
+        });
+
+        services.AddHangfireServer();
+    }
+
     private static void AddFluentEmailConfirmation(this IServiceCollection services, WebApplicationBuilder builder)
     {
         var smtpServer = builder.Configuration["MailSettings:SMTP"];
-        var smtpPort = int.Parse(builder.Configuration["MailSettings:Port"]);
+        var smtpPort = int.Parse(builder.Configuration["MailSettings:Port"]!);
         var email = builder.Configuration["MailSettings:Email"];
         var password = builder.Configuration["MailSettings:Password"];
 
         services.AddFluentEmail(email)
             .AddSmtpSender(new System.Net.Mail.SmtpClient
             {
-                Host = smtpServer,
+                Host = smtpServer!,
                 Port = smtpPort,
                 EnableSsl = true,
                 Credentials = new System.Net.NetworkCredential(email, password),
@@ -57,6 +71,7 @@ public static class ConfigureApplication
         services.AddScoped<IHashPasswordService, HashPasswordService>();
         services.AddScoped<IImageService, ImageService>();
         services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<IReminderService, ReminderService>();
     }
 
     private static void AddJwtTokenAuth(this IServiceCollection services, WebApplicationBuilder builder)

@@ -33,7 +33,7 @@ public class RemindersController(ISender sender, IReminderQueries reminderQuerie
             () => NotFound());
     }
 
-    [HttpPost("add{containerId}")]
+    [HttpPost("add/{containerId}")]
     public async Task<ActionResult<ReminderDto>> AddReminderToContainer(
         [FromRoute] Guid containerId,
         [FromBody] AddReminderToContainerDto model,

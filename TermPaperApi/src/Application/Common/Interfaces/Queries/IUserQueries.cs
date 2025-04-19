@@ -9,5 +9,6 @@ namespace Application.Common.Interfaces.Queries
         Task<IReadOnlyList<User>> GetAllWithoutApproval(CancellationToken cancellationToken);
         Task<Option<User>> GetById(Guid id, CancellationToken cancellationToken);
         Task<Option<User>> SearchByEmail(string email, CancellationToken cancellationToken);
+        Task<string> GetEmailByUserId(Guid userId, CancellationToken cancellationToken);
     }
 }

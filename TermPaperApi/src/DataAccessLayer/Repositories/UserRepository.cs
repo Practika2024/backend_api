@@ -96,6 +96,13 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper) : IUse
         return user == null ? Option.None<User>() : Option.Some(user);
     }
 
+    public async Task<string> GetEmailByUserId(Guid userId, CancellationToken cancellationToken)
+    {
+        var entity = await GetUserAsync(x => x.Id == userId, cancellationToken);
+
+        return entity!.Email;
+    }
+
     public async Task<User> ApproveUser(Guid userId, CancellationToken cancellationToken)
     {
         var entity = await GetUserAsync(x => x.Id == userId, cancellationToken);
