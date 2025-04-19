@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Text;
 using Application.Common.Behaviours;
+using Application.Services.EmailService;
 using Application.Services.EmailVerificationLinkFactory;
 using Application.Services.HashPasswordService;
 using Application.Services.ImageService;
@@ -55,6 +56,7 @@ public static class ConfigureApplication
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IHashPasswordService, HashPasswordService>();
         services.AddScoped<IImageService, ImageService>();
+        services.AddScoped<IEmailService, EmailService>();
     }
 
     private static void AddJwtTokenAuth(this IServiceCollection services, WebApplicationBuilder builder)

@@ -22,35 +22,30 @@ public class VerificationEmailCommandCommandHandler(
     public async Task<Result<User, UserException>> Handle(VerificationEmailCommand request,
         CancellationToken cancellationToken)
     {
+                
+        EmailVerificationToken? verificationToken = await emailVerificationTokenRepository.Get(request.TokenId, cancellationToken);
+
+        if (verificationToken is null)
+        {
+            return new EmailVerificationNotFoundException();
+        }
+        
         var user = await userRepository.FindUserByEmailVerificationToken(request.TokenId, cancellationToken);
+        
+        if (verificationToken.ExpiresOnUtc < DateTime.UtcNow || user.EmailConfirmed)
+        {
+            return new EmailVerificationException(user.Id);
+        }
 
         if (user is null)
         {
             return new UserNotFoundException(user.Id);
         }
 
-        return await ConfirmEmailForUser(user, request.TokenId, cancellationToken);
-        
-        // var user = await userRepository.GetById(userId, cancellationToken);
-        //
-        // return await user.Match<Task<Result<User, UserException>>>(
-        //     async u => await ConfirmEmailForUser(u, request.TokenId, cancellationToken),
-        //     () => Task.FromResult<Result<User, UserException>>(new UserNotFoundException(userId))
-        // );
-    }
-
-    private async Task<Result<User, UserException>> ConfirmEmailForUser(User user, Guid tokenId, CancellationToken cancellationToken)
-    {
-        EmailVerificationToken? verificationToken = await emailVerificationTokenRepository.Get(tokenId, cancellationToken);
-
-        if (verificationToken is null || verificationToken.ExpiresOnUtc < DateTime.UtcNow || user.EmailConfirmed)
-        {
-            return new EmailVerificationException(user.Id);
-        }
 
         await userRepository.VerifyEmailUser(user.Id,cancellationToken);
 
-        await emailVerificationTokenRepository.Delete(tokenId, cancellationToken);
+        await emailVerificationTokenRepository.Delete(request.TokenId, cancellationToken);
 
         return user;
     }

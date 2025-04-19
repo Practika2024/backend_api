@@ -2,11 +2,13 @@
 using Application.Common;
 using Application.Common.Interfaces.Queries;
 using Application.Common.Interfaces.Repositories;
+using Application.Services.EmailVerificationLinkFactory;
 using Application.Services.HashPasswordService;
 using Application.Services.TokenService;
 using Application.Settings;
 using Domain.Users;
 using Domain.Users.Models;
+using FluentEmail.Core;
 using MediatR;
 using Microsoft.IdentityModel.Tokens;
 
@@ -75,7 +77,7 @@ public class SignUpUserCommandHandler(
             }
 
             var token = await jwtTokenService.GenerateTokensAsync(userEntity, cancellationToken);
-
+            
             return token;
         }
         catch (Exception exception)

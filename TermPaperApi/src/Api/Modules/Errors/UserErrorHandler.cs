@@ -11,13 +11,14 @@ public static class UserErrorHandler
         {
             StatusCode = exception switch
             {
-                UserByThisEmailAlreadyExistsException => StatusCodes.Status409Conflict,
+                UserByThisEmailAlreadyExistsException or EmailVerificationException => StatusCodes.Status409Conflict,
                 EmailOrPasswordAreIncorrect => StatusCodes.Status400BadRequest,
                 UserNotFoundException
                     or ImageSaveException
                     or RoleNotFoundException
                     or ProductNotFoundException
-                    or UserFavoriteProductNotFoundException => StatusCodes.Status404NotFound,
+                    or UserFavoriteProductNotFoundException
+                    or EmailVerificationNotFoundException => StatusCodes.Status404NotFound,
                 ProductAlreadyInFavoritesException => StatusCodes.Status400BadRequest,
                 UserUnknownException => StatusCodes.Status500InternalServerError,
                 _ => throw new NotImplementedException(

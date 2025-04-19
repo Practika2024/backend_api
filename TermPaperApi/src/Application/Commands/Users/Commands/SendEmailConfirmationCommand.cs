@@ -2,6 +2,7 @@
 using Application.Common;
 using Application.Common.Interfaces;
 using Application.Common.Interfaces.Repositories;
+using Application.Services.EmailService;
 using Application.Services.EmailVerificationLinkFactory;
 using Domain.Users;
 using FluentEmail.Core;
@@ -16,7 +17,7 @@ public class SendEmailConfirmationCommand : IRequest<Result<User, UserException>
 public class EmailConfirmationCommandHandler(
     IUserRepository userRepository,
     IUserProvider userProvider,
-    IFluentEmail fluentEmail,
+    IEmailService emailService,
     IEmailVerificationTokenRepository emailVerificationTokenRepository,
     EmailVerificationLinkFactory emailVerificationLinkFactory) : IRequestHandler<SendEmailConfirmationCommand, Result<User, UserException>>
 {
@@ -39,7 +40,9 @@ public class EmailConfirmationCommandHandler(
         
         string verificationLink = emailVerificationLinkFactory.Create(verificationToken);
         
-        await fluentEmail.To(user.Email).Subject("Email verification").Body($"To verify your email address <a href='{verificationLink}'>click here</a>", isHtml: true).SendAsync(cancellationToken);
+        var body = $"To verify your email address <a href='{verificationLink}'>click here</a>";
+        
+        await emailService.SendEmail(user.Email, "Email verification", body);
         
         return user;
     }
