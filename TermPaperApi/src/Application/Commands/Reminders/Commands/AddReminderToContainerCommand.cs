@@ -7,17 +7,19 @@ using Application.Services.ReminderService;
 using Domain.Reminders;
 using Domain.Reminders.Models;
 using MediatR;
+using Optional.Unsafe;
 
 namespace Application.Commands.Reminders.Commands;
 
 public record AddReminderToContainerCommand : IRequest<Result<Reminder, ReminderException>>
 {
     public required Guid ContainerId { get; init; }
-    public required string Title { get; init; } = null!; 
-    public required DateTime DueDate { get; init; } 
+    public required string Title { get; init; } = null!;
+    public required DateTime DueDate { get; init; }
     public required ReminderType Type { get; init; }
 }
- public class AddReminderToContainerCommandHandler(
+
+public class AddReminderToContainerCommandHandler(
     IContainerRepository containerRepository,
     IReminderRepository reminderRepository,
     IUserProvider userProvider,
@@ -51,10 +53,14 @@ public record AddReminderToContainerCommand : IRequest<Result<Reminder, Reminder
 
                     var createdReminder = await reminderRepository.Create(createReminderModel, cancellationToken);
 
-                    // Плануємо нагадування через Hangfire
-                    // var reminderTime = createdReminder.DueDate.AddMinutes(-30);
-                    var reminderTime = createdReminder.DueDate.AddSeconds(-30);
-                    reminderService.ScheduleReminder(await userQueries.GetEmailByUserId(userId, cancellationToken), createdReminder.Title, reminderTime);
+                    if ((await userQueries.GetById(userId, cancellationToken)).ValueOrDefault().EmailConfirmed)
+                    {
+                        // Плануємо нагадування через Hangfire
+                        // var reminderTime = createdReminder.DueDate.AddMinutes(-30);
+                        var reminderTime = createdReminder.DueDate.AddSeconds(-30);
+                        reminderService.ScheduleReminder(await userQueries.GetEmailByUserId(userId, cancellationToken),
+                            createdReminder.Title, reminderTime);
+                    }
 
                     return createdReminder;
                 }

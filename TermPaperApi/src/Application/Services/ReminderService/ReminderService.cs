@@ -21,7 +21,7 @@ public class ReminderService : IReminderService
     {
         var subject = $"Нагадування: {title}";
         var body = $"Шановний користувач, нагадуємо, що скоро настане подія: {title}. Будь ласка, підготуйтесь.";
-
-        _emailService.SendEmail(userEmail, subject, body);
+        
+        BackgroundJob.Enqueue(() => _emailService.SendEmail(userEmail, subject, body));
     }
 }
