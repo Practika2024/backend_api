@@ -1,6 +1,8 @@
-﻿using Application.Commands.Authentications.Exceptions;
+﻿using System.Net;
+using Application.Commands.Authentications.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
+using Application.Services;
 using Application.Services.HashPasswordService;
 using Application.Services.TokenService;
 using Application.Settings;
@@ -11,11 +13,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Application.Commands.Authentications.Commands;
 
-public record GoogleExternalLoginCommand : IRequest<Result<JwtModel, AuthenticationException>>
+public record GoogleExternalLoginCommand : IRequest<ServiceResponse>
 {
     public required ExternalLoginModel Model { get; init; }
 }
-public class GoogleExternalLoginCommandHandler : IRequestHandler<GoogleExternalLoginCommand, Result<JwtModel, AuthenticationException>>
+public class GoogleExternalLoginCommandHandler : IRequestHandler<GoogleExternalLoginCommand, ServiceResponse>
 {
     private readonly IUserRepository _userRepository;
     private readonly IJwtTokenService _jwtTokenService;
@@ -34,13 +36,13 @@ public class GoogleExternalLoginCommandHandler : IRequestHandler<GoogleExternalL
         _hashPasswordService = hashPasswordService;
     }
 
-    public async Task<Result<JwtModel, AuthenticationException>> Handle(GoogleExternalLoginCommand request, CancellationToken cancellationToken)
+    public async Task<ServiceResponse> Handle(GoogleExternalLoginCommand request, CancellationToken cancellationToken)
     {
         try
         {
             if (request.Model == null || string.IsNullOrEmpty(request.Model.Token))
             {
-                return new MissingGoogleTokenException();
+                return ServiceResponse.GetResponse("Google token not sent", false, null, HttpStatusCode.BadRequest);
             }
 
             var clientId = _configuration["GoogleAuthSettings:ClientId"];
@@ -48,7 +50,7 @@ public class GoogleExternalLoginCommandHandler : IRequestHandler<GoogleExternalL
 
             if (payload == null)
             {
-                return new InvalidGoogleTokenException();
+                return ServiceResponse.GetResponse("Invalid Google token", false, null, HttpStatusCode.BadRequest);
             }
 
             var info = new UserLoginInfo(request.Model.Provider, payload.Subject, request.Model.Provider);
@@ -80,16 +82,16 @@ public class GoogleExternalLoginCommandHandler : IRequestHandler<GoogleExternalL
                 var loginResult = await _userRepository.AddLoginAsync(user, info, cancellationToken);
                 if (!loginResult.Succeeded)
                 {
-                    return new FailedToAddGoogleLoginException();
+                    return ServiceResponse.GetResponse("Failed to add Google login", false, null, HttpStatusCode.BadRequest);
                 }
             }
 
             var tokens = await _jwtTokenService.GenerateTokensAsync(user, cancellationToken);
-            return tokens;
+            return ServiceResponse.OkResponse("Users tokens", tokens);
         }
         catch (Exception ex)
         {
-            return new AuthenticationUnknownException(Guid.Empty, ex);
+            return ServiceResponse.InternalServerErrorResponse(ex.Message);
         }
     }
 

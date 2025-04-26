@@ -1,5 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
+using Application.Services;
 using Domain.Users.Models;
 using FluentAssertions;
 using Tests.Common;
@@ -203,13 +205,15 @@ public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseInt
 
         var signInRequest = AccountData.SignInRequest;
         var signInResponse = await Client.PostAsJsonAsync("account/signin", signInRequest);
-        var tokens = await signInResponse.Content.ReadFromJsonAsync<JwtModel>();
+        var serviceResponse = await signInResponse.Content.ReadFromJsonAsync<ServiceResponse>();
 
-        // Імітація дії з простроченим токеном (у реальному світі можна зробити через зміну часу в системі).
+        var payloadElement = JsonSerializer.Serialize(serviceResponse!.Payload);
+        var tokens = JsonSerializer.Deserialize<JwtModel>(payloadElement);
+
         var refreshRequest = new JwtModel
         {
             AccessToken = "expired-access-token",
-            RefreshToken = tokens!.RefreshToken
+            RefreshToken = tokens.RefreshToken
         };
 
         // Act
@@ -217,8 +221,9 @@ public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseInt
 
         // Assert
         response.IsSuccessStatusCode.Should().BeFalse();
-        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        response.StatusCode.Should().Be(HttpStatusCode.UpgradeRequired);
     }
+
 
     [Fact]
     public async Task ShouldNotRefreshTokensWithoutTokens()
