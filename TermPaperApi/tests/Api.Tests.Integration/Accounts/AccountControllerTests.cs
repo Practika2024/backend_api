@@ -1,7 +1,5 @@
 using System.Net;
 using System.Net.Http.Json;
-using System.Text.Json;
-using Application.Services;
 using Domain.Users.Models;
 using FluentAssertions;
 using Tests.Common;
@@ -12,6 +10,8 @@ namespace Api.Tests.Integration.Accounts;
 
 public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseIntegrationTest(factory)
 {
+    private readonly JsonHelper _jsonHelper = new();
+    
     [Fact]
     public async Task ShouldSignUp()
     {
@@ -23,7 +23,7 @@ public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseInt
 
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
-        var content = await response.Content.ReadFromJsonAsync<JwtModel>();
+        var content = await _jsonHelper.GetPayloadAsync<JwtModel>(response);
         content.Should().NotBeNull();
         content!.Should().NotBeNull();
     }
@@ -86,7 +86,7 @@ public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseInt
 
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
-        var content = await response.Content.ReadFromJsonAsync<JwtModel>();
+        var content = await _jsonHelper.GetPayloadAsync<JwtModel>(response);
         content.Should().NotBeNull();
         content!.Should().NotBeNull();
     }
@@ -152,7 +152,7 @@ public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseInt
 
         var signInRequest = AccountData.SignInRequest;
         var signInResponse = await Client.PostAsJsonAsync("account/signin", signInRequest);
-        var tokens = await signInResponse.Content.ReadFromJsonAsync<JwtModel>();
+        var tokens = await _jsonHelper.GetPayloadAsync<JwtModel>(signInResponse);
 
         var refreshRequest = new JwtModel
         {
@@ -165,7 +165,7 @@ public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseInt
 
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
-        var newTokens = await response.Content.ReadFromJsonAsync<JwtModel>();
+        var newTokens = await _jsonHelper.GetPayloadAsync<JwtModel>(response);
         newTokens.Should().NotBeNull();
         newTokens!.AccessToken.Should().NotBe(tokens.AccessToken);
         newTokens.RefreshToken.Should().NotBe(tokens.RefreshToken);
@@ -180,7 +180,7 @@ public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseInt
 
         var signInRequest = AccountData.SignInRequest;
         var signInResponse = await Client.PostAsJsonAsync("account/signin", signInRequest);
-        var tokens = await signInResponse.Content.ReadFromJsonAsync<JwtModel>();
+        var tokens = await _jsonHelper.GetPayloadAsync<JwtModel>(signInResponse);
 
         var refreshRequest = new JwtModel
         {
@@ -205,10 +205,8 @@ public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseInt
 
         var signInRequest = AccountData.SignInRequest;
         var signInResponse = await Client.PostAsJsonAsync("account/signin", signInRequest);
-        var serviceResponse = await signInResponse.Content.ReadFromJsonAsync<ServiceResponse>();
 
-        var payloadElement = JsonSerializer.Serialize(serviceResponse!.Payload);
-        var tokens = JsonSerializer.Deserialize<JwtModel>(payloadElement);
+        var tokens = await _jsonHelper.GetPayloadAsync<JwtModel>(signInResponse);
 
         var refreshRequest = new JwtModel
         {
@@ -223,6 +221,7 @@ public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseInt
         response.IsSuccessStatusCode.Should().BeFalse();
         response.StatusCode.Should().Be(HttpStatusCode.UpgradeRequired);
     }
+
 
 
     [Fact]

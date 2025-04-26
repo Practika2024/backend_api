@@ -1,4 +1,5 @@
 using System.Net;
+using System.Security.Claims;
 using Application.Commands.Authentications.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
@@ -52,7 +53,18 @@ public class RefreshTokenCommandHandler(
                 HttpStatusCode.UpgradeRequired));
         }
 
-        var principals = jwtTokenService.GetPrincipals(accessToken);
+        ClaimsPrincipal principals;
+        
+        try
+        {
+            principals = jwtTokenService.GetPrincipals(accessToken);
+        }
+        catch (Exception e)
+        {
+            return await Task.FromResult(ServiceResponse.GetResponse("Invalid token", false, null,
+                HttpStatusCode.UpgradeRequired));
+        }
+        
 
         var accessTokenId = principals.Claims
             .Single(c => c.Type == JwtRegisteredClaimNames.Jti).Value;

@@ -5,8 +5,8 @@ namespace Api.Controllers;
 
 public class BaseController : ControllerBase
 {
-    protected IActionResult GetResult(ServiceResponse serviseResponse)
+    protected IActionResult GetResult(ServiceResponse serviceResponse)
     {
-        return StatusCode((int)serviseResponse.StatusCode, serviseResponse);
+        return StatusCode((int)serviceResponse.StatusCode, serviceResponse);
     }
 }
