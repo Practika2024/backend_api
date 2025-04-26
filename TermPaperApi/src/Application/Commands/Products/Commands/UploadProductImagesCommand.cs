@@ -45,7 +45,7 @@ public class UploadProductImagesCommandHandler(
 
         if (imageSaveResult.Count == 0)
         {
-            return ServiceResponse.GetResponse("No images uploaded", false, null, HttpStatusCode.BadRequest);
+            return ServiceResponse.BadRequestResponse("No images uploaded");
         }
         
         foreach (var imageName in imageSaveResult)

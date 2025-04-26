@@ -1,22 +1,23 @@
 ﻿using Application.Commands.Containers.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
+using Application.Services;
 using Domain.Containers;
 using Domain.Containers.Models;
 using MediatR;
 
 namespace Application.Commands.Containers.Commands;
 
-public record DeleteContainerCommand : IRequest<Result<Container, ContainerException>>
+public record DeleteContainerCommand : IRequest<ServiceResponse>
 {
     public required Guid Id { get; init; }
 }
 
 public class DeleteContainerCommandHandler(
     IContainerRepository containerRepository)
-    : IRequestHandler<DeleteContainerCommand, Result<Container, ContainerException>>
+    : IRequestHandler<DeleteContainerCommand, ServiceResponse>
 {
-    public async Task<Result<Container, ContainerException>> Handle(
+    public async Task<ServiceResponse> Handle(
         DeleteContainerCommand request,
         CancellationToken cancellationToken)
     {
@@ -32,15 +33,15 @@ public class DeleteContainerCommandHandler(
                         Id = container.Id
                     };
                     var deletedContainer = await containerRepository.Delete(model, cancellationToken);
-                    return deletedContainer;
+                    return ServiceResponse.OkResponse("Container deleted", deletedContainer);
                 }
                 catch (ContainerException exception)
                 {
-                    return new ContainerUnknownException(containerIdObj, exception);
+                    return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
                 }
             },
-            () => Task.FromResult<Result<Container, ContainerException>>(
-                new ContainerNotFoundException(containerIdObj))
+            () => Task.FromResult<ServiceResponse>(
+                ServiceResponse.NotFoundResponse("Container not found"))
         );
     }
 }

@@ -42,7 +42,7 @@ public class GoogleExternalLoginCommandHandler : IRequestHandler<GoogleExternalL
         {
             if (request.Model == null || string.IsNullOrEmpty(request.Model.Token))
             {
-                return ServiceResponse.GetResponse("Google token not sent", false, null, HttpStatusCode.BadRequest);
+                return ServiceResponse.BadRequestResponse("Google token not sent");
             }
 
             var clientId = _configuration["GoogleAuthSettings:ClientId"];
@@ -50,7 +50,7 @@ public class GoogleExternalLoginCommandHandler : IRequestHandler<GoogleExternalL
 
             if (payload == null)
             {
-                return ServiceResponse.GetResponse("Invalid Google token", false, null, HttpStatusCode.BadRequest);
+                return ServiceResponse.BadRequestResponse("Invalid Google token");
             }
 
             var info = new UserLoginInfo(request.Model.Provider, payload.Subject, request.Model.Provider);
@@ -82,7 +82,7 @@ public class GoogleExternalLoginCommandHandler : IRequestHandler<GoogleExternalL
                 var loginResult = await _userRepository.AddLoginAsync(user, info, cancellationToken);
                 if (!loginResult.Succeeded)
                 {
-                    return ServiceResponse.GetResponse("Failed to add Google login", false, null, HttpStatusCode.BadRequest);
+                    return ServiceResponse.BadRequestResponse("Failed to add Google login");
                 }
             }
 

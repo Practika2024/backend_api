@@ -1,8 +1,10 @@
-﻿using Application.Commands.Containers.Exceptions;
+﻿using System.Net;
+using Application.Commands.Containers.Exceptions;
 using Application.Commands.ContainersType.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces;
 using Application.Common.Interfaces.Repositories;
+using Application.Services;
 using Domain.ContainerTypes;
 using Domain.ContainerTypes.Models;
 using MediatR;
@@ -10,16 +12,16 @@ using ContainerUnknownException = Application.Commands.ContainersType.Exceptions
 
 namespace Application.Commands.ContainersType.Commands;
 
-public record AddContainerTypeCommand : IRequest<Result<ContainerType, ContainerTypeException>>
+public record AddContainerTypeCommand : IRequest<ServiceResponse>
 {
     public required string Name { get; init; }
     public Guid CreatedBy { get; set; }
 }
 
 public class AddContainerTypeCommandHandler(IContainerTypeRepository containerTypeRepository, IUserProvider userProvider)
-    : IRequestHandler<AddContainerTypeCommand, Result<ContainerType, ContainerTypeException>>
+    : IRequestHandler<AddContainerTypeCommand, ServiceResponse>
 {
-    public async Task<Result<ContainerType, ContainerTypeException>> Handle(
+    public async Task<ServiceResponse> Handle(
         AddContainerTypeCommand request,
         CancellationToken cancellationToken)
     {
@@ -27,15 +29,15 @@ public class AddContainerTypeCommandHandler(IContainerTypeRepository containerTy
         
         var existingContainerType = await containerTypeRepository.SearchByName(request.Name, cancellationToken);
 
-        return await existingContainerType.Match<Task<Result<ContainerType, ContainerTypeException>>>(
-            c => Task.FromResult<Result<ContainerType, ContainerTypeException>>(new ContainerTypeAlreadyExists(c.Id)),
+        return await existingContainerType.Match<Task<ServiceResponse>>(
+            c => Task.FromResult<ServiceResponse>(ServiceResponse.GetResponse("Container type with this name already exists", false, null, HttpStatusCode.Conflict)),
             async () =>
             {
                 return await CreateEntity(request.Name, request.CreatedBy, cancellationToken);
             });
     }
 
-    private async Task<Result<ContainerType, ContainerTypeException>> CreateEntity(
+    private async Task<ServiceResponse> CreateEntity(
         string name,
         Guid createdBy,
         CancellationToken cancellationToken)
@@ -51,11 +53,11 @@ public class AddContainerTypeCommandHandler(IContainerTypeRepository containerTy
             };
 
             var createdContainer = await containerTypeRepository.Create(createContainerModel, cancellationToken);
-            return createdContainer;
+            return ServiceResponse.OkResponse("Container type", createdContainer);
         }
         catch (ContainerTypeException exception)
         {
-            return new ContainerUnknownException(Guid.Empty, exception);
+            return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
         }
     }
 }

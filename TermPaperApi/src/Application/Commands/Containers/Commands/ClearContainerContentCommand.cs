@@ -3,13 +3,14 @@ using Application.Common;
 using Application.Common.Interfaces;
 using Application.Common.Interfaces.Queries;
 using Application.Common.Interfaces.Repositories;
+using Application.Services;
 using Domain.Containers;
 using Domain.Containers.Models;
 using MediatR;
 
 namespace Application.Commands.Containers.Commands;
 
-public record ClearContainerContentCommand : IRequest<Result<Container, ContainerException>>
+public record ClearContainerContentCommand : IRequest<ServiceResponse>
 {
     public required Guid ContainerId { get; init; }
 }
@@ -18,9 +19,9 @@ public class ClearContainerContentCommandHandler(
     IContainerRepository containerRepository,
     IContainerQueries containerQueries,
     IContainerHistoryRepository containerHistoryRepository,
-    IUserProvider userProvider) : IRequestHandler<ClearContainerContentCommand, Result<Container, ContainerException>>
+    IUserProvider userProvider) : IRequestHandler<ClearContainerContentCommand, ServiceResponse>
 {
-    public async Task<Result<Container, ContainerException>> Handle(
+    public async Task<ServiceResponse> Handle(
         ClearContainerContentCommand request,
         CancellationToken cancellationToken)
     {
@@ -48,15 +49,15 @@ public class ClearContainerContentCommandHandler(
                     await UpdateHistory(container.Id, cancellationToken);
                     
                     var updatedContainer = await containerRepository.ClearContainerContent(clearContainerContentModel, cancellationToken);
-                    return updatedContainer;
+                    return ServiceResponse.OkResponse("Container content cleared", updatedContainer);
                 }
                 catch (ContainerException exception)
                 {
-                    return new ContainerUnknownException(containerId, exception);
+                    return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
                 }
             },
-            () => Task.FromResult<Result<Container, ContainerException>>(
-                new ContainerNotFoundException(containerId))
+            () => Task.FromResult<ServiceResponse>(
+                ServiceResponse.NotFoundResponse("Container not found"))
         );
     }
 

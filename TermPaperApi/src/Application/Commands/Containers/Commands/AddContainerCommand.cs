@@ -1,16 +1,16 @@
-﻿using Application.Commands.Containers.Exceptions;
-using Application.Common;
+﻿using System.Net;
+using Application.Commands.Containers.Exceptions;
 using Application.Common.Interfaces;
 using Application.Common.Interfaces.Queries;
 using Application.Common.Interfaces.Repositories;
-using Domain.Containers;
+using Application.Services;
 using Domain.Containers.Models;
 using Domain.ContainerTypes;
 using MediatR;
 
 namespace Application.Commands.Containers.Commands;
 
-public record AddContainerCommand : IRequest<Result<Container, ContainerException>>
+public record AddContainerCommand : IRequest<ServiceResponse>
 {
     public required string Name { get; init; }
     public required decimal Volume { get; init; }
@@ -23,25 +23,26 @@ public class AddContainerCommandHandler(
     IContainerTypeQueries containerTypeQueries,
     IUserQueries userQueries,
     IUserProvider userProvider)
-    : IRequestHandler<AddContainerCommand, Result<Container, ContainerException>>
+    : IRequestHandler<AddContainerCommand, ServiceResponse>
 {
-    public async Task<Result<Container, ContainerException>> Handle(
+    public async Task<ServiceResponse> Handle(
         AddContainerCommand request,
         CancellationToken cancellationToken)
     {
         var existingContainer = await containerRepository.SearchByName(request.Name, cancellationToken);
 
-        return await existingContainer.Match<Task<Result<Container, ContainerException>>>(
-            c => Task.FromResult<Result<Container, ContainerException>>(
-                new ContainerAlreadyExistsException(c.Id)),
+        return await existingContainer.Match<Task<ServiceResponse>>(
+            c => Task.FromResult<ServiceResponse>(
+                ServiceResponse.GetResponse("Container with this name already exists", false, null,
+                    HttpStatusCode.Conflict)),
             async () =>
             {
                 var userResult = await userQueries.GetById(userProvider.GetUserId(), cancellationToken);
-                return await userResult.Match<Task<Result<Container, ContainerException>>>(
+                return await userResult.Match<Task<ServiceResponse>>(
                     async user =>
                     {
                         var typeResult = await containerTypeQueries.GetById(request.TypeId, cancellationToken);
-                        return await typeResult.Match<Task<Result<Container, ContainerException>>>(
+                        return await typeResult.Match<Task<ServiceResponse>>(
                             async type =>
                             {
                                 return await CreateEntity(
@@ -51,17 +52,17 @@ public class AddContainerCommandHandler(
                                     type,
                                     cancellationToken);
                             },
-                            () => Task.FromResult<Result<Container, ContainerException>>(
-                                new ContainerTypeNotFoundException(request.TypeId))
+                            () => Task.FromResult<ServiceResponse>(
+                                ServiceResponse.NotFoundResponse("Container type not found"))
                         );
                     },
-                    () => Task.FromResult<Result<Container, ContainerException>>(
-                        new UserNotFoundException(userProvider.GetUserId()))
+                    () => Task.FromResult<ServiceResponse>(
+                        ServiceResponse.NotFoundResponse("User not found"))
                 );
             });
     }
 
-    private async Task<Result<Container, ContainerException>> CreateEntity(
+    private async Task<ServiceResponse> CreateEntity(
         string name,
         decimal volume,
         string? notes,
@@ -84,11 +85,11 @@ public class AddContainerCommandHandler(
             };
 
             var createdContainer = await containerRepository.Create(createContainerModel, cancellationToken);
-            return createdContainer;
+            return ServiceResponse.OkResponse("Container created", createdContainer);
         }
         catch (ContainerException exception)
         {
-            return new ContainerUnknownException(Guid.Empty, exception);
+            return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
         }
     }
 

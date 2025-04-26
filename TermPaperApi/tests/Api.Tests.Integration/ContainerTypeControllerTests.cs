@@ -35,7 +35,7 @@ public class ContainersTypeControllerTests : BaseIntegrationTest, IAsyncLifetime
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
 
-        var containerTypeFromResponse = await response.ToResponseModel<ContainerTypeDto>();
+        var containerTypeFromResponse = await JsonHelper.GetPayloadAsync<ContainerTypeDto>(response);
         var containerTypeId = containerTypeFromResponse.Id!.Value;
 
         var containerTypeFromDatabase = await Context.ContainerTypes.FirstOrDefaultAsync(x => x.Id == containerTypeId);
@@ -101,7 +101,7 @@ public class ContainersTypeControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         response.IsSuccessStatusCode.Should().BeTrue();
 
-        var containers = await response.ToResponseModel<List<ContainerTypeDto>>();
+        var containers = await JsonHelper.GetPayloadAsync<List<ContainerTypeDto>>(response);
         containers.Should().NotBeEmpty();
     }
 

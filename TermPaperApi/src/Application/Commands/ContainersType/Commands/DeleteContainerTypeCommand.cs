@@ -1,21 +1,22 @@
 ﻿using Application.Commands.ContainersType.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
+using Application.Services;
 using Domain.ContainerTypes;
 using MediatR;
 
 namespace Application.Commands.ContainersType.Commands;
 
-public record DeleteContainerTypeCommand : IRequest<Result<ContainerType, ContainerTypeException>>
+public record DeleteContainerTypeCommand : IRequest<ServiceResponse>
 {
     public required Guid Id { get; init; }
 }
 
 public class DeleteContainerTypeCommandHandler(
     IContainerTypeRepository containerTypeRepository)
-    : IRequestHandler<DeleteContainerTypeCommand, Result<ContainerType, ContainerTypeException>>
+    : IRequestHandler<DeleteContainerTypeCommand, ServiceResponse>
 {
-    public async Task<Result<ContainerType, ContainerTypeException>> Handle(
+    public async Task<ServiceResponse> Handle(
         DeleteContainerTypeCommand request,
         CancellationToken cancellationToken)
     {
@@ -27,15 +28,15 @@ public class DeleteContainerTypeCommandHandler(
                 try
                 {
                     var deletedContainerType = await containerTypeRepository.Delete(containerType.Id, cancellationToken);
-                    return deletedContainerType;
+                    return ServiceResponse.OkResponse("Container type deleted", deletedContainerType);
                 }
                 catch (ContainerTypeException exception)
                 {
-                    return new ContainerUnknownException(containerTypeIdObj, exception);
+                    return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
                 }
             },
-            () => Task.FromResult<Result<ContainerType, ContainerTypeException>>(
-                new ContainerTypeNotFoundException(containerTypeIdObj))
+            () => Task.FromResult<ServiceResponse>(
+                ServiceResponse.NotFoundResponse("Container type not found"))
         );
     }
 }

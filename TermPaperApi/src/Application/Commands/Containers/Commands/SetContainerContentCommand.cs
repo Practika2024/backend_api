@@ -3,6 +3,7 @@ using Application.Common;
 using Application.Common.Interfaces;
 using Application.Common.Interfaces.Queries;
 using Application.Common.Interfaces.Repositories;
+using Application.Services;
 using Domain.Containers;
 using Domain.Containers.Models;
 using Domain.ContainersHistory.Models;
@@ -11,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Application.Commands.Containers.Commands;
 
-public record SetContainerContentCommand : IRequest<Result<Container, ContainerException>>
+public record SetContainerContentCommand : IRequest<ServiceResponse>
 {
     public required Guid ContainerId { get; init; }
     public required Guid? ProductId { get; init; }
@@ -23,9 +24,9 @@ public class SetContainerContentCommandHandler(
     IProductQueries productQueries,
     IContainerHistoryRepository containerHistoryRepository,
     IUserProvider userProvider)
-    : IRequestHandler<SetContainerContentCommand, Result<Container, ContainerException>>
+    : IRequestHandler<SetContainerContentCommand, ServiceResponse>
 {
-    public async Task<Result<Container, ContainerException>> Handle(
+    public async Task<ServiceResponse> Handle(
         SetContainerContentCommand request,
         CancellationToken cancellationToken)
     {
@@ -38,25 +39,25 @@ public class SetContainerContentCommandHandler(
             {
                 return await existingContainer.Match(
                     async container => await SetProduct(request, container, cancellationToken),
-                    () => Task.FromResult<Result<Container, ContainerException>>(
-                        new ContainerNotFoundException(containerId))
+                    () => Task.FromResult(
+                        ServiceResponse.NotFoundResponse("Container not found"))
                 );
             },
-            () => Task.FromResult<Result<Container, ContainerException>>(
-                new ProductNotFoundException(request.ProductId!.Value)));
+            () => Task.FromResult(
+                ServiceResponse.NotFoundResponse("Product not found")));
     }
 
-    private async Task<Result<Container, ContainerException>> SetProduct(SetContainerContentCommand request,
+    private async Task<ServiceResponse> SetProduct(SetContainerContentCommand request,
         Container container, CancellationToken cancellationToken)
     {
         if (await containerQueries.IsProductInContainer(request.ProductId!.Value, cancellationToken))
         {
-            throw new Exception("Product already in container");
+            return ServiceResponse.BadRequestResponse("Product is already in container");
         }
 
         if (container.ProductId.HasValue)
         {
-            throw new Exception("Container is not empty");
+            return ServiceResponse.BadRequestResponse("Container is not empty");
         }
 
         try
@@ -79,11 +80,11 @@ public class SetContainerContentCommandHandler(
 
             await AddHistory(userId, container.Id, productId!.Value, cancellationToken);
 
-            return updatedContainer;
+            return ServiceResponse.OkResponse("Container content updated", updatedContainer);
         }
         catch (ContainerException exception)
         {
-            return new ContainerUnknownException(container.Id, exception);
+            return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
         }
     }
 
