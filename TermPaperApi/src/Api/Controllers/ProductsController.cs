@@ -3,6 +3,7 @@ using Api.Dtos.Products;
 using Api.Modules.Errors;
 using Application.Commands.Products.Commands;
 using Application.Common.Interfaces.Queries;
+using Application.Services;
 using Application.Settings;
 using AutoMapper;
 using MediatR;
@@ -16,28 +17,29 @@ namespace Api.Controllers;
 [ApiController]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
-public class ProductsController(ISender sender, IProductQueries productQueries, IMapper mapper) : ControllerBase
+public class ProductsController(ISender sender, IProductQueries productQueries, IMapper mapper) : BaseController
 {
     [HttpGet("get-all")]
-    public async Task<ActionResult<IReadOnlyList<ProductDto>>> GetAll(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
         var entities = await productQueries.GetAll(cancellationToken);
-        return Ok(entities.Select(mapper.Map<ProductDto>).ToList());
+        return GetResult(ServiceResponse.OkResponse("Products list", entities.Select(mapper.Map<ProductDto>).ToList()));
     }
 
     [HttpGet("get-by-id/{productId:guid}")]
-    public async Task<ActionResult<ProductDto>> GetById([FromRoute] Guid productId,
+    public async Task<IActionResult> GetById([FromRoute] Guid productId,
         CancellationToken cancellationToken)
     {
         var entity = await productQueries.GetById(productId, cancellationToken);
-        return entity.Match<ActionResult<ProductDto>>(
-            p => Ok(mapper.Map<ProductDto>(p)),
-            () => NotFound());
+        
+        return entity.Match<IActionResult>(
+            p => GetResult(ServiceResponse.OkResponse("Product", mapper.Map<ProductDto>(p))),
+            () =>GetResult(ServiceResponse.NotFoundResponse("Product not found")));
     }
 
     [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpPost("add")]
-    public async Task<ActionResult<ProductDto>> AddProduct(
+    public async Task<IActionResult> AddProduct(
         [FromBody] CreateProductDto model,
         CancellationToken cancellationToken)
     {
@@ -51,14 +53,12 @@ public class ProductsController(ISender sender, IProductQueries productQueries, 
 
         var result = await sender.Send(command, cancellationToken);
 
-        return result.Match<ActionResult<ProductDto>>(
-            dto => Ok(mapper.Map<ProductDto>(dto)),
-            e => e.ToObjectResult());
+        return GetResult(result);
     }
 
     [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpPut("update/{productId:guid}")]
-    public async Task<ActionResult<ProductDto>> UpdateProduct(
+    public async Task<IActionResult> UpdateProduct(
         [FromRoute] Guid productId,
         [FromBody] UpdateProductDto model,
         CancellationToken cancellationToken)
@@ -74,14 +74,12 @@ public class ProductsController(ISender sender, IProductQueries productQueries, 
 
         var result = await sender.Send(command, cancellationToken);
 
-        return result.Match<ActionResult<ProductDto>>(
-            dto => Ok(mapper.Map<ProductDto>(dto)),
-            e => e.ToObjectResult());
+        return GetResult(result);
     }
 
     [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpDelete("delete/{productId:guid}")]
-    public async Task<ActionResult<ProductDto>> DeleteProduct(
+    public async Task<IActionResult> DeleteProduct(
         [FromRoute] Guid productId,
         CancellationToken cancellationToken)
     {
@@ -92,13 +90,11 @@ public class ProductsController(ISender sender, IProductQueries productQueries, 
 
         var result = await sender.Send(command, cancellationToken);
 
-        return result.Match<ActionResult<ProductDto>>(
-            dto => Ok(mapper.Map<ProductDto>(dto)),
-            e => e.ToObjectResult());
+        return GetResult(result);
     }
     
     [HttpPut("upload-images/{productId:guid}")]
-    public async Task<ActionResult<ProductDto>> Upload([FromRoute] Guid productId, IFormFileCollection imagesFiles,
+    public async Task<IActionResult> Upload([FromRoute] Guid productId, IFormFileCollection imagesFiles,
         CancellationToken cancellationToken)
     {
         var input = new UploadProductImagesCommand()
@@ -109,8 +105,6 @@ public class ProductsController(ISender sender, IProductQueries productQueries, 
 
         var result = await sender.Send(input, cancellationToken);
 
-        return result.Match<ActionResult<ProductDto>>(
-            r => Ok(mapper.Map<ProductDto>(r)),
-            e => e.ToObjectResult());
+        return GetResult(result);
     }
 }

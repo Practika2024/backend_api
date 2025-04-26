@@ -4,21 +4,21 @@ using Application.Services;
 
 namespace Tests.Common;
 
-public class JsonHelper
+public static class JsonHelper
 {
-    private readonly JsonSerializerOptions _defaultOptions = new()
+    private static readonly JsonSerializerOptions DefaultOptions = new JsonSerializerOptions
     {
         PropertyNameCaseInsensitive = true
     };
 
-    public async Task<T> GetPayloadAsync<T>(HttpResponseMessage response)
+    public static async Task<T> GetPayloadAsync<T>(HttpResponseMessage response)
     {
-        var serviceResponse = await response.Content.ReadFromJsonAsync<ServiceResponse>(_defaultOptions)
+        var serviceResponse = await response.Content.ReadFromJsonAsync<ServiceResponse>(DefaultOptions)
                               ?? throw new InvalidOperationException("Response content is null or invalid.");
 
-        var payloadJson = JsonSerializer.Serialize(serviceResponse.Payload, _defaultOptions);
+        var payloadJson = JsonSerializer.Serialize(serviceResponse.Payload, DefaultOptions);
 
-        var payload = JsonSerializer.Deserialize<T>(payloadJson, _defaultOptions)
+        var payload = JsonSerializer.Deserialize<T>(payloadJson, DefaultOptions)
                       ?? throw new InvalidOperationException("Failed to deserialize payload.");
 
         return payload;

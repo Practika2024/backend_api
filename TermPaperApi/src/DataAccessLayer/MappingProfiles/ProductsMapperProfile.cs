@@ -15,5 +15,7 @@ public class ProductsMapperProfile : Profile
         CreateMap<ProductEntity, UpdateProductModel>().ReverseMap();
         
         CreateMap<ProductImage, ProductImageEntity>().ReverseMap();
+
+        CreateMap<ProductEntity, CreateProductModel>().ReverseMap();
     }
 }

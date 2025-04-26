@@ -2,6 +2,7 @@
 using Api.Modules.Errors;
 using Application.Commands.Users.Commands;
 using Application.Common.Interfaces.Queries;
+using Application.Services;
 using Application.Settings;
 using AutoMapper;
 using MediatR;
@@ -15,49 +16,47 @@ namespace Api.Controllers;
 [ApiController]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
-public class UsersController(ISender sender, IUserQueries userQueries, IMapper mapper) : ControllerBase
+public class UsersController(ISender sender, IUserQueries userQueries, IMapper mapper) : BaseController
 {
     [HttpGet("get-all")]
-    public async Task<ActionResult<IReadOnlyList<UserDto>>> GetAll(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
         var entities = await userQueries.GetAll(cancellationToken);
-        return Ok(entities.Select(mapper.Map<UserDto>).ToList());
+        return GetResult(ServiceResponse.OkResponse("Users list", entities.Select(mapper.Map<UserDto>)));
     }
 
     [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpGet("get-all-without-approval")]
-    public async Task<ActionResult<IReadOnlyList<UserDto>>> GetAllWithoutApproval(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllWithoutApproval(CancellationToken cancellationToken)
     {
         var entities = await userQueries.GetAllWithoutApproval(cancellationToken);
-        return Ok(entities.Select(mapper.Map<UserDto>).ToList());
+        return GetResult(ServiceResponse.OkResponse("Users without approval", entities.Select(mapper.Map<UserDto>)));
     }
 
     [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpPatch("approve/{userId:guid}")]
-    public async Task<ActionResult<IReadOnlyList<UserDto>>> ApproveUser([FromRoute] Guid userId,
+    public async Task<IActionResult> ApproveUser([FromRoute] Guid userId,
         CancellationToken cancellationToken)
     {
         var command = new ApproveUserCommand() { UserId = userId };
         var result = await sender.Send(command, cancellationToken);
 
-        return result.Match<ActionResult>(
-            user => Ok(mapper.Map<UserDto>(user)),
-            e => e.ToObjectResult());
+        return GetResult(result);
     }
 
     [HttpGet("get-by-id/{userId:guid}")]
-    public async Task<ActionResult<UserDto>> Get([FromRoute] Guid userId, CancellationToken cancellationToken)
+    public async Task<IActionResult> Get([FromRoute] Guid userId, CancellationToken cancellationToken)
     {
         var entity = await userQueries.GetById(userId, cancellationToken);
 
-        return entity.Match<ActionResult<UserDto>>(
-            p => Ok(mapper.Map<UserDto>(p)),
-            () => NotFound());
+        return entity.Match<IActionResult>(
+            p => GetResult(ServiceResponse.OkResponse("User", mapper.Map<UserDto>(p))),
+            () => GetResult(ServiceResponse.NotFoundResponse("User not found")));
     }
 
     [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpPost("create")]
-    public async Task<ActionResult<UserDto>> SignUpAsync(
+    public async Task<IActionResult> SignUpAsync(
         [FromBody] CreateUserDto request,
         CancellationToken cancellationToken)
     {
@@ -72,14 +71,12 @@ public class UsersController(ISender sender, IUserQueries userQueries, IMapper m
 
         var result = await sender.Send(input, cancellationToken);
 
-        return result.Match<ActionResult<UserDto>>(
-            u => Ok(mapper.Map<UserDto>(u)),
-            e => e.ToObjectResult());
+        return GetResult(result);
     }
 
     [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpPut("update-role/{userId:guid}")]
-    public async Task<ActionResult<UserDto>> UpdateRoles(
+    public async Task<IActionResult> UpdateRoles(
         [FromRoute] Guid userId,
         [FromBody] string rolesId,
         CancellationToken cancellationToken)
@@ -92,26 +89,22 @@ public class UsersController(ISender sender, IUserQueries userQueries, IMapper m
 
         var result = await sender.Send(command, cancellationToken);
 
-        return result.Match<ActionResult<UserDto>>(
-            u => Ok(mapper.Map<UserDto>(u)),
-            e => e.ToObjectResult());
+        return GetResult(result);
     }
 
     [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpDelete("delete/{userId:guid}")]
-    public async Task<ActionResult> Delete([FromRoute] Guid userId, CancellationToken cancellationToken)
+    public async Task<IActionResult> Delete([FromRoute] Guid userId, CancellationToken cancellationToken)
     {
         var command = new DeleteUserCommand { UserId = userId };
         var result = await sender.Send(command, cancellationToken);
 
-        return result.Match<ActionResult>(
-            _ => NoContent(),
-            e => e.ToObjectResult());
+        return GetResult(result);
     }
 
     [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpPut("update/{userId:guid}")]
-    public async Task<ActionResult<UserDto>> UpdateUser(
+    public async Task<IActionResult> UpdateUser(
         [FromRoute] Guid userId,
         [FromBody] UpdateUserDto model,
         CancellationToken cancellationToken)
@@ -127,13 +120,11 @@ public class UsersController(ISender sender, IUserQueries userQueries, IMapper m
 
         var result = await sender.Send(command, cancellationToken);
 
-        return result.Match<ActionResult<UserDto>>(
-            u => Ok(mapper.Map<UserDto>(u)),
-            e => e.ToObjectResult());
+        return GetResult(result);
     }
 
     [HttpPost("send-email-confirmation")]
-    public async Task<ActionResult<UserDto>> EmailConfirmation(
+    public async Task<IActionResult> EmailConfirmation(
         CancellationToken cancellationToken)
     {
         var command = new SendEmailConfirmationCommand
@@ -142,14 +133,12 @@ public class UsersController(ISender sender, IUserQueries userQueries, IMapper m
 
         var result = await sender.Send(command, cancellationToken);
 
-        return result.Match<ActionResult<UserDto>>(
-            u => Ok(mapper.Map<UserDto>(u)),
-            e => e.ToObjectResult());
+        return GetResult(result);
     }
 
     [HttpGet("verify-email", Name = "VerifyEmail")]
     [AllowAnonymous]
-    public async Task<ActionResult<UserDto>> VerifyEmail(
+    public async Task<IActionResult> VerifyEmail(
         Guid token,
         CancellationToken cancellationToken)
     {
@@ -160,8 +149,6 @@ public class UsersController(ISender sender, IUserQueries userQueries, IMapper m
 
         var result = await sender.Send(command, cancellationToken);
 
-        return result.Match<ActionResult<UserDto>>(
-            u => Ok(mapper.Map<UserDto>(u)),
-            e => e.ToObjectResult());
+        return GetResult(result);
     }
 }

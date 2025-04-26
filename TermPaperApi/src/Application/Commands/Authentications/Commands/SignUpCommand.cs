@@ -80,7 +80,7 @@ public class SignUpUserCommandHandler(
         }
         catch (Exception exception)
         {
-            return ServiceResponse.InternalServerErrorResponse(exception.Message);
+            return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
         }
     }
 }

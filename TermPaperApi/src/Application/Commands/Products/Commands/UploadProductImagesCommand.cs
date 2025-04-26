@@ -1,4 +1,5 @@
-﻿using Application.Commands.Products.Exceptions;
+﻿using System.Net;
+using Application.Commands.Products.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
 using Application.Services;
@@ -12,7 +13,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Application.Commands.Products.Commands;
 
-public record UploadProductImagesCommand : IRequest<Result<Product, ProductException>>
+public record UploadProductImagesCommand : IRequest<ServiceResponse>
 {
     public Guid ProductId { get; init; }
     public IFormFileCollection ImagesFiles { get; init; }
@@ -21,9 +22,9 @@ public record UploadProductImagesCommand : IRequest<Result<Product, ProductExcep
 public class UploadProductImagesCommandHandler(
     IProductRepository productRepository,
     IImageService imageService,
-    IMapper mapper) : IRequestHandler<UploadProductImagesCommand, Result<Product, ProductException>>
+    IMapper mapper) : IRequestHandler<UploadProductImagesCommand, ServiceResponse>
 {
-    public async Task<Result<Product, ProductException>> Handle(UploadProductImagesCommand request,
+    public async Task<ServiceResponse> Handle(UploadProductImagesCommand request,
         CancellationToken cancellationToken)
     {
         var productId = request.ProductId;
@@ -31,11 +32,11 @@ public class UploadProductImagesCommandHandler(
 
         return await existingProduct.Match(
             async product => await UploadImages(product, request.ImagesFiles, cancellationToken),
-            () => Task.FromResult<Result<Product, ProductException>>(
-                new ProductNotFoundException(productId)));
+            () => Task.FromResult<ServiceResponse>(
+                ServiceResponse.NotFoundResponse("Product not found")));
     }
     
-    private async Task<Result<Product, ProductException>> UploadImages(
+    private async Task<ServiceResponse> UploadImages(
         Product product,
         IFormFileCollection imagesFiles,
         CancellationToken cancellationToken)
@@ -44,7 +45,7 @@ public class UploadProductImagesCommandHandler(
 
         if (imageSaveResult.Count == 0)
         {
-            return new ImageSaveException(product.Id);
+            return ServiceResponse.GetResponse("No images uploaded", false, null, HttpStatusCode.BadRequest);
         }
         
         foreach (var imageName in imageSaveResult)
@@ -53,6 +54,6 @@ public class UploadProductImagesCommandHandler(
         }
                 
         var productWithImages = await productRepository.Update(mapper.Map<UpdateProductModel>(product), cancellationToken);
-        return productWithImages;
+        return ServiceResponse.OkResponse("Images uploaded", productWithImages);
     }
 }

@@ -3,13 +3,14 @@ using Application.Common;
 using Application.Common.Interfaces;
 using Application.Common.Interfaces.Queries;
 using Application.Common.Interfaces.Repositories;
+using Application.Services;
 using Domain.Products;
 using Domain.Products.Models;
 using MediatR;
 
 namespace Application.Commands.Products.Commands;
 
-public record UpdateProductCommand : IRequest<Result<Product, ProductException>>
+public record UpdateProductCommand : IRequest<ServiceResponse>
 {
     public Guid Id { get; set; }
     public string Name { get; init; }
@@ -20,9 +21,9 @@ public record UpdateProductCommand : IRequest<Result<Product, ProductException>>
 
 public class UpdateProductCommandHandler(
     IProductRepository productRepository, IUserProvider userProvider, IProductTypeQueries productTypeQueries)
-    : IRequestHandler<UpdateProductCommand, Result<Product, ProductException>>
+    : IRequestHandler<UpdateProductCommand, ServiceResponse>
 {
-    public async Task<Result<Product, ProductException>> Handle(
+    public async Task<ServiceResponse> Handle(
         UpdateProductCommand request,
         CancellationToken cancellationToken)
     {
@@ -48,16 +49,16 @@ public class UpdateProductCommandHandler(
                             TypeId = request.TypeId,
                         };
                         var updatedProduct = await productRepository.Update(updateProductModel, cancellationToken);
-                        return updatedProduct;
+                        return ServiceResponse.OkResponse("Product updated", updatedProduct);
                     }
                     catch (ProductException exception)
                     {
-                        return new ProductUnknownException(productId, exception);
+                        return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
                     }
                 },
-                () => Task.FromResult<Result<Product, ProductException>>(new ProductTypeNotFoundException(request.TypeId))
+                () => Task.FromResult<ServiceResponse>(ServiceResponse.NotFoundResponse("Product type not found"))
             ),
-            () => Task.FromResult<Result<Product, ProductException>>(new ProductNotFoundException(productId))
+            () => Task.FromResult<ServiceResponse>(ServiceResponse.NotFoundResponse("Product not found"))
         );
     }
 }

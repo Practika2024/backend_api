@@ -1,21 +1,22 @@
 ﻿using Application.Commands.ProductsType.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
+using Application.Services;
 using Domain.ProductTypes;
 using MediatR;
 
 namespace Application.Commands.ProductsType.Commands;
 
-public record DeleteProductTypeCommand : IRequest<Result<ProductType, ProductTypeException>>
+public record DeleteProductTypeCommand : IRequest<ServiceResponse>
 {
     public required Guid Id { get; init; }
 }
 
 public class DeleteProductTypeCommandHandler(
     IProductTypeRepository productTypeRepository)
-    : IRequestHandler<DeleteProductTypeCommand, Result<ProductType, ProductTypeException>>
+    : IRequestHandler<DeleteProductTypeCommand, ServiceResponse>
 {
-    public async Task<Result<ProductType, ProductTypeException>> Handle(
+    public async Task<ServiceResponse> Handle(
         DeleteProductTypeCommand request,
         CancellationToken cancellationToken)
     {
@@ -27,15 +28,15 @@ public class DeleteProductTypeCommandHandler(
                 try
                 {
                     var deletedProductType = await productTypeRepository.Delete(productType.Id, cancellationToken);
-                    return deletedProductType;
+                    return ServiceResponse.OkResponse("Product type deleted", deletedProductType);
                 }
                 catch (ProductTypeException exception)
                 {
-                    return new ProductUnknownException(productTypeIdObj, exception);
+                    return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
                 }
             },
-            () => Task.FromResult<Result<ProductType, ProductTypeException>>(
-                new ProductTypeNotFoundException(productTypeIdObj))
+            () => Task.FromResult<ServiceResponse>(
+                ServiceResponse.NotFoundResponse("Product type not found"))
         );
     }
 }

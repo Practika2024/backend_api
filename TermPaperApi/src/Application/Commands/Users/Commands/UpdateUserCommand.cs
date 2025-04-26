@@ -1,7 +1,9 @@
+using System.Net;
 using Application.Commands.Users.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces;
 using Application.Common.Interfaces.Repositories;
+using Application.Services;
 using Application.Services.TokenService;
 using Domain.Users;
 using Domain.Users.Models;
@@ -9,7 +11,7 @@ using MediatR;
 
 namespace Application.Commands.Users.Commands;
 
-public record UpdateUserCommand : IRequest<Result<User, UserException>>
+public record UpdateUserCommand : IRequest<ServiceResponse>
 {
     public required Guid UserId { get; init; }
     public required string Email { get; init; }
@@ -19,9 +21,9 @@ public record UpdateUserCommand : IRequest<Result<User, UserException>>
 }
 
 public class UpdateUserCommandHandle(IUserRepository userRepository, IUserProvider userProvider)
-    : IRequestHandler<UpdateUserCommand, Result<User, UserException>>
+    : IRequestHandler<UpdateUserCommand, ServiceResponse>
 {
-    public async Task<Result<User, UserException>> Handle(UpdateUserCommand request,
+    public async Task<ServiceResponse> Handle(UpdateUserCommand request,
         CancellationToken cancellationToken)
     {
         var userId = request.UserId;
@@ -34,16 +36,17 @@ public class UpdateUserCommandHandle(IUserRepository userRepository, IUserProvid
                     await userRepository.SearchByEmailForUpdate(userId, request.Email, cancellationToken);
 
                 return await existingEmail.Match(
-                    e => Task.FromResult<Result<User, UserException>>
-                        (new UserByThisEmailAlreadyExistsException(userId)),
+                    e => Task.FromResult<ServiceResponse>
+                        (ServiceResponse.GetResponse("User with this email already exists", 
+                            false, null, HttpStatusCode.Conflict)),
                     async () => await UpdateEntity(u, request.Email, request.Name, request.Surname, request.Patronymic,
                         cancellationToken));
             },
-            () => Task.FromResult<Result<User, UserException>>
-                (new UserNotFoundException(userId)));
+            () => Task.FromResult<ServiceResponse>
+                (ServiceResponse.NotFoundResponse("User not found")));
     }
 
-    private async Task<Result<User, UserException>> UpdateEntity(
+    private async Task<ServiceResponse> UpdateEntity(
         User user,
         string email,
         string name,
@@ -64,11 +67,11 @@ public class UpdateUserCommandHandle(IUserRepository userRepository, IUserProvid
             };
 
             var updatedUser = await userRepository.Update(userModel, cancellationToken);
-            return updatedUser;
+            return ServiceResponse.OkResponse("Updated user", updatedUser);
         }
         catch (Exception exception)
         {
-            return new UserUnknownException(user.Id, exception);
+            return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
         }
     }
 }

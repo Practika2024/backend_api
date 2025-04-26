@@ -91,7 +91,7 @@ public class GoogleExternalLoginCommandHandler : IRequestHandler<GoogleExternalL
         }
         catch (Exception ex)
         {
-            return ServiceResponse.InternalServerErrorResponse(ex.Message);
+            return ServiceResponse.InternalServerErrorResponse(ex.Message, ex);
         }
     }
 

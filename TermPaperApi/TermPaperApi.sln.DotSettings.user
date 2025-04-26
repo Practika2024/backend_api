@@ -23,6 +23,11 @@
   &lt;/And&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=7e7c7b3c_002D24a8_002D4dd0_002D9f02_002D4160ad3b39f8/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from Solution" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;Solution /&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	
+	
 	
 	
 	

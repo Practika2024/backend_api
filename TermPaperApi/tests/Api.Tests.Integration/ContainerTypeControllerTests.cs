@@ -11,7 +11,7 @@ using Tests.Common;
 using Tests.Data;
 using Xunit;
 
-namespace Api.Tests.Integration.ContainerTypes;
+namespace Api.Tests.Integration;
 
 public class ContainersTypeControllerTests : BaseIntegrationTest, IAsyncLifetime
 {

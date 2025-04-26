@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Application.Commands.Authentications.Exceptions;
+using Application.Commands.ProductsType.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
 using Application.Services;
@@ -65,7 +66,7 @@ public class SignInCommandHandler(
         }
         catch (Exception exception)
         {
-            return ServiceResponse.InternalServerErrorResponse(exception.Message);
+            return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
         }
     }
 }

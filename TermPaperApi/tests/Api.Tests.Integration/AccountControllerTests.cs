@@ -2,28 +2,35 @@ using System.Net;
 using System.Net.Http.Json;
 using Domain.Users.Models;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using Tests.Common;
 using Tests.Data;
 using Xunit;
 
-namespace Api.Tests.Integration.Accounts;
+namespace Api.Tests.Integration;
 
 public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseIntegrationTest(factory)
 {
-    private readonly JsonHelper _jsonHelper = new();
-    
     [Fact]
     public async Task ShouldSignUp()
     {
+        // TODO: fix that admin must approve user 
         // Arrange
         var request = AccountData.SignUpRequest;
 
         // Act
-        var response = await Client.PostAsJsonAsync("account/signup", request);
+        await Client.PostAsJsonAsync("account/signup", request);
+
+        await Context.Users
+            .Where(u => !u.IsApprovedByAdmin)
+            .ExecuteUpdateAsync(updates
+                => updates.SetProperty(u => u.IsApprovedByAdmin, true), CancellationToken.None);
+        
+        var response = await Client.PostAsJsonAsync("account/signin", request);
 
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
-        var content = await _jsonHelper.GetPayloadAsync<JwtModel>(response);
+        var content = await JsonHelper.GetPayloadAsync<JwtModel>(response);
         content.Should().NotBeNull();
         content!.Should().NotBeNull();
     }
@@ -78,6 +85,10 @@ public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseInt
         // Arrange
         var signUpRequest = AccountData.SignUpForSignInRequest;
         await Client.PostAsJsonAsync("account/signup", signUpRequest);
+        await Context.Users
+            .Where(u => !u.IsApprovedByAdmin)
+            .ExecuteUpdateAsync(updates
+                => updates.SetProperty(u => u.IsApprovedByAdmin, true), CancellationToken.None);
 
         var signInRequest = AccountData.SignInRequest;
 
@@ -86,7 +97,7 @@ public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseInt
 
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
-        var content = await _jsonHelper.GetPayloadAsync<JwtModel>(response);
+        var content = await JsonHelper.GetPayloadAsync<JwtModel>(response);
         content.Should().NotBeNull();
         content!.Should().NotBeNull();
     }
@@ -98,6 +109,10 @@ public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseInt
         // Arrange
         var signUpRequest = AccountData.SignUpForSignInRequest;
         await Client.PostAsJsonAsync("account/signup", signUpRequest);
+        await Context.Users
+            .Where(u => !u.IsApprovedByAdmin)
+            .ExecuteUpdateAsync(updates
+                => updates.SetProperty(u => u.IsApprovedByAdmin, true), CancellationToken.None);
 
         var request = AccountData.SignInWithInvalidCredentialsRequest;
 
@@ -149,10 +164,14 @@ public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseInt
         // Arrange
         var signUpRequest = AccountData.SignUpForSignInRequest;
         await Client.PostAsJsonAsync("account/signup", signUpRequest);
+        await Context.Users
+            .Where(u => !u.IsApprovedByAdmin)
+            .ExecuteUpdateAsync(updates
+                => updates.SetProperty(u => u.IsApprovedByAdmin, true), CancellationToken.None);
 
         var signInRequest = AccountData.SignInRequest;
         var signInResponse = await Client.PostAsJsonAsync("account/signin", signInRequest);
-        var tokens = await _jsonHelper.GetPayloadAsync<JwtModel>(signInResponse);
+        var tokens = await JsonHelper.GetPayloadAsync<JwtModel>(signInResponse);
 
         var refreshRequest = new JwtModel
         {
@@ -165,7 +184,7 @@ public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseInt
 
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
-        var newTokens = await _jsonHelper.GetPayloadAsync<JwtModel>(response);
+        var newTokens = await JsonHelper.GetPayloadAsync<JwtModel>(response);
         newTokens.Should().NotBeNull();
         newTokens!.AccessToken.Should().NotBe(tokens.AccessToken);
         newTokens.RefreshToken.Should().NotBe(tokens.RefreshToken);
@@ -177,10 +196,14 @@ public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseInt
         // Arrange
         var signUpRequest = AccountData.SignUpForSignInRequest;
         await Client.PostAsJsonAsync("account/signup", signUpRequest);
+        await Context.Users
+            .Where(u => !u.IsApprovedByAdmin)
+            .ExecuteUpdateAsync(updates
+                => updates.SetProperty(u => u.IsApprovedByAdmin, true), CancellationToken.None);
 
         var signInRequest = AccountData.SignInRequest;
         var signInResponse = await Client.PostAsJsonAsync("account/signin", signInRequest);
-        var tokens = await _jsonHelper.GetPayloadAsync<JwtModel>(signInResponse);
+        var tokens = await JsonHelper.GetPayloadAsync<JwtModel>(signInResponse);
 
         var refreshRequest = new JwtModel
         {
@@ -202,11 +225,15 @@ public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseInt
         // Arrange
         var signUpRequest = AccountData.SignUpForSignInRequest;
         await Client.PostAsJsonAsync("account/signup", signUpRequest);
+        await Context.Users
+            .Where(u => !u.IsApprovedByAdmin)
+            .ExecuteUpdateAsync(updates
+                => updates.SetProperty(u => u.IsApprovedByAdmin, true), CancellationToken.None);
 
         var signInRequest = AccountData.SignInRequest;
         var signInResponse = await Client.PostAsJsonAsync("account/signin", signInRequest);
 
-        var tokens = await _jsonHelper.GetPayloadAsync<JwtModel>(signInResponse);
+        var tokens = await JsonHelper.GetPayloadAsync<JwtModel>(signInResponse);
 
         var refreshRequest = new JwtModel
         {
@@ -221,7 +248,6 @@ public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseInt
         response.IsSuccessStatusCode.Should().BeFalse();
         response.StatusCode.Should().Be(HttpStatusCode.UpgradeRequired);
     }
-
 
 
     [Fact]
