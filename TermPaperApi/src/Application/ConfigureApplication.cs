@@ -1,3 +1,5 @@
+using System.Net;
+using System.Net.Mail;
 using System.Reflection;
 using System.Text;
 using Application.Common.Behaviours;
@@ -9,8 +11,7 @@ using Application.Services.ReminderService;
 using Application.Services.TokenService;
 using FluentValidation;
 using Hangfire;
-using Hangfire.MemoryStorage;
-using Hangfire.Redis.StackExchange;
+using Hangfire.PostgreSql;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -40,11 +41,14 @@ public static class ConfigureApplication
 
     private static void AddHangfireReminder(this IServiceCollection services, WebApplicationBuilder builder)
     {
-        var redisConnectionString = builder.Configuration["ConnectionStrings:RedisConnection"];
+        var connectionString = builder.Configuration["ConnectionStrings:Default"];
         
         services.AddHangfire(config =>
         {
-            config.UseRedisStorage(redisConnectionString);
+            config.UsePostgreSqlStorage(options =>
+            {
+                options.UseNpgsqlConnection(connectionString);
+            });
         });
 
         services.AddHangfireServer();
@@ -58,13 +62,13 @@ public static class ConfigureApplication
         var password = builder.Configuration["MailSettings:Password"];
 
         services.AddFluentEmail(email)
-            .AddSmtpSender(new System.Net.Mail.SmtpClient
+            .AddSmtpSender(new SmtpClient
             {
                 Host = smtpServer!,
                 Port = smtpPort,
                 EnableSsl = true,
-                Credentials = new System.Net.NetworkCredential(email, password),
-                DeliveryMethod = System.Net.Mail.SmtpDeliveryMethod.Network
+                Credentials = new NetworkCredential(email, password),
+                DeliveryMethod = SmtpDeliveryMethod.Network
             });
     }
 
