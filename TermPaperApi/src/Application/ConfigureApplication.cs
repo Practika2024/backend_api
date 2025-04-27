@@ -10,6 +10,7 @@ using Application.Services.TokenService;
 using FluentValidation;
 using Hangfire;
 using Hangfire.MemoryStorage;
+using Hangfire.Redis.StackExchange;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -30,18 +31,20 @@ public static class ConfigureApplication
         services.AddScoped<EmailVerificationLinkFactory>();
         services.AddHttpContextAccessor();
 
-        services.AddHangfireReminder();
+        services.AddHangfireReminder(builder);
         services.AddServices();
         services.AddJwtTokenAuth(builder);
         services.AddSwaggerAuth();
         services.AddFluentEmailConfirmation(builder);
     }
 
-    private static void AddHangfireReminder(this IServiceCollection services)
+    private static void AddHangfireReminder(this IServiceCollection services, WebApplicationBuilder builder)
     {
+        var redisConnectionString = builder.Configuration["ConnectionStrings:RedisConnection"];
+        
         services.AddHangfire(config =>
         {
-            config.UseMemoryStorage();
+            config.UseRedisStorage(redisConnectionString);
         });
 
         services.AddHangfireServer();

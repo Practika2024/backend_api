@@ -18,6 +18,7 @@ namespace Api.Controllers;
 [Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
 public class UsersController(ISender sender, IUserQueries userQueries, IMapper mapper) : BaseController
 {
+    [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpGet("get-all")]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
@@ -43,7 +44,8 @@ public class UsersController(ISender sender, IUserQueries userQueries, IMapper m
 
         return GetResult(result);
     }
-
+    
+    [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpGet("get-by-id/{userId:guid}")]
     public async Task<IActionResult> Get([FromRoute] Guid userId, CancellationToken cancellationToken)
     {
