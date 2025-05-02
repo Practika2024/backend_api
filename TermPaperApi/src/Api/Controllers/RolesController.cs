@@ -13,13 +13,15 @@ namespace Api.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
 [ApiController]
-public class RolesController(IRoleQueries roleQueries, IMapper mapper) : BaseController
+public class RolesController(IRoleQueries roleQueries, IMapper mapper) : BaseController(mapper)
 {
+    private readonly IMapper _mapper = mapper;
+
     [HttpGet("get-all")]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
         var entities = await roleQueries.GetAll(cancellationToken);
 
-        return GetResult(ServiceResponse.OkResponse("Roles list", entities.Select(mapper.Map<RoleDto>)));
+        return GetResult(ServiceResponse.OkResponse("Roles list", entities.Select(_mapper.Map<RoleDto>)));
     }
 }

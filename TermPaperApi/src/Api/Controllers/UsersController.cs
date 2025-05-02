@@ -16,14 +16,16 @@ namespace Api.Controllers;
 [ApiController]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
-public class UsersController(ISender sender, IUserQueries userQueries, IMapper mapper) : BaseController
+public class UsersController(ISender sender, IUserQueries userQueries, IMapper mapper) : BaseController(mapper)
 {
+    private readonly IMapper _mapper = mapper;
+
     [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpGet("get-all")]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
         var entities = await userQueries.GetAll(cancellationToken);
-        return GetResult(ServiceResponse.OkResponse("Users list", entities.Select(mapper.Map<UserDto>)));
+        return GetResult(ServiceResponse.OkResponse("Users list", entities.Select(_mapper.Map<UserDto>)));
     }
 
     [Authorize(Roles = AuthSettings.AdminRole)]
@@ -31,7 +33,7 @@ public class UsersController(ISender sender, IUserQueries userQueries, IMapper m
     public async Task<IActionResult> GetAllWithoutApproval(CancellationToken cancellationToken)
     {
         var entities = await userQueries.GetAllWithoutApproval(cancellationToken);
-        return GetResult(ServiceResponse.OkResponse("Users without approval", entities.Select(mapper.Map<UserDto>)));
+        return GetResult(ServiceResponse.OkResponse("Users without approval", entities.Select(_mapper.Map<UserDto>)));
     }
 
     [Authorize(Roles = AuthSettings.AdminRole)]
@@ -52,7 +54,7 @@ public class UsersController(ISender sender, IUserQueries userQueries, IMapper m
         var entity = await userQueries.GetById(userId, cancellationToken);
 
         return entity.Match<IActionResult>(
-            p => GetResult(ServiceResponse.OkResponse("User", mapper.Map<UserDto>(p))),
+            p => GetResult(ServiceResponse.OkResponse("User", _mapper.Map<UserDto>(p))),
             () => GetResult(ServiceResponse.NotFoundResponse("User not found")));
     }
 

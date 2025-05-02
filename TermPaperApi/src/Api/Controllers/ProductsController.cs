@@ -3,6 +3,7 @@ using Api.Dtos.Products;
 using Api.Modules.Errors;
 using Application.Commands.Products.Commands;
 using Application.Common.Interfaces.Queries;
+using Application.Products.Commands;
 using Application.Services;
 using Application.Settings;
 using AutoMapper;
@@ -17,13 +18,15 @@ namespace Api.Controllers;
 [ApiController]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
-public class ProductsController(ISender sender, IProductQueries productQueries, IMapper mapper) : BaseController
+public class ProductsController(ISender sender, IProductQueries productQueries, IMapper mapper) : BaseController(mapper)
 {
+    private readonly IMapper _mapper = mapper;
+
     [HttpGet("get-all")]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
         var entities = await productQueries.GetAll(cancellationToken);
-        return GetResult(ServiceResponse.OkResponse("Products list", entities.Select(mapper.Map<ProductDto>).ToList()));
+        return GetResult(ServiceResponse.OkResponse("Products list", entities.Select(_mapper.Map<ProductDto>).ToList()));
     }
 
     [HttpGet("get-by-id/{productId:guid}")]
@@ -33,7 +36,7 @@ public class ProductsController(ISender sender, IProductQueries productQueries, 
         var entity = await productQueries.GetById(productId, cancellationToken);
         
         return entity.Match<IActionResult>(
-            p => GetResult(ServiceResponse.OkResponse("Product", mapper.Map<ProductDto>(p))),
+            p => GetResult(ServiceResponse.OkResponse("Product", _mapper.Map<ProductDto>(p))),
             () =>GetResult(ServiceResponse.NotFoundResponse("Product not found")));
     }
 
@@ -74,7 +77,7 @@ public class ProductsController(ISender sender, IProductQueries productQueries, 
 
         var result = await sender.Send(command, cancellationToken);
 
-        return GetResult(result);
+        return GetResult<ProductDto>(result);
     }
 
     [Authorize(Roles = AuthSettings.AdminRole)]
@@ -101,6 +104,21 @@ public class ProductsController(ISender sender, IProductQueries productQueries, 
         {
             ProductId = productId,
             ImagesFiles = imagesFiles
+        };
+
+        var result = await sender.Send(input, cancellationToken);
+    
+        return GetResult<ProductDto>(result);
+    }
+    
+    [HttpPut("delete-image/{productId:guid}")]
+    public async Task<IActionResult> Upload([FromRoute] Guid productId, Guid productImageId,
+        CancellationToken cancellationToken)
+    {
+        var input = new DeleteProductImageCommand()
+        {
+            ProductId = productId,
+            ProductImageId = productImageId
         };
 
         var result = await sender.Send(input, cancellationToken);

@@ -15,13 +15,15 @@ namespace Api.Controllers;
 [ApiController]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
-public class RemindersController(ISender sender, IReminderQueries reminderQueries, IMapper mapper) : BaseController
+public class RemindersController(ISender sender, IReminderQueries reminderQueries, IMapper mapper) : BaseController(mapper)
 {
+    private readonly IMapper _mapper = mapper;
+
     [HttpGet("get-all")]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
         var entities = await reminderQueries.GetAll(cancellationToken);
-        return GetResult(ServiceResponse.OkResponse("Reminders list", entities.Select(mapper.Map<ReminderDto>)));
+        return GetResult(ServiceResponse.OkResponse("Reminders list", entities.Select(_mapper.Map<ReminderDto>)));
     }
 
     [HttpGet("get-by-id/{reminderId:guid}")]
@@ -30,7 +32,7 @@ public class RemindersController(ISender sender, IReminderQueries reminderQuerie
     {
         var entity = await reminderQueries.GetById(reminderId, cancellationToken);
         return entity.Match<IActionResult>(
-            p => GetResult(ServiceResponse.OkResponse("Reminder", mapper.Map<ReminderDto>(p))),
+            p => GetResult(ServiceResponse.OkResponse("Reminder", _mapper.Map<ReminderDto>(p))),
             () => GetResult(ServiceResponse.NotFoundResponse("Reminder not found")));
     }
 

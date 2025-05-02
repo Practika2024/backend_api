@@ -16,13 +16,15 @@ namespace Api.Controllers;
 [ApiController]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
-public class ContainersController(ISender sender, IContainerQueries containerQueries, IMapper mapper) : BaseController
+public class ContainersController(ISender sender, IContainerQueries containerQueries, IMapper mapper) : BaseController(mapper)
 {
+    private readonly IMapper _mapper = mapper;
+
     [HttpGet("get-all")]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
         var entities = await containerQueries.GetAll(cancellationToken);
-        return GetResult(ServiceResponse.OkResponse("Containers list", entities.Select(mapper.Map<ContainerDto>)));
+        return GetResult(ServiceResponse.OkResponse("Containers list", entities.Select(_mapper.Map<ContainerDto>)));
     }
 
     [HttpGet("get-by-id/{containerId:guid}")]
@@ -32,7 +34,7 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
         var entity = await containerQueries.GetById(containerId, cancellationToken);
 
         return entity.Match<IActionResult>(
-            p => GetResult(ServiceResponse.OkResponse("Container", mapper.Map<ContainerDto>(p))),
+            p => GetResult(ServiceResponse.OkResponse("Container", _mapper.Map<ContainerDto>(p))),
             () => GetResult(ServiceResponse.NotFoundResponse("Container not found")));
     }
     
@@ -42,7 +44,7 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
         CancellationToken cancellationToken)
     {
         var containers = await containerQueries.GetContainersByFillStatus(isEmpty, cancellationToken);
-        return GetResult(ServiceResponse.OkResponse("Containers list", containers.Select(mapper.Map<ContainerDto>)));
+        return GetResult(ServiceResponse.OkResponse("Containers list", containers.Select(_mapper.Map<ContainerDto>)));
     }
 
     [HttpGet("get-by-product-type/{productTypeId:guid}")]
@@ -51,7 +53,7 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
         CancellationToken cancellationToken)
     {
         var containers = await containerQueries.GetContainersByProductType(productTypeId, cancellationToken);
-        return GetResult(ServiceResponse.OkResponse("Containers list", containers.Select(mapper.Map<ContainerDto>)));
+        return GetResult(ServiceResponse.OkResponse("Containers list", containers.Select(_mapper.Map<ContainerDto>)));
     }
 
     [HttpGet("get-by-product/{productId:guid}")]
@@ -60,7 +62,7 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
         CancellationToken cancellationToken)
     {
         var containers = await containerQueries.GetContainersByProduct(productId, cancellationToken);
-        return GetResult(ServiceResponse.OkResponse("Containers list", containers.Select(mapper.Map<ContainerDto>)));
+        return GetResult(ServiceResponse.OkResponse("Containers list", containers.Select(_mapper.Map<ContainerDto>)));
     }
 
     [HttpGet("get-empty-by-last-product/{lastProductId:guid}")]
@@ -69,7 +71,7 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
         CancellationToken cancellationToken)
     {
         var containers = await containerQueries.GetEmptyContainersByLastProduct(lastProductId, cancellationToken);
-        return GetResult(ServiceResponse.OkResponse("Containers list", containers.Select(mapper.Map<ContainerDto>)));
+        return GetResult(ServiceResponse.OkResponse("Containers list", containers.Select(_mapper.Map<ContainerDto>)));
     }
 
     [HttpGet("get-unique-code-id/{uniqueCode}")]
@@ -79,7 +81,7 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
         var entity = await containerQueries.GetByUniqueCode(uniqueCode, cancellationToken);
 
         return entity.Match<IActionResult>(
-            p => GetResult(ServiceResponse.OkResponse("Container", mapper.Map<ContainerDto>(p))),
+            p => GetResult(ServiceResponse.OkResponse("Container", _mapper.Map<ContainerDto>(p))),
             () => GetResult(ServiceResponse.NotFoundResponse("Container not found")));
     }
 

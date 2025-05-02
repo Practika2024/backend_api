@@ -17,14 +17,16 @@ namespace Api.Controllers;
 [Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
 [ApiController]
 public class ProductsTypeController(ISender sender, IProductTypeQueries productTypeQueries, IMapper mapper)
-    : BaseController
+    : BaseController(mapper)
 {
+    private readonly IMapper _mapper = mapper;
+
     [HttpGet("get-all")]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
         var entities = await productTypeQueries.GetAll(cancellationToken);
         return GetResult(ServiceResponse
-            .OkResponse("Products types list", entities.Select(mapper.Map<ProductTypeDto>).ToList()));
+            .OkResponse("Products types list", entities.Select(_mapper.Map<ProductTypeDto>).ToList()));
     }
 
     [HttpGet("get-by-id/{productTypeId:guid}")]
@@ -34,7 +36,7 @@ public class ProductsTypeController(ISender sender, IProductTypeQueries productT
         var entity = await productTypeQueries.GetById(productTypeId, cancellationToken);
 
         return entity.Match(
-            p => GetResult(ServiceResponse.OkResponse("Product type", mapper.Map<ProductTypeDto>(p))),
+            p => GetResult(ServiceResponse.OkResponse("Product type", _mapper.Map<ProductTypeDto>(p))),
             () => GetResult(ServiceResponse.NotFoundResponse("Product type not found")));
     }
 

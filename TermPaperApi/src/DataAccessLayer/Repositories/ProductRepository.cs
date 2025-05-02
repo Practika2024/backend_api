@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using System.Net.Mime;
 using Application.Common.Interfaces.Queries;
 using Application.Common.Interfaces.Repositories;
 using AutoMapper;
@@ -28,13 +29,12 @@ public class ProductRepository(ApplicationDbContext context, IMapper mapper)
     public async Task<Product> Update(UpdateProductModel model, CancellationToken cancellationToken)
     {
         var productEntity = await GetProductAsync(x => x.Id == model.Id, cancellationToken);
-
-        if (productEntity == null)
-        {
-            throw new InvalidOperationException("Product not found.");
-        }
+        
+        var images = new List<ProductImageEntity>(productEntity!.Images);
 
         mapper.Map(model, productEntity);
+        
+        productEntity.Images.AddRange(images);
 
         await context.SaveChangesAsync(cancellationToken);
 
@@ -59,6 +59,7 @@ public class ProductRepository(ApplicationDbContext context, IMapper mapper)
     public async Task<IReadOnlyList<Product>> GetAll(CancellationToken cancellationToken)
     {
         var productEntities = await context.Products
+            .Include(p => p.Images)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 
@@ -91,6 +92,7 @@ public class ProductRepository(ApplicationDbContext context, IMapper mapper)
         }
 
         return await context.Products
+            .Include(p => p.Images)
             .FirstOrDefaultAsync(predicate, cancellationToken);
     }
 }

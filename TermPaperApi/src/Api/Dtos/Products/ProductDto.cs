@@ -1,4 +1,6 @@
-﻿namespace Api.Dtos.Products;
+﻿using Domain.Products;
+
+namespace Api.Dtos.Products;
 
 public record ProductDto
 {
@@ -7,4 +9,5 @@ public record ProductDto
     public string? Description { get; init; }
     public DateTime ManufactureDate { get; init; }
     public Guid TypeId { get; init; }
+    public List<ProductImageDto>? Images { get; init; }
 }

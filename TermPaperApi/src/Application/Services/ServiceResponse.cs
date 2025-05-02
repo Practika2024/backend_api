@@ -7,7 +7,7 @@ namespace Application.Services
     {
         public string Message { get; set; }
         public bool Success { get; set; }
-        public object? Payload { get; set; }
+        public dynamic? Payload { get; set; }
         public HttpStatusCode StatusCode { get; set; }
 
         public static ServiceResponse GetResponse(string message, bool success, object? payload, HttpStatusCode statusCode)

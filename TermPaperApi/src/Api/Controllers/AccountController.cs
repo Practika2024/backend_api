@@ -10,8 +10,10 @@ namespace Api.Controllers;
 
 [Route("account")]
 [ApiController]
-public class AccountController(ISender sender, IMapper mapper) : BaseController
+public class AccountController(ISender sender, IMapper mapper) : BaseController(mapper)
 {
+    private readonly IMapper _mapper = mapper;
+
     [HttpPost("signup")]
     public async Task<IActionResult> SignUpAsync(
         [FromBody] SignUpDto request,
@@ -64,7 +66,7 @@ public class AccountController(ISender sender, IMapper mapper) : BaseController
     [HttpPost("externalLogin")]
     public async Task<IActionResult> GoogleExternalLoginAsync([FromBody] ExternalLoginDto model, CancellationToken cancellationToken)
     {
-        var command = new GoogleExternalLoginCommand { Model = mapper.Map<ExternalLoginModel>(model) };
+        var command = new GoogleExternalLoginCommand { Model = _mapper.Map<ExternalLoginModel>(model) };
         var result = await sender.Send(command, cancellationToken);
 
         return GetResult(result);

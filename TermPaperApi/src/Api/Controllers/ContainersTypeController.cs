@@ -17,15 +17,17 @@ namespace Api.Controllers;
 [Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
 [ApiController]
 public class ContainersTypeController(ISender sender, IContainerTypeQueries containerTypeQueries, IMapper mapper)
-    : BaseController
+    : BaseController(mapper)
 {
+    private readonly IMapper _mapper = mapper;
+
     [HttpGet("get-all")]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
         var entities = await containerTypeQueries.GetAll(cancellationToken);
         
         return GetResult(ServiceResponse.OkResponse("Containers types list",
-            entities.Select(mapper.Map<ContainerTypeDto>)));
+            entities.Select(_mapper.Map<ContainerTypeDto>)));
     }
 
     [HttpGet("get-by-id/{containerTypeId:guid}")]
@@ -35,7 +37,7 @@ public class ContainersTypeController(ISender sender, IContainerTypeQueries cont
         var entity = await containerTypeQueries.GetById(containerTypeId, cancellationToken);
 
         return entity.Match<IActionResult>(
-            p => GetResult(ServiceResponse.OkResponse("Container type", mapper.Map<ContainerTypeDto>(p))),
+            p => GetResult(ServiceResponse.OkResponse("Container type", _mapper.Map<ContainerTypeDto>(p))),
             () => GetResult(ServiceResponse.NotFoundResponse("Container type not found")));
     }
 
