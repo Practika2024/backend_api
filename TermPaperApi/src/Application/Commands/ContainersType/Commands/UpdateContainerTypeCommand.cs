@@ -2,13 +2,14 @@
 using Application.Common;
 using Application.Common.Interfaces;
 using Application.Common.Interfaces.Repositories;
+using Application.Services;
 using Domain.ContainerTypes;
 using Domain.ContainerTypes.Models;
 using MediatR;
 
 namespace Application.Commands.ContainersType.Commands;
 
-public record UpdateContainerTypeCommand : IRequest<Result<ContainerType, ContainerTypeException>>
+public record UpdateContainerTypeCommand : IRequest<ServiceResponse>
 {
     public Guid Id { get; set; }
     public string Name { get; init; }
@@ -16,9 +17,9 @@ public record UpdateContainerTypeCommand : IRequest<Result<ContainerType, Contai
 
 public class UpdateContainerTypeCommandHandler(
     IContainerTypeRepository containerTypeRepository, IUserProvider userProvider)
-    : IRequestHandler<UpdateContainerTypeCommand, Result<ContainerType, ContainerTypeException>>
+    : IRequestHandler<UpdateContainerTypeCommand, ServiceResponse>
 {
-    public async Task<Result<ContainerType, ContainerTypeException>> Handle(
+    public async Task<ServiceResponse> Handle(
         UpdateContainerTypeCommand request,
         CancellationToken cancellationToken)
     {
@@ -39,15 +40,15 @@ public class UpdateContainerTypeCommandHandler(
                         ModifiedBy = userId,
                     };
                     var updatedContainer = await containerTypeRepository.Update(updateContainerModel, cancellationToken);
-                    return updatedContainer;
+                    return ServiceResponse.OkResponse("Container type updated", updatedContainer);
                 }
                 catch (ContainerTypeException exception)
                 {
-                    return new ContainerUnknownException(containerTypeId, exception);
+                    return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
                 }
             },
-            () => Task.FromResult<Result<ContainerType, ContainerTypeException>>(
-                new ContainerTypeNotFoundException(containerTypeId))
+            () => Task.FromResult<ServiceResponse>(
+                ServiceResponse.NotFoundResponse("Container type not found"))
         );
     }
 }

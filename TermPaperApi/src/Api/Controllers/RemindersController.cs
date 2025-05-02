@@ -1,6 +1,7 @@
 ﻿using Api.Dtos.Reminders;
 using Application.Commands.Reminders.Commands;
 using Application.Common.Interfaces.Queries;
+using Application.Services;
 using Application.Settings;
 using AutoMapper;
 using MediatR;
@@ -14,27 +15,27 @@ namespace Api.Controllers;
 [ApiController]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
-public class RemindersController(ISender sender, IReminderQueries reminderQueries, IMapper mapper) : ControllerBase
+public class RemindersController(ISender sender, IReminderQueries reminderQueries, IMapper mapper) : BaseController
 {
     [HttpGet("get-all")]
-    public async Task<ActionResult<IReadOnlyList<ReminderDto>>> GetAll(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
         var entities = await reminderQueries.GetAll(cancellationToken);
-        return Ok(entities.Select(mapper.Map<ReminderDto>).ToList());
+        return GetResult(ServiceResponse.OkResponse("Reminders list", entities.Select(mapper.Map<ReminderDto>)));
     }
 
     [HttpGet("get-by-id/{reminderId:guid}")]
-    public async Task<ActionResult<ReminderDto>> GetById([FromRoute] Guid reminderId,
+    public async Task<IActionResult> GetById([FromRoute] Guid reminderId,
         CancellationToken cancellationToken)
     {
         var entity = await reminderQueries.GetById(reminderId, cancellationToken);
-        return entity.Match<ActionResult<ReminderDto>>(
-            p => Ok(mapper.Map<ReminderDto>(p)),
-            () => NotFound());
+        return entity.Match<IActionResult>(
+            p => GetResult(ServiceResponse.OkResponse("Reminder", mapper.Map<ReminderDto>(p))),
+            () => GetResult(ServiceResponse.NotFoundResponse("Reminder not found")));
     }
 
     [HttpPost("add/{containerId}")]
-    public async Task<ActionResult<ReminderDto>> AddReminderToContainer(
+    public async Task<IActionResult> AddReminderToContainer(
         [FromRoute] Guid containerId,
         [FromBody] AddReminderToContainerDto model,
         CancellationToken cancellationToken)
@@ -49,13 +50,11 @@ public class RemindersController(ISender sender, IReminderQueries reminderQuerie
 
         var result = await sender.Send(command, cancellationToken);
 
-        return result.Match<ActionResult<ReminderDto>>(
-            dto => CreatedAtAction(nameof(GetById), new { reminderId = dto.Id }, dto),
-            e => Problem(e.Message));
+        return GetResult(result);
     }
 
     [HttpPut("update/{reminderId:guid}")]
-    public async Task<ActionResult<ReminderDto>> UpdateReminder(
+    public async Task<IActionResult> UpdateReminder(
         [FromRoute] Guid reminderId,
         [FromBody] UpdateReminderDto model,
         CancellationToken cancellationToken)
@@ -70,9 +69,7 @@ public class RemindersController(ISender sender, IReminderQueries reminderQuerie
 
         var result = await sender.Send(command, cancellationToken);
 
-        return result.Match<ActionResult<ReminderDto>>(
-            dto => Ok(mapper.Map<ReminderDto>(dto)),
-            e => Problem(e.Message));
+        return GetResult(result);
     }
 
     [HttpDelete("delete/{reminderId:guid}")]
@@ -87,8 +84,6 @@ public class RemindersController(ISender sender, IReminderQueries reminderQuerie
 
         var result = await sender.Send(command, cancellationToken);
 
-        return result.Match<IActionResult>(
-            _ => NoContent(),
-            e => Problem(e.Message));
+        return GetResult(result);
     }
 }

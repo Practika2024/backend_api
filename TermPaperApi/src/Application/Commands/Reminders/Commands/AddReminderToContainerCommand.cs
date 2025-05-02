@@ -3,6 +3,7 @@ using Application.Common;
 using Application.Common.Interfaces;
 using Application.Common.Interfaces.Queries;
 using Application.Common.Interfaces.Repositories;
+using Application.Services;
 using Application.Services.ReminderService;
 using Domain.Reminders;
 using Domain.Reminders.Models;
@@ -11,7 +12,7 @@ using Optional.Unsafe;
 
 namespace Application.Commands.Reminders.Commands;
 
-public record AddReminderToContainerCommand : IRequest<Result<Reminder, ReminderException>>
+public record AddReminderToContainerCommand : IRequest<ServiceResponse>
 {
     public required Guid ContainerId { get; init; }
     public required string Title { get; init; } = null!;
@@ -25,9 +26,9 @@ public class AddReminderToContainerCommandHandler(
     IUserProvider userProvider,
     IReminderService reminderService,
     IUserQueries userQueries)
-    : IRequestHandler<AddReminderToContainerCommand, Result<Reminder, ReminderException>>
+    : IRequestHandler<AddReminderToContainerCommand, ServiceResponse>
 {
-    public async Task<Result<Reminder, ReminderException>> Handle(
+    public async Task<ServiceResponse> Handle(
         AddReminderToContainerCommand request,
         CancellationToken cancellationToken)
     {
@@ -62,15 +63,15 @@ public class AddReminderToContainerCommandHandler(
                             createdReminder.Title, reminderTime);
                     }
 
-                    return createdReminder;
+                    return ServiceResponse.OkResponse("Reminder", createdReminder);
                 }
                 catch (ReminderException exception)
                 {
-                    return new ReminderUnknownException(reminderId, exception);
+                    return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
                 }
             },
-            () => Task.FromResult<Result<Reminder, ReminderException>>(
-                new ContainerForReminderNotFoundException(reminderId))
+            () => Task.FromResult(
+                ServiceResponse.NotFoundResponse("Container not found"))
         );
     }
 }

@@ -2,6 +2,7 @@
 using Api.Modules.Errors;
 using Application.Commands.Containers.Commands;
 using Application.Common.Interfaces.Queries;
+using Application.Services;
 using Application.Settings;
 using AutoMapper;
 using MediatR;
@@ -15,76 +16,76 @@ namespace Api.Controllers;
 [ApiController]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
-public class ContainersController(ISender sender, IContainerQueries containerQueries, IMapper mapper) : ControllerBase
+public class ContainersController(ISender sender, IContainerQueries containerQueries, IMapper mapper) : BaseController
 {
     [HttpGet("get-all")]
-    public async Task<ActionResult<IReadOnlyList<ContainerDto>>> GetAll(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
         var entities = await containerQueries.GetAll(cancellationToken);
-        return Ok(entities.Select(mapper.Map<ContainerDto>).ToList());
+        return GetResult(ServiceResponse.OkResponse("Containers list", entities.Select(mapper.Map<ContainerDto>)));
     }
 
     [HttpGet("get-by-id/{containerId:guid}")]
-    public async Task<ActionResult<ContainerDto>> GetById([FromRoute] Guid containerId,
+    public async Task<IActionResult> GetById([FromRoute] Guid containerId,
         CancellationToken cancellationToken)
     {
         var entity = await containerQueries.GetById(containerId, cancellationToken);
 
-        return entity.Match<ActionResult<ContainerDto>>(
-            p => Ok(mapper.Map<ContainerDto>(p)),
-            () => NotFound());
+        return entity.Match<IActionResult>(
+            p => GetResult(ServiceResponse.OkResponse("Container", mapper.Map<ContainerDto>(p))),
+            () => GetResult(ServiceResponse.NotFoundResponse("Container not found")));
     }
     
     [HttpGet("get-by-fill-status/{isEmpty:bool}")]
-    public async Task<ActionResult<IReadOnlyList<ContainerDto>>> GetContainersByFillStatus(
+    public async Task<IActionResult> GetContainersByFillStatus(
         [FromRoute] bool isEmpty,
         CancellationToken cancellationToken)
     {
         var containers = await containerQueries.GetContainersByFillStatus(isEmpty, cancellationToken);
-        return Ok(containers.Select(mapper.Map<ContainerDto>).ToList());
+        return GetResult(ServiceResponse.OkResponse("Containers list", containers.Select(mapper.Map<ContainerDto>)));
     }
 
     [HttpGet("get-by-product-type/{productTypeId:guid}")]
-    public async Task<ActionResult<IReadOnlyList<ContainerDto>>> GetContainersByProductType(
+    public async Task<IActionResult> GetContainersByProductType(
         [FromRoute] Guid productTypeId,
         CancellationToken cancellationToken)
     {
         var containers = await containerQueries.GetContainersByProductType(productTypeId, cancellationToken);
-        return Ok(containers.Select(mapper.Map<ContainerDto>).ToList());
+        return GetResult(ServiceResponse.OkResponse("Containers list", containers.Select(mapper.Map<ContainerDto>)));
     }
 
     [HttpGet("get-by-product/{productId:guid}")]
-    public async Task<ActionResult<IReadOnlyList<ContainerDto>>> GetContainersByProduct(
+    public async Task<IActionResult> GetContainersByProduct(
         [FromRoute] Guid productId,
         CancellationToken cancellationToken)
     {
         var containers = await containerQueries.GetContainersByProduct(productId, cancellationToken);
-        return Ok(containers.Select(mapper.Map<ContainerDto>).ToList());
+        return GetResult(ServiceResponse.OkResponse("Containers list", containers.Select(mapper.Map<ContainerDto>)));
     }
 
     [HttpGet("get-empty-by-last-product/{lastProductId:guid}")]
-    public async Task<ActionResult<IReadOnlyList<ContainerDto>>> GetEmptyContainersByLastProduct(
+    public async Task<IActionResult> GetEmptyContainersByLastProduct(
         [FromRoute] Guid lastProductId,
         CancellationToken cancellationToken)
     {
         var containers = await containerQueries.GetEmptyContainersByLastProduct(lastProductId, cancellationToken);
-        return Ok(containers.Select(mapper.Map<ContainerDto>).ToList());
+        return GetResult(ServiceResponse.OkResponse("Containers list", containers.Select(mapper.Map<ContainerDto>)));
     }
 
     [HttpGet("get-unique-code-id/{uniqueCode}")]
-    public async Task<ActionResult<ContainerDto>> GetById([FromRoute] string uniqueCode,
+    public async Task<IActionResult> GetById([FromRoute] string uniqueCode,
         CancellationToken cancellationToken)
     {
         var entity = await containerQueries.GetByUniqueCode(uniqueCode, cancellationToken);
 
-        return entity.Match<ActionResult<ContainerDto>>(
-            p => Ok(mapper.Map<ContainerDto>(p)),
-            () => NotFound());
+        return entity.Match<IActionResult>(
+            p => GetResult(ServiceResponse.OkResponse("Container", mapper.Map<ContainerDto>(p))),
+            () => GetResult(ServiceResponse.NotFoundResponse("Container not found")));
     }
 
     [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpPost("add")]
-    public async Task<ActionResult<ContainerDto>> AddContainer(
+    public async Task<IActionResult> AddContainer(
         [FromBody] CreateContainerDto model,
         CancellationToken cancellationToken)
     {
@@ -98,14 +99,12 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
 
         var result = await sender.Send(command, cancellationToken);
 
-        return result.Match<ActionResult<ContainerDto>>(
-            dto => mapper.Map<ContainerDto>(dto),
-            e => e.ToObjectResult());
+        return GetResult(result);
     }
 
     [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpPut("update/{containerId:guid}")]
-    public async Task<ActionResult<ContainerDto>> UpdateContainer(
+    public async Task<IActionResult> UpdateContainer(
         [FromRoute] Guid containerId,
         [FromBody] UpdateContainerDto model,
         CancellationToken cancellationToken)
@@ -120,14 +119,12 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
 
         var result = await sender.Send(command, cancellationToken);
 
-        return result.Match<ActionResult<ContainerDto>>(
-            dto => Ok(mapper.Map<ContainerDto>(dto)),
-            e => e.ToObjectResult());
+        return GetResult(result);
     }
 
     [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpDelete("delete/{containerId:guid}")]
-    public async Task<ActionResult<ContainerDto>> DeleteContainer(
+    public async Task<IActionResult> DeleteContainer(
         [FromRoute] Guid containerId,
         CancellationToken cancellationToken)
     {
@@ -138,13 +135,11 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
 
         var result = await sender.Send(command, cancellationToken);
 
-        return result.Match<ActionResult<ContainerDto>>(
-            dto => Ok(mapper.Map<ContainerDto>(dto)),
-            e => e.ToObjectResult());
+        return GetResult(result);
     }
     
     [HttpPut("set-content/{containerId:guid}")]
-    public async Task<ActionResult<ContainerDto>> SetContainerContent(
+    public async Task<IActionResult> SetContainerContent(
         [FromRoute] Guid containerId,
         [FromBody] SetContainerContentDto model,
         CancellationToken cancellationToken)
@@ -157,13 +152,11 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
 
         var result = await sender.Send(command, cancellationToken);
 
-        return result.Match<ActionResult<ContainerDto>>(
-            dto => Ok(mapper.Map<ContainerDto>(dto)),
-            e => e.ToObjectResult());
+        return GetResult(result);
     }
     
     [HttpPut("clear-content/{containerId:guid}")]
-    public async Task<ActionResult<ContainerDto>> ClearContainerContent(
+    public async Task<IActionResult> ClearContainerContent(
         [FromRoute] Guid containerId,
         CancellationToken cancellationToken)
     {
@@ -174,8 +167,6 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
 
         var result = await sender.Send(command, cancellationToken);
 
-        return result.Match<ActionResult<ContainerDto>>(
-            dto => Ok(mapper.Map<ContainerDto>(dto)),
-            e => e.ToObjectResult());
+        return GetResult(result);
     }
 }

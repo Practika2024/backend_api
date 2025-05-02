@@ -11,7 +11,7 @@ using Tests.Common;
 using Tests.Data;
 using Xunit;
 
-namespace Api.Tests.Integration.ProductTypes;
+namespace Api.Tests.Integration;
 
 public class ProductTypeControllerTests : BaseIntegrationTest, IAsyncLifetime
 {
@@ -35,7 +35,7 @@ public class ProductTypeControllerTests : BaseIntegrationTest, IAsyncLifetime
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
 
-        var productTypeFromResponse = await response.ToResponseModel<ProductTypeDto>();
+        var productTypeFromResponse = await JsonHelper.GetPayloadAsync<ProductTypeDto>(response);
         var productTypeId = productTypeFromResponse.Id!.Value;
 
         var productTypeFromDatabase = await Context.ProductTypes.FirstOrDefaultAsync(x => x.Id == productTypeId);
@@ -99,7 +99,7 @@ public class ProductTypeControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         response.IsSuccessStatusCode.Should().BeTrue();
 
-        var products = await response.ToResponseModel<List<ProductTypeDto>>();
+        var products = await JsonHelper.GetPayloadAsync<List<ProductTypeDto>>(response);
         products.Should().NotBeEmpty();
     }
 

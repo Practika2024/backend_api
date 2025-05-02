@@ -2,21 +2,22 @@ using Application.Commands.Users.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Queries;
 using Application.Common.Interfaces.Repositories;
+using Application.Services;
 using Domain.Users;
 using Domain.Users.Models;
 using MediatR;
 
 namespace Application.Commands.Users.Commands;
-public record ChangeRoleForUserCommand : IRequest<Result<User, UserException>>
+public record ChangeRoleForUserCommand : IRequest<ServiceResponse>
 {
     public required Guid UserId { get; init; }
     public string RoleId { get; init; }
 }
 
 public class ChangeRoleForUserCommandHandler(
-    IUserRepository userRepository, IRoleQueries roleQueries) : IRequestHandler<ChangeRoleForUserCommand, Result<User, UserException>>
+    IUserRepository userRepository, IRoleQueries roleQueries) : IRequestHandler<ChangeRoleForUserCommand, ServiceResponse>
 {
-    public async Task<Result<User, UserException>> Handle(
+    public async Task<ServiceResponse> Handle(
         ChangeRoleForUserCommand request,
         CancellationToken cancellationToken)
     {
@@ -24,12 +25,12 @@ public class ChangeRoleForUserCommandHandler(
         var existingUser = await userRepository.GetById(userId, cancellationToken);
 
         return await existingUser.Match(
-            async user =>
+            async _ =>
             {
                 var existingRole = await roleQueries.GetByName(request.RoleId, cancellationToken);
 
                 return await existingRole.Match(
-                    async role =>
+                    async _ =>
                     {
                         try
                         {
@@ -39,16 +40,16 @@ public class ChangeRoleForUserCommandHandler(
                                 RoleId = request.RoleId
                             };
                             var updatedUser = await userRepository.UpdateRole(updateRolesModel, cancellationToken);
-                            return updatedUser;
+                            return ServiceResponse.OkResponse("User updated", updatedUser);
                         }
                         catch (Exception exception)
                         {
-                            return new UserUnknownException(user.Id, exception);
+                            return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
                         }
                     }, 
-                    () => Task.FromResult<Result<User, UserException>>(new RoleNotFoundException(request.RoleId)));
+                    () => Task.FromResult(ServiceResponse.NotFoundResponse("Role not found")));
                 },
-            () => Task.FromResult<Result<User, UserException>>(new UserNotFoundException(userId))
+            () => Task.FromResult(ServiceResponse.NotFoundResponse("User not found"))
         );
     }
 }

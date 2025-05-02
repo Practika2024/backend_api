@@ -11,7 +11,7 @@ using Tests.Common;
 using Tests.Data;
 using Xunit;
 
-namespace Api.Tests.Integration.Users;
+namespace Api.Tests.Integration;
 
 public class UsersControllerTests : BaseIntegrationTest, IAsyncLifetime
 {
@@ -30,7 +30,7 @@ public class UsersControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
-        var users = await response.Content.ReadFromJsonAsync<List<UserDto>>();
+        var users = await JsonHelper.GetPayloadAsync<List<UserDto>>(response);
         users.Should().NotBeNull();
     }
 
@@ -45,7 +45,8 @@ public class UsersControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
-        var user = await response.Content.ReadFromJsonAsync<UserDto>();
+        // var user = await JsonHelper.GetPayloadAsync<UserDto>(response);
+        var user = await JsonHelper.GetPayloadAsync<UserDto>(response);
         user.Should().NotBeNull();
         user!.Id.Should().Be(userId);
     }
@@ -81,7 +82,7 @@ public class UsersControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
-        var createdUser = await response.Content.ReadFromJsonAsync<UserDto>();
+        var createdUser = await JsonHelper.GetPayloadAsync<UserDto>(response);
         createdUser.Should().NotBeNull();
         createdUser!.Email.Should().Be(newUser.Email);
     }
@@ -106,7 +107,7 @@ public class UsersControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
-        var updatedUser = await response.Content.ReadFromJsonAsync<UserDto>();
+        var updatedUser = await JsonHelper.GetPayloadAsync<UserDto>(response);
 
         var userFromDatabase = await Context.Users
             .FirstOrDefaultAsync(x => x.Id == updatedUser!.Id);
@@ -127,7 +128,7 @@ public class UsersControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
-        var updatedUser = await response.Content.ReadFromJsonAsync<UserDto>();
+        var updatedUser = await JsonHelper.GetPayloadAsync<UserDto>(response);
 
         var userFromDatabase = await Context.Users
             .FirstOrDefaultAsync(x => x.Id == updatedUser!.Id);

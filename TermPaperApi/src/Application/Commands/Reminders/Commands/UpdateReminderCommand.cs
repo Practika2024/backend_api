@@ -1,13 +1,14 @@
 ﻿using Application.Commands.Reminders.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
+using Application.Services;
 using Domain.Reminders;
 using Domain.Reminders.Models;
 using MediatR;
 
 namespace Application.Commands.Reminders.Commands;
 
-public record UpdateReminderCommand : IRequest<Result<Reminder, ReminderException>>
+public record UpdateReminderCommand : IRequest<ServiceResponse>
 {
     public required Guid Id { get; init; }
     public string? Title { get; init; }
@@ -16,9 +17,9 @@ public record UpdateReminderCommand : IRequest<Result<Reminder, ReminderExceptio
 }
 
 public class UpdateReminderCommandHandler(
-    IReminderRepository reminderRepository) : IRequestHandler<UpdateReminderCommand, Result<Reminder, ReminderException>>
+    IReminderRepository reminderRepository) : IRequestHandler<UpdateReminderCommand, ServiceResponse>
 {
-    public async Task<Result<Reminder, ReminderException>> Handle(
+    public async Task<ServiceResponse> Handle(
         UpdateReminderCommand request,
         CancellationToken cancellationToken)
     {
@@ -39,15 +40,15 @@ public class UpdateReminderCommandHandler(
                     };
 
                     var updatedReminder = await reminderRepository.Update(updateModel, cancellationToken);
-                    return updatedReminder;
+                    return ServiceResponse.OkResponse("Reminder updated", updatedReminder);
                 }
                 catch (ReminderException exception)
                 {
-                    return new ReminderUnknownException(reminderId, exception);
+                    return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
                 }
             },
-            () => Task.FromResult<Result<Reminder, ReminderException>>(
-                new ReminderNotFoundException(reminderId))
+            () => Task.FromResult(
+                ServiceResponse.NotFoundResponse("Reminder not found"))
         );
     }
 }

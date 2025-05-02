@@ -2,6 +2,7 @@
 using Api.Modules.Errors;
 using Application.Commands.ContainersType.Commands;
 using Application.Common.Interfaces.Queries;
+using Application.Services;
 using Application.Settings;
 using AutoMapper;
 using MediatR;
@@ -16,29 +17,31 @@ namespace Api.Controllers;
 [Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
 [ApiController]
 public class ContainersTypeController(ISender sender, IContainerTypeQueries containerTypeQueries, IMapper mapper)
-    : ControllerBase
+    : BaseController
 {
     [HttpGet("get-all")]
-    public async Task<ActionResult<IReadOnlyList<ContainerTypeDto>>> GetAll(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
         var entities = await containerTypeQueries.GetAll(cancellationToken);
-        return Ok(entities.Select(mapper.Map<ContainerTypeDto>).ToList());
+        
+        return GetResult(ServiceResponse.OkResponse("Containers types list",
+            entities.Select(mapper.Map<ContainerTypeDto>)));
     }
 
     [HttpGet("get-by-id/{containerTypeId:guid}")]
-    public async Task<ActionResult<ContainerTypeDto>> GetById([FromRoute] Guid containerTypeId,
+    public async Task<IActionResult> GetById([FromRoute] Guid containerTypeId,
         CancellationToken cancellationToken)
     {
         var entity = await containerTypeQueries.GetById(containerTypeId, cancellationToken);
 
-        return entity.Match<ActionResult<ContainerTypeDto>>(
-            p => Ok(mapper.Map<ContainerTypeDto>(p)),
-            () => NotFound());
+        return entity.Match<IActionResult>(
+            p => GetResult(ServiceResponse.OkResponse("Container type", mapper.Map<ContainerTypeDto>(p))),
+            () => GetResult(ServiceResponse.NotFoundResponse("Container type not found")));
     }
 
     [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpPost("add")]
-    public async Task<ActionResult<ContainerTypeDto>> AddContainerType(
+    public async Task<IActionResult> AddContainerType(
         [FromBody] CreateUpdateContainerTypeDto model,
         CancellationToken cancellationToken)
     {
@@ -49,14 +52,12 @@ public class ContainersTypeController(ISender sender, IContainerTypeQueries cont
 
         var result = await sender.Send(command, cancellationToken);
 
-        return result.Match<ActionResult<ContainerTypeDto>>(
-            dto => mapper.Map<ContainerTypeDto>(dto),
-            e => e.ToObjectResult());
+        return GetResult(result);
     }
 
     [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpPut("update/{containerId:guid}")]
-    public async Task<ActionResult<ContainerTypeDto>> UpdateContainerType(
+    public async Task<IActionResult> UpdateContainerType(
         [FromRoute] Guid containerId,
         [FromBody] CreateUpdateContainerTypeDto model,
         CancellationToken cancellationToken)
@@ -69,14 +70,12 @@ public class ContainersTypeController(ISender sender, IContainerTypeQueries cont
 
         var result = await sender.Send(command, cancellationToken);
 
-        return result.Match<ActionResult<ContainerTypeDto>>(
-            dto => Ok(mapper.Map<ContainerTypeDto>(dto)),
-            e => e.ToObjectResult());
+        return GetResult(result);
     }
 
     [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpDelete("delete/{containerId:guid}")]
-    public async Task<ActionResult<ContainerTypeDto>> DeleteContainerType(
+    public async Task<IActionResult> DeleteContainerType(
         [FromRoute] Guid containerId,
         CancellationToken cancellationToken)
     {
@@ -87,8 +86,6 @@ public class ContainersTypeController(ISender sender, IContainerTypeQueries cont
 
         var result = await sender.Send(command, cancellationToken);
 
-        return result.Match<ActionResult<ContainerTypeDto>>(
-            dto => Ok(mapper.Map<ContainerTypeDto>(dto)),
-            e => e.ToObjectResult());
+        return GetResult(result);
     }
 }

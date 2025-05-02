@@ -15,7 +15,7 @@ using Tests.Common;
 using Tests.Data;
 using Xunit;
 
-namespace Api.Tests.Integration.Containers;
+namespace Api.Tests.Integration;
 
 public class ContainersControllerTests : BaseIntegrationTest, IAsyncLifetime
 {
@@ -38,7 +38,7 @@ public class ContainersControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
-        var containers = await response.Content.ReadFromJsonAsync<List<ContainerDto>>();
+        var containers = await JsonHelper.GetPayloadAsync<List<ContainerDto>>(response);
         containers.Should().NotBeNull();
     }
 
@@ -53,7 +53,7 @@ public class ContainersControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
-        var container = await response.Content.ReadFromJsonAsync<ContainerDto>();
+        var container = await JsonHelper.GetPayloadAsync<ContainerDto>(response);
         container.Should().NotBeNull();
         container!.Id.Should().Be(containerId);
     }
@@ -88,7 +88,7 @@ public class ContainersControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
-        var createdContainer = await response.Content.ReadFromJsonAsync<ContainerDto>();
+        var createdContainer = await JsonHelper.GetPayloadAsync<Container>(response);
         createdContainer.Should().NotBeNull();
         createdContainer!.Name.Should().Be(newContainer.Name);
     }
@@ -112,7 +112,7 @@ public class ContainersControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
-        var updatedContainer = await response.Content.ReadFromJsonAsync<ContainerDto>();
+        var updatedContainer = await JsonHelper.GetPayloadAsync<Container>(response);
 
         var containerFromDatabase = await Context.Containers
             .FirstOrDefaultAsync(x => x.Id == updatedContainer!.Id);
@@ -150,7 +150,7 @@ public class ContainersControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
-        var updatedContainer = await response.Content.ReadFromJsonAsync<ContainerDto>();
+        var updatedContainer = await JsonHelper.GetPayloadAsync<Container>(response);
 
         var containerFromDatabase = await Context.Containers
             .FirstOrDefaultAsync(x => x.Id == updatedContainer!.Id);
@@ -178,7 +178,7 @@ public class ContainersControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
-        var updatedContainer = await response.Content.ReadFromJsonAsync<ContainerDto>();
+        var updatedContainer = await JsonHelper.GetPayloadAsync<Container>(response);
 
         var containerFromDatabase = await Context.Containers
             .FirstOrDefaultAsync(x => x.Id == updatedContainer!.Id);
@@ -198,7 +198,7 @@ public class ContainersControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
-        var containers = await response.Content.ReadFromJsonAsync<List<ContainerDto>>();
+        var containers = await JsonHelper.GetPayloadAsync<List<ContainerDto>>(response);
         containers.Should().NotBeNull();
         containers!.All(c => c.IsEmpty == isEmpty).Should().BeTrue();
     }
@@ -214,7 +214,7 @@ public class ContainersControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
-        var containers = await response.Content.ReadFromJsonAsync<List<ContainerDto>>();
+        var containers = await JsonHelper.GetPayloadAsync<List<ContainerDto>>(response);
         containers.Should().NotBeNull();
     }
 
@@ -229,7 +229,7 @@ public class ContainersControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
-        var containers = await response.Content.ReadFromJsonAsync<List<ContainerDto>>();
+        var containers = await JsonHelper.GetPayloadAsync<List<ContainerDto>>(response);
         containers.Should().NotBeNull();
     }
 
@@ -244,7 +244,7 @@ public class ContainersControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
-        var containers = await response.Content.ReadFromJsonAsync<List<ContainerDto>>();
+        var containers = await JsonHelper.GetPayloadAsync<List<ContainerDto>>(response);
         containers.Should().NotBeNull();
     }
 

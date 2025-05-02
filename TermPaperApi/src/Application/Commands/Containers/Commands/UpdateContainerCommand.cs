@@ -2,6 +2,7 @@
 using Application.Common;
 using Application.Common.Interfaces;
 using Application.Common.Interfaces.Repositories;
+using Application.Services;
 using AutoMapper;
 using Domain.Containers;
 using Domain.Containers.Models;
@@ -9,7 +10,7 @@ using MediatR;
 
 namespace Application.Commands.Containers.Commands;
 
-public record UpdateContainerCommand : IRequest<Result<Container, ContainerException>>
+public record UpdateContainerCommand : IRequest<ServiceResponse>
 {
     public Guid Id { get; init; }
     public string Name { get; init; }
@@ -20,9 +21,9 @@ public record UpdateContainerCommand : IRequest<Result<Container, ContainerExcep
 public class UpdateContainerCommandHandler(
     IContainerRepository containerRepository,
     IMapper mapper, IUserProvider userProvider)
-    : IRequestHandler<UpdateContainerCommand, Result<Container, ContainerException>>
+    : IRequestHandler<UpdateContainerCommand, ServiceResponse>
 {
-    public async Task<Result<Container, ContainerException>> Handle(
+    public async Task<ServiceResponse> Handle(
         UpdateContainerCommand request,
         CancellationToken cancellationToken)
     {
@@ -48,15 +49,15 @@ public class UpdateContainerCommandHandler(
                     updatedContainerModel.ModifiedBy = userProvider.GetUserId();
 
                     var updatedContainer = await containerRepository.Update(updatedContainerModel, cancellationToken);
-                    return updatedContainer;
+                    return ServiceResponse.OkResponse("Container updated", updatedContainer);
                 }
                 catch (ContainerException exception)
                 {
-                    return new ContainerUnknownException(containerId, exception);
+                    return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
                 }
             },
-            () => Task.FromResult<Result<Container, ContainerException>>(
-                new ContainerNotFoundException(containerId))
+            () => Task.FromResult<ServiceResponse>(
+                ServiceResponse.NotFoundResponse("Container not found"))
         );
     }
 }

@@ -1,21 +1,22 @@
 ﻿using Application.Commands.Reminders.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
+using Application.Services;
 using Domain.Reminders;
 using Domain.Reminders.Models;
 using MediatR;
 
 namespace Application.Commands.Reminders.Commands;
 
-public record DeleteReminderCommand : IRequest<Result<Reminder, ReminderException>>
+public record DeleteReminderCommand : IRequest<ServiceResponse>
 {
     public required Guid Id { get; init; }
 }
 
 public class DeleteReminderCommandHandler(
-    IReminderRepository reminderRepository) : IRequestHandler<DeleteReminderCommand, Result<Reminder, ReminderException>>
+    IReminderRepository reminderRepository) : IRequestHandler<DeleteReminderCommand, ServiceResponse>
 {
-    public async Task<Result<Reminder, ReminderException>> Handle(
+    public async Task<ServiceResponse> Handle(
         DeleteReminderCommand request,
         CancellationToken cancellationToken)
     {
@@ -33,15 +34,15 @@ public class DeleteReminderCommandHandler(
                     };
 
                     var deletedReminder = await reminderRepository.Delete(deleteModel, cancellationToken);
-                    return deletedReminder;
+                    return ServiceResponse.OkResponse("Reminder deleted", deletedReminder);
                 }
                 catch (ReminderException exception)
                 {
-                    return new ReminderUnknownException(reminderId, exception);
+                    return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
                 }
             },
-            () => Task.FromResult<Result<Reminder, ReminderException>>(
-                new ReminderNotFoundException(reminderId))
+            () => Task.FromResult<ServiceResponse>(
+                ServiceResponse.NotFoundResponse("Reminder not found"))
         );
     }
 }

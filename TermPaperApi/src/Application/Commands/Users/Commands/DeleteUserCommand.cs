@@ -1,6 +1,7 @@
 using Application.Commands.Users.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
+using Application.Services;
 using Domain.Users;
 using Domain.Users.Models;
 using MediatR;
@@ -8,16 +9,16 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace Application.Commands.Users.Commands;
 
-public record DeleteUserCommand : IRequest<Result<User, UserException>>
+public record DeleteUserCommand : IRequest<ServiceResponse>
 {
     public required Guid UserId { get; init; }
 }
 
 public class DeleteUserCommandHandler(
     IUserRepository userRepository)
-    : IRequestHandler<DeleteUserCommand, Result<User, UserException>>
+    : IRequestHandler<DeleteUserCommand, ServiceResponse>
 {
-    public async Task<Result<User, UserException>> Handle(
+    public async Task<ServiceResponse> Handle(
         DeleteUserCommand request,
         CancellationToken cancellationToken)
     {
@@ -25,22 +26,22 @@ public class DeleteUserCommandHandler(
 
         var existingUser = await userRepository.GetById(userId, cancellationToken);
 
-        return await existingUser.Match<Task<Result<User, UserException>>>(
+        return await existingUser.Match<Task<ServiceResponse>>(
             async user =>
             {
                 try
                 {
                     var deleteModel = new DeleteUserModel { Id = userId };
                     var deletedUser = await userRepository.Delete(deleteModel, cancellationToken);
-                    return deletedUser;
+                    return ServiceResponse.OkResponse("User deleted", deletedUser);
                 }
                 catch (Exception exception)
                 {
-                    return new UserUnknownException(userId, exception);
+                    return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
                 }
             },
-            () => Task.FromResult<Result<User, UserException>>(
-                new UserNotFoundException(userId))
+            () => Task.FromResult<ServiceResponse>(
+                ServiceResponse.NotFoundResponse("User not found"))
         );
     }
 }

@@ -10,10 +10,10 @@ namespace Api.Controllers;
 
 [Route("account")]
 [ApiController]
-public class AccountController(ISender sender, IMapper mapper) : ControllerBase
+public class AccountController(ISender sender, IMapper mapper) : BaseController
 {
     [HttpPost("signup")]
-    public async Task<ActionResult<JwtModel>> SignUpAsync(
+    public async Task<IActionResult> SignUpAsync(
         [FromBody] SignUpDto request,
         CancellationToken cancellationToken)
     {
@@ -28,13 +28,11 @@ public class AccountController(ISender sender, IMapper mapper) : ControllerBase
         
         var result = await sender.Send(input, cancellationToken);
 
-        return result.Match<ActionResult<JwtModel>>(
-            f => f,
-            e => e.ToObjectResult());
+        return GetResult(result);
     }
     
     [HttpPost("signin")]
-    public async Task<ActionResult<JwtModel>> SignUpAsync(
+    public async Task<IActionResult> SignUpAsync(
         [FromBody] SignInDto request,
         CancellationToken cancellationToken)
     {
@@ -46,13 +44,11 @@ public class AccountController(ISender sender, IMapper mapper) : ControllerBase
         
         var result = await sender.Send(input, cancellationToken);
 
-        return result.Match<ActionResult<JwtModel>>(
-            f => f,
-            e => e.ToObjectResult());
+        return GetResult(result);
     }
     
     [HttpPost("refresh-token")]
-    public async Task<ActionResult<JwtModel>> RefreshTokensAsync([FromBody] JwtModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> RefreshTokensAsync([FromBody] JwtModel model, CancellationToken cancellationToken)
     {
         var input = new RefreshTokenCommand()
         {
@@ -62,19 +58,15 @@ public class AccountController(ISender sender, IMapper mapper) : ControllerBase
         
         var result = await sender.Send(input, cancellationToken);
 
-        return result.Match<ActionResult<JwtModel>>(
-            f => f,
-            e => e.ToObjectResult());
+        return GetResult(result);
     }
     
     [HttpPost("externalLogin")]
-    public async Task<ActionResult<JwtModel>> GoogleExternalLoginAsync([FromBody] ExternalLoginDto model, CancellationToken cancellationToken)
+    public async Task<IActionResult> GoogleExternalLoginAsync([FromBody] ExternalLoginDto model, CancellationToken cancellationToken)
     {
         var command = new GoogleExternalLoginCommand { Model = mapper.Map<ExternalLoginModel>(model) };
         var result = await sender.Send(command, cancellationToken);
 
-        return result.Match<ActionResult<JwtModel>>(
-            f => f,
-            e => e.ToObjectResult()); 
+        return GetResult(result);
     }
 }

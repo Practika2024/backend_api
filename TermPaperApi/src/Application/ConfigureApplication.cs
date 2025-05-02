@@ -1,3 +1,5 @@
+using System.Net;
+using System.Net.Mail;
 using System.Reflection;
 using System.Text;
 using Application.Common.Behaviours;
@@ -9,7 +11,7 @@ using Application.Services.ReminderService;
 using Application.Services.TokenService;
 using FluentValidation;
 using Hangfire;
-using Hangfire.MemoryStorage;
+using Hangfire.PostgreSql;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -30,18 +32,23 @@ public static class ConfigureApplication
         services.AddScoped<EmailVerificationLinkFactory>();
         services.AddHttpContextAccessor();
 
-        services.AddHangfireReminder();
+        services.AddHangfireReminder(builder);
         services.AddServices();
         services.AddJwtTokenAuth(builder);
         services.AddSwaggerAuth();
         services.AddFluentEmailConfirmation(builder);
     }
 
-    private static void AddHangfireReminder(this IServiceCollection services)
+    private static void AddHangfireReminder(this IServiceCollection services, WebApplicationBuilder builder)
     {
+        var connectionString = builder.Configuration["ConnectionStrings:Default"];
+        
         services.AddHangfire(config =>
         {
-            config.UseMemoryStorage();
+            config.UsePostgreSqlStorage(options =>
+            {
+                options.UseNpgsqlConnection(connectionString);
+            });
         });
 
         services.AddHangfireServer();
@@ -55,13 +62,13 @@ public static class ConfigureApplication
         var password = builder.Configuration["MailSettings:Password"];
 
         services.AddFluentEmail(email)
-            .AddSmtpSender(new System.Net.Mail.SmtpClient
+            .AddSmtpSender(new SmtpClient
             {
                 Host = smtpServer!,
                 Port = smtpPort,
                 EnableSsl = true,
-                Credentials = new System.Net.NetworkCredential(email, password),
-                DeliveryMethod = System.Net.Mail.SmtpDeliveryMethod.Network
+                Credentials = new NetworkCredential(email, password),
+                DeliveryMethod = SmtpDeliveryMethod.Network
             });
     }
 

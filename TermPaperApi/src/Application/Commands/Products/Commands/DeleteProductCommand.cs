@@ -1,22 +1,23 @@
 ﻿using Application.Commands.Products.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
+using Application.Services;
 using Domain.Products;
 using Domain.Products.Models;
 using MediatR;
 
 namespace Application.Commands.Products.Commands;
 
-public record DeleteProductCommand : IRequest<Result<Product, ProductException>>
+public record DeleteProductCommand : IRequest<ServiceResponse>
 {
     public required Guid Id { get; init; }
 }
 
 public class DeleteProductCommandHandler(
     IProductRepository productRepository)
-    : IRequestHandler<DeleteProductCommand, Result<Product, ProductException>>
+    : IRequestHandler<DeleteProductCommand, ServiceResponse>
 {
-    public async Task<Result<Product, ProductException>> Handle(
+    public async Task<ServiceResponse> Handle(
         DeleteProductCommand request,
         CancellationToken cancellationToken)
     {
@@ -32,15 +33,15 @@ public class DeleteProductCommandHandler(
                         Id = product.Id
                     };
                     var deletedProduct = await productRepository.Delete(model, cancellationToken);
-                    return deletedProduct;
+                    return ServiceResponse.OkResponse("Product deleted", deletedProduct);
                 }
                 catch (ProductException exception)
                 {
-                    return new ProductUnknownException(productIdObj, exception);
+                    return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
                 }
             },
-            () => Task.FromResult<Result<Product, ProductException>>(
-                new ProductNotFoundException(productIdObj))
+            () => Task.FromResult<ServiceResponse>(
+                ServiceResponse.NotFoundResponse("Product not found"))
         );
     }
 }

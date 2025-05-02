@@ -1,6 +1,9 @@
+using System.Net;
+using System.Security.Claims;
 using Application.Commands.Authentications.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
+using Application.Services;
 using Application.Services.TokenService;
 using Domain.RefreshTokens;
 using Domain.Users.Models;
@@ -9,7 +12,7 @@ using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Application.Commands.Authentications.Commands;
 
-public record RefreshTokenCommand : IRequest<Result<JwtModel, AuthenticationException>>
+public record RefreshTokenCommand : IRequest<ServiceResponse>
 {
     public required string AccessToken { get; init; }
     public required string RefreshToken { get; init; }
@@ -20,9 +23,9 @@ public class RefreshTokenCommandHandler(
     IRefreshTokenRepository refreshTokenRepository,
     IUserRepository userRepository
 )
-    : IRequestHandler<RefreshTokenCommand, Result<JwtModel, AuthenticationException>>
+    : IRequestHandler<RefreshTokenCommand, ServiceResponse>
 {
-    public async Task<Result<JwtModel, AuthenticationException>> Handle(RefreshTokenCommand request,
+    public async Task<ServiceResponse> Handle(RefreshTokenCommand request,
         CancellationToken cancellationToken)
     {
         var existingRefreshToken =
@@ -30,38 +33,58 @@ public class RefreshTokenCommandHandler(
 
         return await existingRefreshToken.Match(
             async rt => await RefreshToken(rt, request.AccessToken, cancellationToken),
-            () => Task.FromResult<Result<JwtModel, AuthenticationException>>(
-                new InvalidTokenException()));
+            () => Task.FromResult(
+                ServiceResponse.GetResponse("Invalid token", false, null, HttpStatusCode.UpgradeRequired)
+            ));
     }
 
-    private async Task<Result<JwtModel, AuthenticationException>> RefreshToken(RefreshToken storedToken,
+    private async Task<ServiceResponse> RefreshToken(RefreshToken storedToken,
         string accessToken, CancellationToken cancellationToken)
     {
         if (storedToken.IsUsed)
         {
-            return await Task.FromResult<Result<JwtModel, AuthenticationException>>(new InvalidTokenException());
+            return await Task.FromResult(ServiceResponse.GetResponse("Invalid token", false, null,
+                HttpStatusCode.UpgradeRequired));
         }
 
         if (storedToken.ExpiredDate < DateTime.UtcNow)
         {
-            return await Task.FromResult<Result<JwtModel, AuthenticationException>>(new TokenExpiredException());
+            return await Task.FromResult(ServiceResponse.GetResponse("Token has expired!", false, null,
+                HttpStatusCode.UpgradeRequired));
         }
 
-        var principals = jwtTokenService.GetPrincipals(accessToken);
+        ClaimsPrincipal principals;
+        
+        try
+        {
+            principals = jwtTokenService.GetPrincipals(accessToken);
+        }
+        catch (Exception e)
+        {
+            return await Task.FromResult(ServiceResponse.GetResponse("Invalid token", false, null,
+                HttpStatusCode.UpgradeRequired));
+        }
+        
 
         var accessTokenId = principals.Claims
             .Single(c => c.Type == JwtRegisteredClaimNames.Jti).Value;
 
         if (storedToken.JwtId != accessTokenId)
         {
-            return await Task.FromResult<Result<JwtModel, AuthenticationException>>(new InvalidAccessTokenException());
+            return await Task.FromResult(ServiceResponse.GetResponse("Token has expired!", false, null,
+                HttpStatusCode.UpgradeRequired));
         }
 
         var existingUser = await userRepository.GetById(storedToken.UserId, cancellationToken);
 
-        return await existingUser.Match<Task<Result<JwtModel, AuthenticationException>>>(
-            async u => await jwtTokenService.GenerateTokensAsync(u, cancellationToken),
-            () => Task.FromResult<Result<JwtModel, AuthenticationException>>(
-                new UserNorFoundException(storedToken.UserId)));
+        return await existingUser.Match<Task<ServiceResponse>>(
+            async u =>
+            {
+                var tokens = await jwtTokenService.GenerateTokensAsync(u, cancellationToken);
+                return ServiceResponse.OkResponse("Users tokens", tokens);
+            },
+            () => Task.FromResult<ServiceResponse>(
+                ServiceResponse.NotFoundResponse($"User under id: {storedToken.UserId} was not found!")
+                ));
     }
 }

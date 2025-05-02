@@ -5,6 +5,7 @@ using Application.Common.Interfaces;
 using Application.Middlewares;
 using DataAccessLayer;
 using Microsoft.Extensions.FileProviders;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,12 @@ builder.Services.SetupServices();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+    
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -64,7 +71,6 @@ if (!Directory.Exists(imagesPath))
 }
 
 app.UseMiddleware<MiddlewareExceptionHandling>();
-
 
 app.UseStaticFiles(new StaticFileOptions
 {

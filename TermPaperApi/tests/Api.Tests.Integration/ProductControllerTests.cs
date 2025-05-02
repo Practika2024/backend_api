@@ -12,7 +12,7 @@ using Tests.Common;
 using Tests.Data;
 using Xunit;
 
-namespace Api.Tests.Integration.Products;
+namespace Api.Tests.Integration;
 
 public class ProductsControllerTests : BaseIntegrationTest, IAsyncLifetime
 {
@@ -32,7 +32,7 @@ public class ProductsControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
-        var products = await response.Content.ReadFromJsonAsync<List<ProductDto>>();
+        var products = await JsonHelper.GetPayloadAsync<List<ProductDto>>(response);
         products.Should().NotBeNull();
     }
 
@@ -47,7 +47,7 @@ public class ProductsControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
-        var product = await response.Content.ReadFromJsonAsync<ProductDto>();
+        var product = await JsonHelper.GetPayloadAsync<ProductDto>(response);
         product.Should().NotBeNull();
         product!.Id.Should().Be(productId);
     }
@@ -82,7 +82,7 @@ public class ProductsControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
-        var createdProduct = await response.Content.ReadFromJsonAsync<ProductDto>();
+        var createdProduct = await JsonHelper.GetPayloadAsync<Product>(response);
         createdProduct.Should().NotBeNull();
         createdProduct!.Name.Should().Be(newProduct.Name);
     }
@@ -107,7 +107,7 @@ public class ProductsControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
-        var updatedProduct = await response.Content.ReadFromJsonAsync<ProductDto>();
+        var updatedProduct = await JsonHelper.GetPayloadAsync<ProductDto>(response);
         
         var manufacturerFromDataBase = await Context.Products
             .FirstOrDefaultAsync(x => x.Id == updatedProduct!.Id);

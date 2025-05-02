@@ -1,7 +1,9 @@
-﻿using Application.Commands.Authentications.Exceptions;
+﻿using System.Net;
+using Application.Commands.Authentications.Exceptions;
 using Application.Common;
 using Application.Common.Interfaces;
 using Application.Common.Interfaces.Repositories;
+using Application.Services;
 using Application.Services.HashPasswordService;
 using Application.Settings;
 using Domain.Users;
@@ -10,7 +12,7 @@ using MediatR;
 
 namespace Application.Commands.Users.Commands;
 
-public class CreateUserCommand : IRequest<Result<User, AuthenticationException>>
+public class CreateUserCommand : IRequest<ServiceResponse>
 {
     public required string Email { get; init; }
     public required string? Surname { get; init; }
@@ -23,22 +25,25 @@ public class CreateUserCommandHandler(
     IUserRepository userRepository,
     IHashPasswordService hashPasswordService,
     IUserProvider userProvider)
-    : IRequestHandler<CreateUserCommand, Result<User, AuthenticationException>>
+    : IRequestHandler<CreateUserCommand, ServiceResponse>
 {
-    public async Task<Result<User, AuthenticationException>> Handle(
+    public async Task<ServiceResponse> Handle(
         CreateUserCommand request,
         CancellationToken cancellationToken)
     {
         var existingUser = await userRepository.SearchByEmail(request.Email, cancellationToken);
 
-         return await existingUser.Match<Task<Result<User, AuthenticationException>>>(
-            u => Task.FromResult<Result<User, AuthenticationException>>(
-                new UserByThisEmailAlreadyExistsAuthenticationException(u.Id)),
+         return await existingUser.Match<Task<ServiceResponse>>(
+            u => Task.FromResult<ServiceResponse>(
+                ServiceResponse
+                    .GetResponse("User with this email already exists", 
+                        false, null, HttpStatusCode.Conflict)
+                ),
             async () => await SignUp(request, cancellationToken)
         );
     }
 
-    private async Task<Result<User, AuthenticationException>> SignUp(
+    private async Task<ServiceResponse> SignUp(
         CreateUserCommand request,
         CancellationToken cancellationToken)
     {
@@ -58,11 +63,11 @@ public class CreateUserCommandHandler(
             };
             User userEntity = await userRepository.Create(userModel, cancellationToken);
 
-            return userEntity;
+            return ServiceResponse.OkResponse("User created", userEntity);
         }
         catch (Exception exception)
         {
-            return new AuthenticationUnknownException(Guid.Empty, exception);
+            return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
         }
     }
 }

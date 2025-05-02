@@ -1,20 +1,18 @@
-﻿using Application.Commands.Authentications.Exceptions;
-using Application.Common;
+﻿using System.Net;
 using Application.Common.Interfaces.Queries;
 using Application.Common.Interfaces.Repositories;
-using Application.Services.EmailVerificationLinkFactory;
+using Application.Services;
 using Application.Services.HashPasswordService;
 using Application.Services.TokenService;
 using Application.Settings;
 using Domain.Users;
 using Domain.Users.Models;
-using FluentEmail.Core;
 using MediatR;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Application.Commands.Authentications.Commands;
 
-public class SignUpCommand : IRequest<Result<JwtModel, AuthenticationException>>
+public class SignUpCommand : IRequest<ServiceResponse>
 {
     public required string Email { get; init; }
     public required string? Surname { get; init; }
@@ -28,22 +26,23 @@ public class SignUpUserCommandHandler(
     IUserQueries userQueries,
     IJwtTokenService jwtTokenService,
     IHashPasswordService hashPasswordService)
-    : IRequestHandler<SignUpCommand, Result<JwtModel, AuthenticationException>>
+    : IRequestHandler<SignUpCommand, ServiceResponse>
 {
-    public async Task<Result<JwtModel, AuthenticationException>> Handle(
+    public async Task<ServiceResponse> Handle(
         SignUpCommand request,
         CancellationToken cancellationToken)
     {
         var existingUser = await userRepository.SearchByEmail(request.Email, cancellationToken);
 
-        return await existingUser.Match<Task<Result<JwtModel, AuthenticationException>>>(
-            u => Task.FromResult<Result<JwtModel, AuthenticationException>>(
-                new UserByThisEmailAlreadyExistsAuthenticationException(u.Id)),
+        return await existingUser.Match<Task<ServiceResponse>>(
+            u => Task.FromResult<ServiceResponse>(
+                ServiceResponse.BadRequestResponse("User with this email already exists")
+                ),
             async () => await SignUp(request, cancellationToken)
         );
     }
 
-    private async Task<Result<JwtModel, AuthenticationException>> SignUp(
+    private async Task<ServiceResponse> SignUp(
         SignUpCommand request,
         CancellationToken cancellationToken)
     {
@@ -67,22 +66,22 @@ public class SignUpUserCommandHandler(
 
             if (!isUsersNullOrEmpty)
             {
-                var noTokenAvailable = new JwtModel()
-                {
-                    AccessToken = "You don't have access token, please wait for admin approval",
-                    RefreshToken = "You don't have refresh token, please wait for admin approval"
-                };
+                // var noTokenAvailable = new JwtModel()
+                // {
+                //     AccessToken = "You don't have access token, please wait for admin approval",
+                //     RefreshToken = "You don't have refresh token, please wait for admin approval"
+                // };
 
-                return noTokenAvailable;
+                return ServiceResponse.BadRequestResponse("You don't have access token, please wait for admin approval");
             }
 
             var token = await jwtTokenService.GenerateTokensAsync(userEntity, cancellationToken);
             
-            return token;
+            return ServiceResponse.OkResponse("Users tokens", token);
         }
         catch (Exception exception)
         {
-            return new AuthenticationUnknownException(Guid.Empty, exception);
+            return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
         }
     }
 }
