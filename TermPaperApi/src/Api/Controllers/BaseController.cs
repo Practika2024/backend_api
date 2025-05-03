@@ -13,9 +13,16 @@ public class BaseController(IMapper mapper) : ControllerBase
     
     protected IActionResult GetResult<T>(ServiceResponse serviceResponse)
     {
-        if (serviceResponse.Payload is not null)
+        try
         {
-            serviceResponse.Payload = mapper.Map<T>(serviceResponse.Payload);
+            if (serviceResponse.Payload is not null)
+            {
+                serviceResponse.Payload = mapper.Map<T>(serviceResponse.Payload);
+            }
+        }
+        catch (Exception e)
+        {
+            throw new Exception($"Can't map payload: {e.Message}");
         }
         
         return StatusCode((int)serviceResponse.StatusCode, serviceResponse);

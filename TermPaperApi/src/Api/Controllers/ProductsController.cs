@@ -1,6 +1,4 @@
-﻿using System.Security.Claims;
-using Api.Dtos.Products;
-using Api.Modules.Errors;
+﻿using Api.Dtos.Products;
 using Application.Commands.Products.Commands;
 using Application.Common.Interfaces.Queries;
 using Application.Products.Commands;
