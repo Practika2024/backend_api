@@ -34,7 +34,7 @@ public class UpdateProductCommandHandler(
         var existingProductType = await productTypeQueries.GetById(request.TypeId, cancellationToken);
 
         return await existingProduct.Match(
-            async _ => await existingProductType.Match(
+            async product => await existingProductType.Match(
                 async _ =>
                 {
                     try
@@ -47,6 +47,7 @@ public class UpdateProductCommandHandler(
                             ManufactureDate = request.ManufactureDate,
                             ModifiedBy = userId,
                             TypeId = request.TypeId,
+                            Images = product.Images
                         };
                         var updatedProduct = await productRepository.Update(updateProductModel, cancellationToken);
                         return ServiceResponse.OkResponse("Product updated", updatedProduct);

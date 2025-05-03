@@ -29,12 +29,8 @@ public class ProductRepository(ApplicationDbContext context, IMapper mapper)
     public async Task<Product> Update(UpdateProductModel model, CancellationToken cancellationToken)
     {
         var productEntity = await GetProductAsync(x => x.Id == model.Id, cancellationToken);
-        
-        var images = new List<ProductImageEntity>(productEntity!.Images);
 
         mapper.Map(model, productEntity);
-        
-        productEntity.Images.AddRange(images);
 
         await context.SaveChangesAsync(cancellationToken);
 
