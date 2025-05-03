@@ -1,5 +1,4 @@
-﻿using Application.Common;
-using Application.Common.Interfaces.Repositories;
+﻿using Application.Common.Interfaces.Repositories;
 using Application.Services;
 using Application.Services.ImageService;
 using Application.Settings;
@@ -8,7 +7,7 @@ using Domain.Products;
 using Domain.Products.Models;
 using MediatR;
 
-namespace Application.Products.Commands;
+namespace Application.Commands.Products.Commands;
 
 public record DeleteProductImageCommand : IRequest<ServiceResponse>
 {

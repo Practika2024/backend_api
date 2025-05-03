@@ -1,7 +1,6 @@
 ﻿using Api.Dtos.Products;
 using Application.Commands.Products.Commands;
 using Application.Common.Interfaces.Queries;
-using Application.Products.Commands;
 using Application.Services;
 using Application.Settings;
 using AutoMapper;
@@ -121,6 +120,25 @@ public class ProductsController(ISender sender, IProductQueries productQueries, 
 
         var result = await sender.Send(input, cancellationToken);
 
-        return GetResult(result);
+        return GetResult<ProductDto>(result);
     }
+    
+    [HttpPut("update-images/{productId:guid}")]
+    public async Task<IActionResult> UpdateImages([FromRoute] Guid productId, 
+        [FromForm] IFormFileCollection newImages, 
+        [FromForm] List<Guid> imagesToDelete,
+        CancellationToken cancellationToken)
+    {
+        var command = new UpdateProductImagesCommand
+        {
+            ProductId = productId,
+            NewImages = newImages,
+            ImagesToDelete = imagesToDelete
+        };
+
+        var result = await sender.Send(command, cancellationToken);
+        
+        return GetResult<ProductDto>(result);
+    }
+
 }

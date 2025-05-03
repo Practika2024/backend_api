@@ -10,6 +10,7 @@ using Domain.Products;
 using Domain.Products.Models;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 
 namespace Application.Commands.Products.Commands;
 
@@ -22,7 +23,8 @@ public record UploadProductImagesCommand : IRequest<ServiceResponse>
 public class UploadProductImagesCommandHandler(
     IProductRepository productRepository,
     IImageService imageService,
-    IMapper mapper) : IRequestHandler<UploadProductImagesCommand, ServiceResponse>
+    IMapper mapper,
+    IHttpContextAccessor httpContextAccessor) : IRequestHandler<UploadProductImagesCommand, ServiceResponse>
 {
     public async Task<ServiceResponse> Handle(UploadProductImagesCommand request,
         CancellationToken cancellationToken)
@@ -47,12 +49,30 @@ public class UploadProductImagesCommandHandler(
         {
             return ServiceResponse.BadRequestResponse("No images uploaded");
         }
-        
+
+        var httpContext = httpContextAccessor.HttpContext;
+        if (httpContext == null)
+        {
+            return ServiceResponse.InternalServerErrorResponse("HTTP context is unavailable");
+        }
+
+        var scheme = httpContext.Request.Scheme;
+        var host = httpContext.Request.Host;
+
+        var baseUrl = $"{scheme}://{host}/";
+
         foreach (var imageName in imageSaveResult)
         {
-            product.Images.Add(new ProductImage() { FilePath = imageName });
+            var relativePath = $"{ImagePaths.ProductImagesPathForUrl}/{imageName}";
+            var fullPath = $"{baseUrl}{relativePath}";
+
+            product.Images.Add(new ProductImage()
+            {
+                FileName = imageName!,
+                FilePath = fullPath
+            });
         }
-                
+
         var productWithImages = await productRepository.Update(mapper.Map<UpdateProductModel>(product), cancellationToken);
         return ServiceResponse.OkResponse("Images uploaded", productWithImages);
     }
