@@ -18,6 +18,10 @@ namespace Application.Services.ImageService
                     {
                         File.Delete(fullOldPath);
                     }
+                    else
+                    {
+                        throw new Exception("File path does not exist to save image.");
+                    }
                 }
 
                 var types = image.ContentType.Split('/');
@@ -78,6 +82,10 @@ namespace Application.Services.ImageService
                 if (File.Exists(fullOldPath))
                 {
                     File.Delete(fullOldPath);
+                }
+                else
+                {
+                    throw new Exception("File path does not exist to delete image."); 
                 }
 
                 return true;

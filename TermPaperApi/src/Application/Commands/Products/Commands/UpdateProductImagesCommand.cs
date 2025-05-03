@@ -36,7 +36,7 @@ public class UpdateProductImagesCommandHandler(
                     var image = p.Images.FirstOrDefault(x => x.Id == id);
                     if (image != null)
                     {
-                        await imageService.DeleteImageAsync(ImagePaths.ProductImagesPath, image.FilePath!);
+                        await imageService.DeleteImageAsync(ImagePaths.ProductImagesPath, image.FileName!);
                         p.Images.Remove(image);
                     }
                 }
@@ -48,7 +48,7 @@ public class UpdateProductImagesCommandHandler(
 
                 foreach (var fileName in savedImages)
                 {
-                    p.Images.Add((ProductImage)new ProductImage
+                    p.Images.Add(new ProductImage
                     {
                         FileName = fileName,
                         FilePath = $"{baseUrl}{ImagePaths.ProductImagesPathForUrl}/{fileName}"
