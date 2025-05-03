@@ -40,7 +40,7 @@ public class DeleteProductImageCommandHandler(
             return ServiceResponse.NotFoundResponse("Product image not found");
         }
 
-        var deleteResult = await imageService.DeleteImageAsync(ImagePaths.ProductImagesPath, productImage.FilePath!);
+        var deleteResult = imageService.DeleteImageAsync(ImagePaths.ProductImagesPath, productImage.FilePath!);
 
         return await deleteResult.Match<Task<ServiceResponse>>(
             async _ =>

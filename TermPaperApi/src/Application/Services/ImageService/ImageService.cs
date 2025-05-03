@@ -74,11 +74,11 @@ namespace Application.Services.ImageService
             }
         }
 
-        public async Task<Result<bool, string>> DeleteImageAsync(string path, string imagePath)
+        public Result<bool, string> DeleteImageAsync(string path, string imageName)
         {
             try
             {
-                var fullOldPath = Path.Combine(webHostEnvironment.ContentRootPath, path, imagePath);
+                var fullOldPath = Path.Combine(webHostEnvironment.ContentRootPath, path, imageName);
                 if (File.Exists(fullOldPath))
                 {
                     File.Delete(fullOldPath);

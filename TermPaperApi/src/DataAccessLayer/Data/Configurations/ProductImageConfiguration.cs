@@ -16,7 +16,7 @@ public class ProductImageConfiguration : IEntityTypeConfiguration<ProductImageEn
         
         builder.Property(x => x.FileName).HasMaxLength(50).IsRequired();
         
-        builder.HasOne(x => x.Product)
+        builder.HasOne<ProductEntity>()
             .WithMany(x => x.Images)
             .HasForeignKey(x => x.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
