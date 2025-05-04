@@ -93,35 +93,35 @@ public class ProductsController(ISender sender, IProductQueries productQueries, 
         return GetResult(result);
     }
     
-    [HttpPut("upload-images/{productId:guid}")]
-    public async Task<IActionResult> Upload([FromRoute] Guid productId, IFormFileCollection imagesFiles,
-        CancellationToken cancellationToken)
-    {
-        var input = new UploadProductImagesCommand()
-        {
-            ProductId = productId,
-            ImagesFiles = imagesFiles
-        };
-
-        var result = await sender.Send(input, cancellationToken);
-    
-        return GetResult<ProductDto>(result);
-    }
-    
-    [HttpPut("delete-image/{productId:guid}")]
-    public async Task<IActionResult> Upload([FromRoute] Guid productId, Guid productImageId,
-        CancellationToken cancellationToken)
-    {
-        var input = new DeleteProductImageCommand()
-        {
-            ProductId = productId,
-            ProductImageId = productImageId
-        };
-
-        var result = await sender.Send(input, cancellationToken);
-
-        return GetResult<ProductDto>(result);
-    }
+    // [HttpPut("upload-images/{productId:guid}")]
+    // public async Task<IActionResult> Upload([FromRoute] Guid productId, IFormFileCollection imagesFiles,
+    //     CancellationToken cancellationToken)
+    // {
+    //     var input = new UploadProductImagesCommand()
+    //     {
+    //         ProductId = productId,
+    //         ImagesFiles = imagesFiles
+    //     };
+    //
+    //     var result = await sender.Send(input, cancellationToken);
+    //
+    //     return GetResult<ProductDto>(result);
+    // }
+    //
+    // [HttpPut("delete-image/{productId:guid}")]
+    // public async Task<IActionResult> Upload([FromRoute] Guid productId, Guid productImageId,
+    //     CancellationToken cancellationToken)
+    // {
+    //     var input = new DeleteProductImageCommand()
+    //     {
+    //         ProductId = productId,
+    //         ProductImageId = productImageId
+    //     };
+    //
+    //     var result = await sender.Send(input, cancellationToken);
+    //
+    //     return GetResult<ProductDto>(result);
+    // }
     
     [HttpPut("update-images/{productId:guid}")]
     public async Task<IActionResult> UpdateImages([FromRoute] Guid productId, 
@@ -140,5 +140,4 @@ public class ProductsController(ISender sender, IProductQueries productQueries, 
         
         return GetResult<ProductDto>(result);
     }
-
 }
