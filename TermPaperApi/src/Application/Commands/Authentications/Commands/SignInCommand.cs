@@ -41,15 +41,14 @@ public class SignInCommandHandler(
         string password,
         CancellationToken cancellationToken)
     {
-        if (!user.IsApprovedByAdmin)
+        if (!user.IsApprovedByAdmin.HasValue)
         {
-            // var noTokenAvailable = new JwtModel()
-            // {
-            //     AccessToken = "You don't have access token, please wait for admin approval",
-            //     RefreshToken = "You don't have refresh token, please wait for admin approval"
-            // };
-
             return ServiceResponse.GetResponse("You don't have access token, please wait for admin approval", false, null, HttpStatusCode.OK);
+        }
+
+        if (!user.IsApprovedByAdmin.Value)
+        {
+            return ServiceResponse.GetResponse("Your approval has been rejected", false, null, HttpStatusCode.Forbidden);
         }
         
         string storedHash = user.PasswordHash;

@@ -60,7 +60,7 @@ public class SignUpUserCommandHandler(
                 PasswordHash = hashPasswordService.HashPassword(request.Password),
                 RoleId = isUsersNullOrEmpty ? AuthSettings.AdminRole : AuthSettings.OperatorRole,
                 CreatedBy = userId,
-                IsApprovedByAdmin = isUsersNullOrEmpty
+                IsApprovedByAdmin = isUsersNullOrEmpty ? true : null,
             };
             User userEntity = await userRepository.Create(userModel, cancellationToken);
 
@@ -72,7 +72,7 @@ public class SignUpUserCommandHandler(
                 //     RefreshToken = "You don't have refresh token, please wait for admin approval"
                 // };
 
-                return ServiceResponse.BadRequestResponse("You don't have access token, please wait for admin approval");
+                return ServiceResponse.OkResponse("You don't have access token, please wait for admin approval");
             }
 
             var token = await jwtTokenService.GenerateTokensAsync(userEntity, cancellationToken);

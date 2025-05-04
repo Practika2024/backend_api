@@ -72,7 +72,7 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper) : IUse
         var userEntities = await context.Users
             .AsNoTracking()
             .AsSplitQuery()
-            .Where(u=> !u.IsApprovedByAdmin)
+            .Where(u=> !u.IsApprovedByAdmin.HasValue)
             .ToListAsync(cancellationToken);
 
         return mapper.Map<IReadOnlyList<User>>(userEntities);
@@ -103,11 +103,11 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper) : IUse
         return entity!.Email;
     }
 
-    public async Task<User> ApproveUser(Guid userId, CancellationToken cancellationToken)
+    public async Task<User> ApproveUser(Guid userId, bool isUserApproved, CancellationToken cancellationToken)
     {
         var entity = await GetUserAsync(x => x.Id == userId, cancellationToken);
 
-        entity!.IsApprovedByAdmin = true;
+        entity!.IsApprovedByAdmin = isUserApproved;
 
         await context.SaveChangesAsync(cancellationToken);
 

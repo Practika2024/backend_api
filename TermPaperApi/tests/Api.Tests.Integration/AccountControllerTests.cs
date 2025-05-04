@@ -14,17 +14,13 @@ public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseInt
     [Fact]
     public async Task ShouldSignUp()
     {
-        // TODO: fix that admin must approve user 
         // Arrange
         var request = AccountData.SignUpRequest;
 
         // Act
         await Client.PostAsJsonAsync("account/signup", request);
 
-        await Context.Users
-            .Where(u => !u.IsApprovedByAdmin)
-            .ExecuteUpdateAsync(updates
-                => updates.SetProperty(u => u.IsApprovedByAdmin, true), CancellationToken.None);
+        await ApproveUser();
         
         var response = await Client.PostAsJsonAsync("account/signin", request);
 
@@ -85,10 +81,7 @@ public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseInt
         // Arrange
         var signUpRequest = AccountData.SignUpForSignInRequest;
         await Client.PostAsJsonAsync("account/signup", signUpRequest);
-        await Context.Users
-            .Where(u => !u.IsApprovedByAdmin)
-            .ExecuteUpdateAsync(updates
-                => updates.SetProperty(u => u.IsApprovedByAdmin, true), CancellationToken.None);
+        await ApproveUser();
 
         var signInRequest = AccountData.SignInRequest;
 
@@ -109,10 +102,7 @@ public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseInt
         // Arrange
         var signUpRequest = AccountData.SignUpForSignInRequest;
         await Client.PostAsJsonAsync("account/signup", signUpRequest);
-        await Context.Users
-            .Where(u => !u.IsApprovedByAdmin)
-            .ExecuteUpdateAsync(updates
-                => updates.SetProperty(u => u.IsApprovedByAdmin, true), CancellationToken.None);
+        await ApproveUser();
 
         var request = AccountData.SignInWithInvalidCredentialsRequest;
 
@@ -164,10 +154,7 @@ public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseInt
         // Arrange
         var signUpRequest = AccountData.SignUpForSignInRequest;
         await Client.PostAsJsonAsync("account/signup", signUpRequest);
-        await Context.Users
-            .Where(u => !u.IsApprovedByAdmin)
-            .ExecuteUpdateAsync(updates
-                => updates.SetProperty(u => u.IsApprovedByAdmin, true), CancellationToken.None);
+        await ApproveUser();
 
         var signInRequest = AccountData.SignInRequest;
         var signInResponse = await Client.PostAsJsonAsync("account/signin", signInRequest);
@@ -196,10 +183,7 @@ public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseInt
         // Arrange
         var signUpRequest = AccountData.SignUpForSignInRequest;
         await Client.PostAsJsonAsync("account/signup", signUpRequest);
-        await Context.Users
-            .Where(u => !u.IsApprovedByAdmin)
-            .ExecuteUpdateAsync(updates
-                => updates.SetProperty(u => u.IsApprovedByAdmin, true), CancellationToken.None);
+        await ApproveUser();
 
         var signInRequest = AccountData.SignInRequest;
         var signInResponse = await Client.PostAsJsonAsync("account/signin", signInRequest);
@@ -225,10 +209,7 @@ public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseInt
         // Arrange
         var signUpRequest = AccountData.SignUpForSignInRequest;
         await Client.PostAsJsonAsync("account/signup", signUpRequest);
-        await Context.Users
-            .Where(u => !u.IsApprovedByAdmin)
-            .ExecuteUpdateAsync(updates
-                => updates.SetProperty(u => u.IsApprovedByAdmin, true), CancellationToken.None);
+        await ApproveUser();
 
         var signInRequest = AccountData.SignInRequest;
         var signInResponse = await Client.PostAsJsonAsync("account/signin", signInRequest);
@@ -266,5 +247,13 @@ public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseInt
         // Assert
         response.IsSuccessStatusCode.Should().BeFalse();
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+    
+    private async Task ApproveUser()
+    {
+        await Context.Users
+            .Where(u => !u.IsApprovedByAdmin.HasValue)
+            .ExecuteUpdateAsync(updates
+                => updates.SetProperty(u => u.IsApprovedByAdmin, true), CancellationToken.None);
     }
 }

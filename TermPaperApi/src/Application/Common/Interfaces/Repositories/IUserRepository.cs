@@ -14,7 +14,7 @@ namespace Application.Common.Interfaces.Repositories
         Task<Option<User>> SearchByEmail(string email, CancellationToken cancellationToken);
         Task<Option<User>> SearchByEmailForUpdate(Guid userId, string email, CancellationToken cancellationToken);
         Task<User> UpdateRole(UpdateRoleModel model, CancellationToken cancellationToken);
-        Task<User> ApproveUser(Guid userId, CancellationToken cancellationToken);
+        Task<User> ApproveUser(Guid userId, bool isUserApproved, CancellationToken cancellationToken);
         Task<User> VerifyEmailUser(Guid userId, CancellationToken cancellationToken);
 
         

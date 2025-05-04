@@ -38,15 +38,16 @@ public class UsersController(ISender sender, IUserQueries userQueries, IMapper m
 
     [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpPatch("approve/{userId:guid}")]
-    public async Task<IActionResult> ApproveUser([FromRoute] Guid userId,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> ApproveUser([FromRoute] Guid userId, [FromQuery] bool isUserApproved = true,
+        CancellationToken cancellationToken = default)
     {
-        var command = new ApproveUserCommand() { UserId = userId };
+        var command = new ApproveUserCommand() { UserId = userId, IsUserApproved = isUserApproved };
+
         var result = await sender.Send(command, cancellationToken);
 
         return GetResult(result);
     }
-    
+
     [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpGet("get-by-id/{userId:guid}")]
     public async Task<IActionResult> Get([FromRoute] Guid userId, CancellationToken cancellationToken)

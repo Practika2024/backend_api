@@ -12,6 +12,7 @@ public class UserConfiguration : IEntityTypeConfiguration<UserEntity>
 
         builder.Property(p => p.Name).HasMaxLength(25);
         builder.Property(p => p.EmailConfirmed).HasDefaultValue(false);
+        builder.Property(p => p.IsApprovedByAdmin).HasDefaultValue(null);
         builder.Property(p => p.Surname).HasMaxLength(25);
         builder.Property(p => p.Patronymic).HasMaxLength(25);
 
