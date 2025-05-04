@@ -19,33 +19,40 @@ public class VerificationEmailCommand : IRequest<ServiceResponse>
 
 public class VerificationEmailCommandCommandHandler(
     IUserRepository userRepository,
-    IEmailVerificationTokenRepository emailVerificationTokenRepository) : IRequestHandler<VerificationEmailCommand, ServiceResponse>
+    IEmailVerificationTokenRepository emailVerificationTokenRepository)
+    : IRequestHandler<VerificationEmailCommand, ServiceResponse>
 {
     public async Task<ServiceResponse> Handle(VerificationEmailCommand request,
         CancellationToken cancellationToken)
     {
-                
-        EmailVerificationToken? verificationToken = await emailVerificationTokenRepository.Get(request.TokenId, cancellationToken);
+        EmailVerificationToken? verificationToken =
+            await emailVerificationTokenRepository.Get(request.TokenId, cancellationToken);
 
         if (verificationToken is null)
         {
             return ServiceResponse.NotFoundResponse("Email verification token not found");
         }
-        
+
         var user = await userRepository.FindUserByEmailVerificationToken(request.TokenId, cancellationToken);
-        
-        if (verificationToken.ExpiresOnUtc < DateTime.UtcNow || user.EmailConfirmed)
-        {
-            return ServiceResponse.GetResponse("Email verification token has expired", false, null, HttpStatusCode.Conflict);
-        }
 
         if (user is null)
         {
             return ServiceResponse.NotFoundResponse("User not found");
         }
 
+        if (user.EmailConfirmed)
+        {
+            return ServiceResponse.GetResponse("User has already confirmed their email address", false, null,
+                HttpStatusCode.Conflict);
+        }
 
-        await userRepository.VerifyEmailUser(user.Id,cancellationToken);
+        if (verificationToken.ExpiresOnUtc < DateTime.UtcNow)
+        {
+            return ServiceResponse.GetResponse("Email verification token has expired", false, null,
+                HttpStatusCode.Conflict);
+        }
+
+        await userRepository.VerifyEmailUser(user.Id, cancellationToken);
 
         await emailVerificationTokenRepository.Delete(request.TokenId, cancellationToken);
 
