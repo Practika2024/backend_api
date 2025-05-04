@@ -16,5 +16,5 @@ public class ContainerEntity : AuditableEntity
     public ContainerTypeEntity? Type { get; set; }
     public Guid? ProductId { get; set; }
     public ProductEntity? Product { get; set; }
-    public string? FileName { get; set; }
+    public string? FilePath { get; set; }
 }

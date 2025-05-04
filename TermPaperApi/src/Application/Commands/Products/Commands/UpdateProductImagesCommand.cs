@@ -1,4 +1,5 @@
-﻿using Application.Common.Interfaces.Repositories;
+﻿using Application.Common.Interfaces;
+using Application.Common.Interfaces.Repositories;
 using Application.Services;
 using Application.Services.ImageService;
 using Application.Settings;
@@ -13,7 +14,7 @@ namespace Application.Commands.Products.Commands;
 public record UpdateProductImagesCommand : IRequest<ServiceResponse>
 {
     public Guid ProductId { get; init; }
-    public IFormFileCollection NewImages { get; init; }
+    public required IFormFileCollection NewImages { get; init; }
     public List<Guid> ImagesToDelete { get; init; } = [];
 }
 
@@ -21,7 +22,8 @@ public class UpdateProductImagesCommandHandler(
     IProductRepository productRepository,
     IImageService imageService,
     IMapper mapper,
-    IHttpContextAccessor httpContextAccessor)
+    IHttpContextAccessor httpContextAccessor,
+    IUserProvider userProvider)
     : IRequestHandler<UpdateProductImagesCommand, ServiceResponse>
 {
     public async Task<ServiceResponse> Handle(UpdateProductImagesCommand request, CancellationToken cancellationToken)
@@ -42,21 +44,31 @@ public class UpdateProductImagesCommandHandler(
                 }
 
                 // Додавання
-                var savedImages = await imageService.SaveImagesFromFilesAsync(ImagePaths.ProductImagesPath, request.NewImages);
+                var savedImages =
+                    await imageService.SaveImagesFromFilesAsync(ImagePaths.ProductImagesPath, request.NewImages);
 
-                var baseUrl = $"{httpContextAccessor.HttpContext!.Request.Scheme}://{httpContextAccessor.HttpContext.Request.Host}/";
+                var baseUrl =
+                    $"{httpContextAccessor.HttpContext!.Request.Scheme}://{httpContextAccessor.HttpContext.Request.Host}/";
 
                 foreach (var fileName in savedImages)
                 {
                     p.Images.Add(new ProductImage
                     {
-                        FileName = fileName,
+                        FileName = fileName!,
                         FilePath = $"{baseUrl}{ImagePaths.ProductImagesPathForUrl}/{fileName}"
                     });
                 }
 
-                var updated = await productRepository.Update(mapper.Map<UpdateProductModel>(p), cancellationToken);
-                return ServiceResponse.OkResponse("Images updated", updated);
+                try
+                {
+                    p.ModifiedBy = userProvider.GetUserId();
+                    var updated = await productRepository.Update(mapper.Map<UpdateProductModel>(p), cancellationToken);
+                    return ServiceResponse.OkResponse("Images updated", updated);
+                }
+                catch (Exception e)
+                {
+                    return ServiceResponse.InternalServerErrorResponse(e.Message, e);
+                }
             },
             () => Task.FromResult(ServiceResponse.NotFoundResponse("Product not found"))
         );

@@ -171,4 +171,21 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
 
         return GetResult(result);
     }
+    
+    [HttpPut("update-image/{containerId:guid}")]
+    public async Task<IActionResult> UpdateContainerImage(
+        [FromRoute] Guid containerId,
+        IFormFile file,
+        CancellationToken cancellationToken)
+    {
+        var command = new UpdateContainerImageCommand
+        {
+            ContainerId = containerId,
+            File = file
+        };
+
+        var result = await sender.Send(command, cancellationToken);
+
+        return GetResult(result);
+    }
 }
