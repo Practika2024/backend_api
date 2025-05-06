@@ -32,7 +32,7 @@ public class ApproveUserCommandHandler(
                 }
                 catch (Exception exception)
                 {
-                    return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
+                    return ServiceResponse.InternalServerErrorResponse(exception.Message);
                 }
             },
             () => Task.FromResult(

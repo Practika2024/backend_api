@@ -54,7 +54,7 @@ public class UpdateProductCommandHandler(
                     }
                     catch (ProductException exception)
                     {
-                        return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
+                        return ServiceResponse.InternalServerErrorResponse(exception.Message);
                     }
                 },
                 () => Task.FromResult<ServiceResponse>(ServiceResponse.NotFoundResponse("Product type not found"))

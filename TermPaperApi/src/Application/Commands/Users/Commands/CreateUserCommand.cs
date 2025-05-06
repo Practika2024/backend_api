@@ -67,7 +67,7 @@ public class CreateUserCommandHandler(
         }
         catch (Exception exception)
         {
-            return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
+            return ServiceResponse.InternalServerErrorResponse(exception.Message);
         }
     }
 }

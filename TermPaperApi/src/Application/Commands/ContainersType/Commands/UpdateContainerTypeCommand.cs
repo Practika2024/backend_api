@@ -44,7 +44,7 @@ public class UpdateContainerTypeCommandHandler(
                 }
                 catch (ContainerTypeException exception)
                 {
-                    return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
+                    return ServiceResponse.InternalServerErrorResponse(exception.Message);
                 }
             },
             () => Task.FromResult<ServiceResponse>(

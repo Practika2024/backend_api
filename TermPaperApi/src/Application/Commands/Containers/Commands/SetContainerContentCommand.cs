@@ -84,7 +84,7 @@ public class SetContainerContentCommandHandler(
         }
         catch (ContainerException exception)
         {
-            return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
+            return ServiceResponse.InternalServerErrorResponse(exception.Message);
         }
     }
 

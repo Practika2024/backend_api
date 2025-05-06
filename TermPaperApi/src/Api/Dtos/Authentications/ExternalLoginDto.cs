@@ -2,6 +2,6 @@
 
 public class ExternalLoginDto
 {
-    public string Provider { get; set; }
-    public string Token { get; set; }
+    public required string Provider { get; set; }
+    public required string Token { get; set; }
 }

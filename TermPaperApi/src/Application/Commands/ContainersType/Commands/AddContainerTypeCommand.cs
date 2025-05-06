@@ -56,7 +56,7 @@ public class AddContainerTypeCommandHandler(IContainerTypeRepository containerTy
         }
         catch (ContainerTypeException exception)
         {
-            return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
+            return ServiceResponse.InternalServerErrorResponse(exception.Message);
         }
     }
 }

@@ -38,7 +38,7 @@ public class DeleteReminderCommandHandler(
                 }
                 catch (ReminderException exception)
                 {
-                    return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
+                    return ServiceResponse.InternalServerErrorResponse(exception.Message);
                 }
             },
             () => Task.FromResult<ServiceResponse>(

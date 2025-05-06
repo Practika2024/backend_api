@@ -64,7 +64,7 @@ public class UpdateContainerImageCommandHandler(
         }
         catch (Exception e)
         {
-            return ServiceResponse.InternalServerErrorResponse(e.Message, e);
+            return ServiceResponse.InternalServerErrorResponse(e.Message);
         }
     }
 }

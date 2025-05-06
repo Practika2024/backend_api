@@ -35,7 +35,7 @@ public class SignUpUserCommandHandler(
         var existingUser = await userRepository.SearchByEmail(request.Email, cancellationToken);
 
         return await existingUser.Match<Task<ServiceResponse>>(
-            u => Task.FromResult<ServiceResponse>(
+            u => Task.FromResult(
                 ServiceResponse.BadRequestResponse("User with this email already exists")
                 ),
             async () => await SignUp(request, cancellationToken)
@@ -64,14 +64,8 @@ public class SignUpUserCommandHandler(
             };
             User userEntity = await userRepository.Create(userModel, cancellationToken);
 
-            if (!isUsersNullOrEmpty)
+            if (!userModel.IsApprovedByAdmin.HasValue)
             {
-                // var noTokenAvailable = new JwtModel()
-                // {
-                //     AccessToken = "You don't have access token, please wait for admin approval",
-                //     RefreshToken = "You don't have refresh token, please wait for admin approval"
-                // };
-
                 return ServiceResponse.OkResponse("You don't have access token, please wait for admin approval");
             }
 
@@ -81,7 +75,7 @@ public class SignUpUserCommandHandler(
         }
         catch (Exception exception)
         {
-            return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
+            return ServiceResponse.InternalServerErrorResponse(exception.Message);
         }
     }
 }

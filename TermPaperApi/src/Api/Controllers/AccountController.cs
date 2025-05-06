@@ -67,6 +67,7 @@ public class AccountController(ISender sender, IMapper mapper) : BaseController(
     public async Task<IActionResult> GoogleExternalLoginAsync([FromBody] ExternalLoginDto model, CancellationToken cancellationToken)
     {
         var command = new GoogleExternalLoginCommand { Model = _mapper.Map<ExternalLoginModel>(model) };
+        
         var result = await sender.Send(command, cancellationToken);
 
         return GetResult(result);

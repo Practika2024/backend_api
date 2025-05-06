@@ -44,7 +44,7 @@ public class ChangeRoleForUserCommandHandler(
                         }
                         catch (Exception exception)
                         {
-                            return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
+                            return ServiceResponse.InternalServerErrorResponse(exception.Message);
                         }
                     }, 
                     () => Task.FromResult(ServiceResponse.NotFoundResponse("Role not found")));

@@ -88,7 +88,7 @@ public class AddProductCommandHandler(
         }
         catch (ProductException exception)
         {
-            return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
+            return ServiceResponse.InternalServerErrorResponse(exception.Message);
         }
     }
 }

@@ -50,7 +50,7 @@ public class AddProductTypeCommandHandler(IProductTypeRepository productTypeRepo
         }
         catch (ProductTypeException exception)
         {
-            return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
+            return ServiceResponse.InternalServerErrorResponse(exception.Message);
         }
     }
 }

@@ -32,8 +32,8 @@ public class SignInCommandHandler(
 
         return await existingUser.Match(
             async u => await SignIn(u, request.Password, cancellationToken),
-            () => Task.FromResult<ServiceResponse>(
-                ServiceResponse.BadRequestResponse("Email or password are incorrect", null)));
+            () => Task.FromResult(
+                ServiceResponse.BadRequestResponse("Email or password are incorrect")));
     }
 
     private async Task<ServiceResponse> SignIn(
@@ -65,7 +65,7 @@ public class SignInCommandHandler(
         }
         catch (Exception exception)
         {
-            return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
+            return ServiceResponse.InternalServerErrorResponse(exception.Message);
         }
     }
 }

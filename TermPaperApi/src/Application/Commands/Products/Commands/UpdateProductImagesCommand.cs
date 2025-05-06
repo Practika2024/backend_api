@@ -67,7 +67,7 @@ public class UpdateProductImagesCommandHandler(
                 }
                 catch (Exception e)
                 {
-                    return ServiceResponse.InternalServerErrorResponse(e.Message, e);
+                    return ServiceResponse.InternalServerErrorResponse(e.Message);
                 }
             },
             () => Task.FromResult(ServiceResponse.NotFoundResponse("Product not found"))

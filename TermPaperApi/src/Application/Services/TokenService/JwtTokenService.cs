@@ -124,7 +124,7 @@ namespace Application.Services.TokenService
         
         public async Task<GoogleJsonWebSignature.Payload> VerifyGoogleToken(ExternalLoginModel model)
         {
-            string clientId = configuration["GoogleAuthSettings:ClientId"];
+            string clientId = configuration["GoogleAuthSettings:ClientId"]!;
             var settings = new GoogleJsonWebSignature.ValidationSettings()
             {
                 Audience = new List<string> { clientId }
