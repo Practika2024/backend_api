@@ -60,6 +60,7 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper) : IUse
     public async Task<IReadOnlyList<User>> GetAll(CancellationToken cancellationToken)
     {
         var userEntities = await context.Users
+            .Where(u=>u.IsApprovedByAdmin == true)
             .AsNoTracking()
             .AsSplitQuery()
             .ToListAsync(cancellationToken);
