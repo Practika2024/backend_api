@@ -223,4 +223,13 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper) : IUse
 
         return mapper.Map<User>(userEntity);
     }
+    
+    public async Task<Option<User>> GetByIdAsQuery(Guid id, CancellationToken cancellationToken)
+    {
+        var entity = await GetUserAsync(x => x.Id == id, cancellationToken, true);
+
+        var user = mapper.Map<User>(entity);
+
+        return user == null ? Option.None<User>() : Option.Some(user);
+    }
 }

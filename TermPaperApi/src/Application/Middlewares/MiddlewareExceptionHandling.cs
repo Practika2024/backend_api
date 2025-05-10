@@ -5,20 +5,13 @@ using Microsoft.AspNetCore.Http;
 
 namespace Application.Middlewares;
 
-public class MiddlewareExceptionHandling
+public class MiddlewareExceptionHandling(RequestDelegate next)
 {
-    private readonly RequestDelegate _next;
-
-    public MiddlewareExceptionHandling(RequestDelegate next)
-    {
-        _next = next;
-    }
-
     public async Task Invoke(HttpContext context)
     {
         try
         {
-            await _next(context);
+            await next(context);
         }
         catch (ValidationException ex)
         {

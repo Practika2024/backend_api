@@ -75,6 +75,7 @@ if (!Directory.Exists(imagesPath))
 }
 
 app.UseMiddleware<MiddlewareExceptionHandling>();
+app.UseMiddleware<UserValidationMiddleware>();
 
 app.UseStaticFiles(new StaticFileOptions
 {
