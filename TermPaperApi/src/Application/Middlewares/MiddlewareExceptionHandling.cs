@@ -15,19 +15,13 @@ public class MiddlewareExceptionHandling(RequestDelegate next)
         }
         catch (ValidationException ex)
         {
-            // var response = ex.Message ?? throw new ArgumentNullException(nameof(ex));
-            var response = ServiceResponse.BadRequestResponse(ex.Message ?? throw new ArgumentNullException(nameof(ex)));
-            context.Response.StatusCode = StatusCodes.Status400BadRequest;
-            context.Response.ContentType = "application/json";
-            await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+            await context.Response.WriteJsonResponseAsync(StatusCodes.Status400BadRequest,
+                ServiceResponse.BadRequestResponse(ex.Message ?? throw new ArgumentNullException(nameof(ex))));
         }
         catch (Exception ex)
         {
-            // var response = ex.Message;
-            var response = ServiceResponse.InternalServerErrorResponse(ex.Message);
-            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            context.Response.ContentType = "application/json";
-            await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+            await context.Response.WriteJsonResponseAsync(StatusCodes.Status500InternalServerError,
+                ServiceResponse.InternalServerErrorResponse(ex.Message));
         }
     }
 }

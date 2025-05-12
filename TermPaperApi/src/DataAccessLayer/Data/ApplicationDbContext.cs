@@ -14,8 +14,7 @@ using Microsoft.EntityFrameworkCore;
 namespace DataAccessLayer.Data;
 
 public class ApplicationDbContext(
-    DbContextOptions<ApplicationDbContext> options,
-    IHashPasswordService hashPasswordService) : DbContext(options)
+    DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
     public DbSet<UserEntity> Users { get; set; }
     public DbSet<RoleEntity> Roles { get; set; }
@@ -33,6 +32,6 @@ public class ApplicationDbContext(
     {
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         base.OnModelCreating(builder);
-        DataSeed.Seed(builder, hashPasswordService);
+        DataSeed.Seed(builder);
     }
 }

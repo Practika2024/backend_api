@@ -4,6 +4,7 @@ using Application.Common.Interfaces.Queries;
 using Application.Services;
 using Application.Settings;
 using AutoMapper;
+using Domain.Common.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -24,6 +25,20 @@ public class ProductsController(ISender sender, IProductQueries productQueries, 
     {
         var entities = await productQueries.GetAll(cancellationToken);
         return GetResult(ServiceResponse.OkResponse("Products list", entities.Select(_mapper.Map<ProductDto>).ToList()));
+    }
+    
+    [HttpGet("get-all-with-pagination")]
+    public async Task<IActionResult> GetAllWithPagination(int page, int pageSize, CancellationToken cancellationToken)
+    {
+        var command = new GetProductsWithPaginationCommand
+        {
+            Page = page,
+            PageSize = pageSize
+        };
+
+        var result = await sender.Send(command, cancellationToken);
+
+        return GetResult<EntitiesListModel<ProductDto>>(result);
     }
 
     [HttpGet("get-by-id/{productId:guid}")]

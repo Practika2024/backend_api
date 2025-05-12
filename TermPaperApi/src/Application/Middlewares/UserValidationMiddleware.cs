@@ -13,13 +13,19 @@ public class UserValidationMiddleware(RequestDelegate next)
         if (context.User.Identity?.IsAuthenticated == true)
         {
             var user = await userProvider.GetUserByIdAsync(userProvider.GetUserId(), cancellationToken: default);
-            if (user == null || user.IsApprovedByAdmin == false)
+            if (user == null)
             {
-                var response = ServiceResponse.GetResponse("Access denied. User is not approved.", false, null,
-                    HttpStatusCode.Forbidden);
-                context.Response.StatusCode = StatusCodes.Status403Forbidden;
-                context.Response.ContentType = "application/json";
-                await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+                await context.Response.WriteJsonResponseAsync(StatusCodes.Status403Forbidden,
+                    ServiceResponse.GetResponse("User was not found", false, null,
+                        HttpStatusCode.Forbidden));
+                return;
+            }
+
+            if (user.IsApprovedByAdmin == false)
+            {
+                await context.Response.WriteJsonResponseAsync(StatusCodes.Status403Forbidden,
+                    ServiceResponse.GetResponse("Access denied. User is not approved", false, null,
+                        HttpStatusCode.Forbidden));
                 return;
             }
         }
