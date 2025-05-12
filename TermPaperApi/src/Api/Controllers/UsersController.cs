@@ -1,10 +1,12 @@
-﻿using Api.Dtos.Users;
-using Api.Modules.Errors;
+﻿using Api.Dtos;
+using Api.Dtos.Users;
 using Application.Commands.Users.Commands;
 using Application.Common.Interfaces.Queries;
 using Application.Services;
+using Application.Services.PaginationService;
 using Application.Settings;
 using AutoMapper;
+using Domain.Common.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -16,16 +18,25 @@ namespace Api.Controllers;
 [ApiController]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
-public class UsersController(ISender sender, IUserQueries userQueries, IMapper mapper) : BaseController(mapper)
+public class UsersController(
+    ISender sender,
+    IUserQueries userQueries,
+    IMapper mapper) : BaseController(mapper)
 {
     private readonly IMapper _mapper = mapper;
 
     [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpGet("get-all")]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll([FromQuery] PaginationDto pagination, CancellationToken cancellationToken)
     {
         var entities = await userQueries.GetAll(cancellationToken);
-        return GetResult(ServiceResponse.OkResponse("Users list", entities.Select(_mapper.Map<UserDto>)));
+        if (pagination.Page is null && pagination.PageSize is null)
+            return GetResult(ServiceResponse.OkResponse("Users list", entities.Select(_mapper.Map<UserDto>)));
+        
+        var response = PaginationService.GetEntitiesWithPagination(pagination.Page, pagination.PageSize,
+            entities.ToList());
+
+        return GetResult<EntitiesListModel<UserDto>>(response);
     }
 
     [Authorize(Roles = AuthSettings.AdminRole)]

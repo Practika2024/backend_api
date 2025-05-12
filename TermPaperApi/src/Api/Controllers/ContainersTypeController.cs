@@ -1,10 +1,12 @@
-﻿using Api.Dtos.ContainersType;
-using Api.Modules.Errors;
+﻿using Api.Dtos;
+using Api.Dtos.ContainersType;
 using Application.Commands.ContainersType.Commands;
 using Application.Common.Interfaces.Queries;
 using Application.Services;
+using Application.Services.PaginationService;
 using Application.Settings;
 using AutoMapper;
+using Domain.Common.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -16,18 +18,26 @@ namespace Api.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
 [ApiController]
-public class ContainersTypeController(ISender sender, IContainerTypeQueries containerTypeQueries, IMapper mapper)
+public class ContainersTypeController(
+    ISender sender,
+    IContainerTypeQueries containerTypeQueries,
+    IMapper mapper)
     : BaseController(mapper)
 {
     private readonly IMapper _mapper = mapper;
 
     [HttpGet("get-all")]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll([FromQuery] PaginationDto pagination, CancellationToken cancellationToken)
     {
         var entities = await containerTypeQueries.GetAll(cancellationToken);
+        if (pagination.Page is null && pagination.PageSize is null)
+            return GetResult(ServiceResponse.OkResponse("Containers types list",
+                entities.Select(_mapper.Map<ContainerTypeDto>)));
         
-        return GetResult(ServiceResponse.OkResponse("Containers types list",
-            entities.Select(_mapper.Map<ContainerTypeDto>)));
+        var response = PaginationService.GetEntitiesWithPagination(pagination.Page, pagination.PageSize,
+            entities.ToList());
+
+        return GetResult<EntitiesListModel<ContainerTypeDto>>(response);
     }
 
     [HttpGet("get-by-id/{containerTypeId:guid}")]
