@@ -1,6 +1,7 @@
 ﻿using Api.Dtos;
 using Api.Dtos.Users;
 using Application.Commands.Users.Commands;
+using Application.Common.Interfaces;
 using Application.Common.Interfaces.Queries;
 using Application.Services;
 using Application.Services.PaginationService;
@@ -21,7 +22,8 @@ namespace Api.Controllers;
 public class UsersController(
     ISender sender,
     IUserQueries userQueries,
-    IMapper mapper) : BaseController(mapper)
+    IMapper mapper,
+    IUserProvider userProvider) : BaseController(mapper)
 {
     private readonly IMapper _mapper = mapper;
 
@@ -64,6 +66,16 @@ public class UsersController(
     public async Task<IActionResult> Get([FromRoute] Guid userId, CancellationToken cancellationToken)
     {
         var entity = await userQueries.GetById(userId, cancellationToken);
+
+        return entity.Match<IActionResult>(
+            p => GetResult(ServiceResponse.OkResponse("User", _mapper.Map<UserDto>(p))),
+            () => GetResult(ServiceResponse.NotFoundResponse("User not found")));
+    }
+    
+    [HttpGet("get-by-token")]
+    public async Task<IActionResult> GetUserByToken(CancellationToken cancellationToken)
+    {
+        var entity = await userQueries.GetById(userProvider.GetUserId(), cancellationToken);
 
         return entity.Match<IActionResult>(
             p => GetResult(ServiceResponse.OkResponse("User", _mapper.Map<UserDto>(p))),
