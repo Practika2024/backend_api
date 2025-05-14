@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Api.Tests.Integration;
 
-public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseIntegrationTest(factory)
+public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseIntegrationTest(factory, false)
 {
     [Fact]
     public async Task ShouldSignUp()
@@ -254,6 +254,6 @@ public class AccountControllerTests(IntegrationTestWebFactory factory) : BaseInt
         await Context.Users
             .Where(u => !u.IsApprovedByAdmin.HasValue)
             .ExecuteUpdateAsync(updates
-                => updates.SetProperty(u => u.IsApprovedByAdmin, true), CancellationToken.None);
+                => updates.SetProperty(u => u.IsApprovedByAdmin, true));
     }
 }
