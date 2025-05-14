@@ -28,13 +28,9 @@ public class ReminderRepository(ApplicationDbContext context, IMapper mapper) : 
     {
         var reminderEntity = await GetReminderAsync(x => x.Id == model.Id, cancellationToken);
 
-        if (reminderEntity == null)
-        {
-            throw new InvalidOperationException("Reminder not found.");
-        }
+       mapper.Map(model, reminderEntity);
 
-        reminderEntity = mapper.Map<ReminderEntity>(model);
-
+        context.Reminders.UpdateAuditable(reminderEntity!);
         await context.SaveChangesAsync(cancellationToken);
 
         return mapper.Map<Reminder>(reminderEntity);
@@ -72,6 +68,18 @@ public class ReminderRepository(ApplicationDbContext context, IMapper mapper) : 
         var reminder = mapper.Map<Reminder>(entity);
 
         return reminder == null ? Option.None<Reminder>() : Option.Some(reminder);
+    }
+
+    public async Task<Option<IReadOnlyList<Reminder>>> GetByUser(Guid userId, CancellationToken cancellationToken)
+    {
+        var entity = await context.Reminders.Where(r => r.CreatedBy == userId)
+            .AsNoTracking()
+            .Include(r => r.Container)
+            .ToListAsync(cancellationToken);
+
+        var reminder = mapper.Map<IReadOnlyList<Reminder>>(entity);
+
+        return reminder == null ? Option.None<IReadOnlyList<Reminder>>() : Option.Some(reminder);
     }
 
     public async Task<IReadOnlyList<Reminder>> GetByContainerId(Guid containerId, CancellationToken cancellationToken)

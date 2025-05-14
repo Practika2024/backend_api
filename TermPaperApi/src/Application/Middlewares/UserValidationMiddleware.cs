@@ -16,16 +16,14 @@ public class UserValidationMiddleware(RequestDelegate next)
             if (user == null)
             {
                 await context.Response.WriteJsonResponseAsync(StatusCodes.Status403Forbidden,
-                    ServiceResponse.GetResponse("User was not found", false, null,
-                        HttpStatusCode.Forbidden));
+                    ServiceResponse.ForbiddenResponse("User was not found"));
                 return;
             }
 
             if (user.IsApprovedByAdmin == false)
             {
                 await context.Response.WriteJsonResponseAsync(StatusCodes.Status403Forbidden,
-                    ServiceResponse.GetResponse("Access denied. User is not approved", false, null,
-                        HttpStatusCode.Forbidden));
+                    ServiceResponse.ForbiddenResponse("Access denied. User is not approved"));
                 return;
             }
         }

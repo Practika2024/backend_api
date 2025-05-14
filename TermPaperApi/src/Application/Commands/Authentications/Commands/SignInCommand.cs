@@ -48,7 +48,7 @@ public class SignInCommandHandler(
 
         if (!user.IsApprovedByAdmin.Value)
         {
-            return ServiceResponse.GetResponse("Your approval has been rejected", false, null, HttpStatusCode.Forbidden);
+            return ServiceResponse.ForbiddenResponse("Your approval has been rejected");
         }
         
         string storedHash = user.PasswordHash;

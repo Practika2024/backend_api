@@ -55,8 +55,7 @@ public class GoogleExternalLoginCommandHandler(
 
             if (user.IsApprovedByAdmin == false)
             {
-                return ServiceResponse.GetResponse("Your approval has been rejected", false, null,
-                    HttpStatusCode.Forbidden);
+                return ServiceResponse.ForbiddenResponse("Your approval has been rejected");
             }
 
             var tokens = await jwtTokenService.GenerateTokensAsync(user, cancellationToken);

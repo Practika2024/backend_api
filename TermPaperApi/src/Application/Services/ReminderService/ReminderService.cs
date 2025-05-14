@@ -5,9 +5,15 @@ namespace Application.Services.ReminderService;
 
 public class ReminderService(IEmailService emailService) : IReminderService
 {
-    public void ScheduleReminder(string userEmail, string title, DateTime reminderTime)
+    public string ScheduleReminder(string userEmail, string title, DateTime reminderTime)
     {
-        BackgroundJob.Schedule(() => SendReminder(userEmail, title), reminderTime - DateTime.UtcNow);
+        var jobId = BackgroundJob.Schedule(() => SendReminder(userEmail, title), reminderTime - DateTime.UtcNow);
+        return jobId;
+    }
+
+    public void DeleteHangfireJob(string reminderHangfireJobId)
+    {
+        BackgroundJob.Delete(reminderHangfireJobId);
     }
 
     public void SendReminder(string userEmail, string title)

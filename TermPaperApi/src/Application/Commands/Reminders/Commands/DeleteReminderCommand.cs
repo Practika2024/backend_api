@@ -1,9 +1,12 @@
 ﻿using Application.Commands.Reminders.Exceptions;
 using Application.Common;
+using Application.Common.Interfaces;
 using Application.Common.Interfaces.Repositories;
 using Application.Services;
+using Application.Services.ReminderService;
 using Domain.Reminders;
 using Domain.Reminders.Models;
+using Hangfire;
 using MediatR;
 
 namespace Application.Commands.Reminders.Commands;
@@ -14,7 +17,9 @@ public record DeleteReminderCommand : IRequest<ServiceResponse>
 }
 
 public class DeleteReminderCommandHandler(
-    IReminderRepository reminderRepository) : IRequestHandler<DeleteReminderCommand, ServiceResponse>
+    IReminderRepository reminderRepository,
+    IUserProvider userProvider,
+    IReminderService reminderService) : IRequestHandler<DeleteReminderCommand, ServiceResponse>
 {
     public async Task<ServiceResponse> Handle(
         DeleteReminderCommand request,
@@ -28,6 +33,17 @@ public class DeleteReminderCommandHandler(
             {
                 try
                 {
+                    if (userProvider.GetUserId() != reminder.CreatedBy)
+                    {
+                        return ServiceResponse.ForbiddenResponse("You are not allowed to delete this reminder");
+                    }
+                    
+                    if (!string.IsNullOrWhiteSpace(reminder.HangfireJobId))
+                    {
+                        // BackgroundJob.Delete(reminder.HangfireJobId);
+                        reminderService.DeleteHangfireJob(reminder.HangfireJobId);
+                    }
+
                     var deleteModel = new DeleteReminderModel
                     {
                         Id = reminderId

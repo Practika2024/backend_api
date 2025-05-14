@@ -40,5 +40,10 @@ namespace Application.Services
         {
             return GetResponse(message, false, payload, HttpStatusCode.NotFound);
         }
+
+        public static ServiceResponse ForbiddenResponse(string message, object? payload = null)
+        {
+            return GetResponse(message, false, payload, HttpStatusCode.Forbidden);
+        }
     }
 }

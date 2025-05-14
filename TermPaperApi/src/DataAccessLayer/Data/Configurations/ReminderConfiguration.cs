@@ -13,6 +13,7 @@ public class ReminderConfiguration : IEntityTypeConfiguration<ReminderEntity>
         builder.Property(r => r.Title).HasMaxLength(100).IsRequired();
         builder.Property(r => r.DueDate).IsRequired();
         builder.Property(r => r.Type).HasConversion<int>();
+        builder.Property(r => r.HangfireJobId).HasMaxLength(100);
 
         builder.HasOne(r => r.Container)
             .WithMany()

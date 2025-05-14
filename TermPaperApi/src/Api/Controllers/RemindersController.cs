@@ -1,5 +1,6 @@
 ﻿using Api.Dtos.Reminders;
 using Application.Commands.Reminders.Commands;
+using Application.Common.Interfaces;
 using Application.Common.Interfaces.Queries;
 using Application.Services;
 using Application.Settings;
@@ -15,7 +16,11 @@ namespace Api.Controllers;
 [ApiController]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
-public class RemindersController(ISender sender, IReminderQueries reminderQueries, IMapper mapper) : BaseController(mapper)
+public class RemindersController(
+    ISender sender,
+    IReminderQueries reminderQueries,
+    IMapper mapper,
+    IUserProvider userProvider) : BaseController(mapper)
 {
     private readonly IMapper _mapper = mapper;
 
@@ -33,6 +38,15 @@ public class RemindersController(ISender sender, IReminderQueries reminderQuerie
         var entity = await reminderQueries.GetById(reminderId, cancellationToken);
         return entity.Match<IActionResult>(
             p => GetResult(ServiceResponse.OkResponse("Reminder", _mapper.Map<ReminderDto>(p))),
+            () => GetResult(ServiceResponse.NotFoundResponse("Reminder not found")));
+    }
+
+    [HttpGet("get-by-user")]
+    public async Task<IActionResult> GetByUser(CancellationToken cancellationToken)
+    {
+        var entity = await reminderQueries.GetByUser(userProvider.GetUserId(), cancellationToken);
+        return entity.Match<IActionResult>(
+            p => GetResult(ServiceResponse.OkResponse("Reminder", _mapper.Map<IReadOnlyList<ReminderDto>>(p))),
             () => GetResult(ServiceResponse.NotFoundResponse("Reminder not found")));
     }
 
@@ -66,11 +80,12 @@ public class RemindersController(ISender sender, IReminderQueries reminderQuerie
             Id = reminderId,
             Title = model.Title,
             DueDate = model.DueDate,
-            Type = model.Type
+            Type = model.Type,
+            ContainerId = model.ContainerId
         };
-
+    
         var result = await sender.Send(command, cancellationToken);
-
+    
         return GetResult(result);
     }
 
