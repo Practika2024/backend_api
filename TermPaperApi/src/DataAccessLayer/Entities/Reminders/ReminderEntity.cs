@@ -11,6 +11,8 @@ public class ReminderEntity : AuditableEntity
     public ContainerEntity? Container { get; set; }
     public string Title { get; set; }
     public DateTime DueDate { get; set; }
-    public ReminderType Type { get; set; }
+    public int TypeId { get; set; }
+    public ReminderTypeEntity? Type { get; set; }
     public string? HangfireJobId { get; set; }
+    public ReminderStatus Status { get; set; }
 }

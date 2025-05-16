@@ -17,7 +17,7 @@ public record UpdateReminderCommand : IRequest<ServiceResponse>
     public required Guid Id { get; init; }
     public string? Title { get; init; }
     public DateTime? DueDate { get; init; }
-    public ReminderType? Type { get; init; }
+    public int? TypeId { get; init; }
     public Guid? ContainerId { get; init; }
 }
 
@@ -42,7 +42,7 @@ public class UpdateReminderCommandHandler(
                 {
                     var newTitle = request.Title ?? reminder.Title;
                     var newDueDate = request.DueDate ?? reminder.DueDate;
-                    var newType = request.Type ?? reminder.Type;
+                    var newType = request.TypeId ?? reminder.TypeId;
                     var container = request.ContainerId ?? reminder.ContainerId;
 
                     if (!string.IsNullOrWhiteSpace(reminder.HangfireJobId))
@@ -61,7 +61,7 @@ public class UpdateReminderCommandHandler(
                         Id = reminderId,
                         Title = newTitle,
                         DueDate = newDueDate,
-                        Type = newType,
+                        TypeId = newType,
                         ContainerId = container,
                         HangfireJobId = newJobId,
                         ModifiedBy = userProvider.GetUserId()

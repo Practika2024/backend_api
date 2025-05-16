@@ -70,5 +70,9 @@ public static class ConfigurePersistence
 
         services.AddScoped<RefreshTokenRepository>();
         services.AddScoped<IRefreshTokenRepository>(provider => provider.GetRequiredService<RefreshTokenRepository>());
+        
+        services.AddScoped<ReminderTypeRepository>();
+        services.AddScoped<IReminderTypeRepository>(provider => provider.GetRequiredService<ReminderTypeRepository>());
+        services.AddScoped<IReminderTypeQueries>(provider => provider.GetRequiredService<ReminderTypeRepository>());
     }
 }

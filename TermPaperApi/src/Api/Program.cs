@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Api.Modules;
 using Api.Services.UserProvider;
 using Application;
@@ -29,6 +30,12 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 builder.Host.UseSerilog();
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
     
 var app = builder.Build();
 

@@ -17,7 +17,7 @@ public record AddReminderToContainerCommand : IRequest<ServiceResponse>
     public required Guid ContainerId { get; init; }
     public required string Title { get; init; } = null!;
     public required DateTime DueDate { get; init; }
-    public required ReminderType Type { get; init; }
+    public required int TypeId { get; init; }
 }
 
 public class AddReminderToContainerCommandHandler(
@@ -48,7 +48,7 @@ public class AddReminderToContainerCommandHandler(
                         ContainerId = containerId,
                         Title = request.Title,
                         DueDate = request.DueDate,
-                        Type = request.Type,
+                        TypeId = request.TypeId,
                         CreatedBy = userId,
                         HangfireJobId = null
                     };

@@ -25,6 +25,7 @@ public class ApplicationDbContext(
     public DbSet<ReminderEntity> Reminders { get; set; }
     public DbSet<ContainerTypeEntity> ContainerTypes { get; set; }
     public DbSet<ProductTypeEntity> ProductTypes { get; set; }
+    public DbSet<ReminderTypeEntity> ReminderTypes { get; set; }
     public DbSet<EmailVerificationTokenEntity> EmailVerificationTokens { get; set; }
     
 

@@ -5,6 +5,7 @@ using Application.Common.Interfaces.Queries;
 using Application.Services;
 using Application.Settings;
 using AutoMapper;
+using Domain.Reminders;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -29,6 +30,20 @@ public class RemindersController(
     {
         var entities = await reminderQueries.GetAll(cancellationToken);
         return GetResult(ServiceResponse.OkResponse("Reminders list", entities.Select(_mapper.Map<ReminderDto>)));
+    }
+    
+    [HttpGet("get-statuses")]
+    public IActionResult GetStatuses()
+    {
+        var statuses = Enum.GetValues(typeof(ReminderStatus))
+            .Cast<ReminderStatus>()
+            .Select(status => new
+            {
+                Id = (int)status,
+                Name = status.ToString()
+            });
+
+        return GetResult(ServiceResponse.OkResponse("Reminders statuses list", statuses));
     }
 
     [HttpGet("get-by-id/{reminderId:guid}")]
@@ -61,7 +76,7 @@ public class RemindersController(
             ContainerId = containerId,
             Title = model.Title,
             DueDate = model.DueDate,
-            Type = model.Type
+            TypeId = model.Type
         };
 
         var result = await sender.Send(command, cancellationToken);
@@ -80,7 +95,7 @@ public class RemindersController(
             Id = reminderId,
             Title = model.Title,
             DueDate = model.DueDate,
-            Type = model.Type,
+            TypeId = model.Type,
             ContainerId = model.ContainerId
         };
     
