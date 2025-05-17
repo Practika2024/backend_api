@@ -22,5 +22,5 @@ public enum ReminderStatus
 {
     Active,
     Completed,
-    New,
+    Viewed,
 }

@@ -1,6 +1,5 @@
 ﻿using Api.Dtos;
 using Api.Dtos.ReminderType;
-using Application.Commands.ProductsType.Commands;
 using Application.Commands.ReminderType.Commands;
 using Application.Common.Interfaces.Queries;
 using Application.Services;

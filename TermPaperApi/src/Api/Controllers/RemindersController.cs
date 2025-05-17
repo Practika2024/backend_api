@@ -118,4 +118,21 @@ public class RemindersController(
 
         return GetResult(result);
     }
+    
+    [HttpPatch("update-status/{reminderId:guid}")]
+    public async Task<IActionResult> UpdateReminderStatus(
+        [FromRoute] Guid reminderId,
+        [FromBody] int status,
+        CancellationToken cancellationToken)
+    {
+        var command = new UpdateReminderStatusCommand
+        {
+            Id = reminderId,
+            Status = status
+        };
+
+        var result = await sender.Send(command, cancellationToken);
+
+        return GetResult<ReminderDto>(result);
+    }
 }

@@ -10,5 +10,5 @@ public class ReminderDto
     public int TypeId { get; set; }
     public Guid CreatedBy { get; private set; }
     public DateTime CreatedAt { get; private set; }
-    public ReminderStatus Status { get; set; }
+    public string Status { get; set; }
 }

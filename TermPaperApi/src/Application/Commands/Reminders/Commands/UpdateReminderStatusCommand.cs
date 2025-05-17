@@ -1,27 +1,36 @@
 ﻿using Application.Common.Interfaces;
 using Application.Common.Interfaces.Repositories;
 using Application.Services;
-using Application.Services.ReminderService;
+using AutoMapper;
+using Domain.Reminders;
 using Domain.Reminders.Models;
 using MediatR;
 
 namespace Application.Commands.Reminders.Commands;
 
-public record DeleteReminderCommand : IRequest<ServiceResponse>
+public class UpdateReminderStatusCommand : IRequest<ServiceResponse>
 {
     public required Guid Id { get; init; }
+    public required int Status { get; init; }
 }
 
-public class DeleteReminderCommandHandler(
+public class UpdateReminderStatusCommandHandler(
     IReminderRepository reminderRepository,
     IUserProvider userProvider,
-    IReminderService reminderService) : IRequestHandler<DeleteReminderCommand, ServiceResponse>
+    IMapper mapper) : IRequestHandler<UpdateReminderStatusCommand, ServiceResponse>
 {
     public async Task<ServiceResponse> Handle(
-        DeleteReminderCommand request,
+        UpdateReminderStatusCommand request,
         CancellationToken cancellationToken)
     {
         var reminderId = request.Id;
+        var status = request.Status;
+
+        if (!Enum.IsDefined(typeof(ReminderStatus), status))
+        {
+            return ServiceResponse.BadRequestResponse("Invalid status");
+        }
+        
         var existingReminder = await reminderRepository.GetById(reminderId, cancellationToken);
 
         return await existingReminder.Match(
@@ -31,28 +40,20 @@ public class DeleteReminderCommandHandler(
                 {
                     if (userProvider.GetUserId() != reminder.CreatedBy)
                     {
-                        return ServiceResponse.ForbiddenResponse("You are not allowed to delete this reminder");
+                        return ServiceResponse.ForbiddenResponse("You are not allowed to update this reminder");
                     }
+
+                    reminder.Status = (ReminderStatus)status;
                     
-                    if (!string.IsNullOrWhiteSpace(reminder.HangfireJobId))
-                    {
-                        reminderService.DeleteHangfireJob(reminder.HangfireJobId);
-                    }
-
-                    var deleteModel = new DeleteReminderModel
-                    {
-                        Id = reminderId
-                    };
-
-                    var deletedReminder = await reminderRepository.Delete(deleteModel, cancellationToken);
-                    return ServiceResponse.OkResponse("Reminder deleted", deletedReminder);
+                    var updatedReminder = await reminderRepository.Update(mapper.Map<UpdateReminderModel>(reminder), cancellationToken);
+                    return ServiceResponse.OkResponse("Reminder updated", updatedReminder);
                 }
                 catch (Exception exception)
                 {
                     return ServiceResponse.InternalServerErrorResponse(exception.Message);
                 }
             },
-            () => Task.FromResult<ServiceResponse>(
+            () => Task.FromResult(
                 ServiceResponse.NotFoundResponse("Reminder not found"))
         );
     }

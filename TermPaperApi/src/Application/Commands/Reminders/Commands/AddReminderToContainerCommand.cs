@@ -1,11 +1,8 @@
-﻿using Application.Commands.Reminders.Exceptions;
-using Application.Common;
-using Application.Common.Interfaces;
+﻿using Application.Common.Interfaces;
 using Application.Common.Interfaces.Queries;
 using Application.Common.Interfaces.Repositories;
 using Application.Services;
 using Application.Services.ReminderService;
-using Domain.Reminders;
 using Domain.Reminders.Models;
 using MediatR;
 using Optional.Unsafe;
@@ -70,7 +67,7 @@ public class AddReminderToContainerCommandHandler(
 
                     return ServiceResponse.OkResponse("Reminder", createdReminder);
                 }
-                catch (ReminderException exception)
+                catch (Exception exception)
                 {
                     return ServiceResponse.InternalServerErrorResponse(exception.Message);
                 }

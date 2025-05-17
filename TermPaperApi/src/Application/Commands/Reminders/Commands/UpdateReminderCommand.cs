@@ -1,13 +1,9 @@
-﻿using Application.Commands.Reminders.Exceptions;
-using Application.Common;
-using Application.Common.Interfaces;
+﻿using Application.Common.Interfaces;
 using Application.Common.Interfaces.Queries;
 using Application.Common.Interfaces.Repositories;
 using Application.Services;
 using Application.Services.ReminderService;
-using Domain.Reminders;
 using Domain.Reminders.Models;
-using Hangfire;
 using MediatR;
 
 namespace Application.Commands.Reminders.Commands;
@@ -71,7 +67,7 @@ public class UpdateReminderCommandHandler(
 
                     return ServiceResponse.OkResponse("Reminder updated", updatedReminder);
                 }
-                catch (ReminderException exception)
+                catch (Exception exception)
                 {
                     return ServiceResponse.InternalServerErrorResponse(exception.Message);
                 }
