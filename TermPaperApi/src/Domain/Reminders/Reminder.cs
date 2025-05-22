@@ -5,6 +5,7 @@ using Domain.ReminderTypes;
 using Domain.Users;
 
 namespace Domain.Reminders;
+
 public class Reminder : AuditableEntity
 {
     public Guid Id { get; set; }
@@ -15,12 +16,5 @@ public class Reminder : AuditableEntity
     public int TypeId { get; set; }
     public ReminderType? Type { get; set; }
     public string? HangfireJobId { get; set; }
-    public ReminderStatus Status { get; set; }
-}
-
-public enum ReminderStatus
-{
-    Active,
-    Completed,
-    Viewed,
+    public bool IsViewed { get; set; }
 }

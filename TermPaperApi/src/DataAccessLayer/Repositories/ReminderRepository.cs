@@ -70,9 +70,25 @@ public class ReminderRepository(ApplicationDbContext context, IMapper mapper) : 
         return reminder == null ? Option.None<Reminder>() : Option.Some(reminder);
     }
 
-    public async Task<Option<IReadOnlyList<Reminder>>> GetByUser(Guid userId, CancellationToken cancellationToken)
+    public async Task<Option<IReadOnlyList<Reminder>>> GetAllByUser(Guid userId, CancellationToken cancellationToken)
     {
         var entity = await context.Reminders.Where(r => r.CreatedBy == userId)
+            .AsNoTracking()
+            .Include(r => r.Container)
+            .ToListAsync(cancellationToken);
+
+        var reminder = mapper.Map<IReadOnlyList<Reminder>>(entity);
+
+        return reminder == null ? Option.None<IReadOnlyList<Reminder>>() : Option.Some(reminder);
+    }
+
+    public async Task<Option<IReadOnlyList<Reminder>>> GetAllCompletedByUser(Guid userId, CancellationToken cancellationToken)
+    {
+        await context.Reminders.Where(t => t.DueDate <= DateTime.UtcNow && t.CreatedBy == userId)
+            .ExecuteUpdateAsync(updates => 
+                updates.SetProperty(t => t.IsViewed, true), cancellationToken);
+        
+        var entity = await context.Reminders.Where(r => r.CreatedBy == userId && r.IsViewed)
             .AsNoTracking()
             .Include(r => r.Container)
             .ToListAsync(cancellationToken);

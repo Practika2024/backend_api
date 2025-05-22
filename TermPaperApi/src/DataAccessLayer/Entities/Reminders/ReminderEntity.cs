@@ -14,5 +14,5 @@ public class ReminderEntity : AuditableEntity
     public int TypeId { get; set; }
     public ReminderTypeEntity? Type { get; set; }
     public string? HangfireJobId { get; set; }
-    public ReminderStatus Status { get; set; }
+    public bool IsViewed { get; set; }
 }

@@ -8,5 +8,5 @@ public class UpdateReminderModel
     public Guid ModifiedBy { get; set; }
     public Guid ContainerId { get; set; }
     public string HangfireJobId { get; set; }
-    public ReminderStatus Status { get; set; }
+    public bool IsViewed { get; set; }
 }

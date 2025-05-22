@@ -22,7 +22,8 @@ public class AddReminderToContainerCommandHandler(
     IReminderRepository reminderRepository,
     IUserProvider userProvider,
     IReminderService reminderService,
-    IUserQueries userQueries)
+    IUserQueries userQueries,
+    IReminderTypeQueries reminderTypeQueries)
     : IRequestHandler<AddReminderToContainerCommand, ServiceResponse>
 {
     public async Task<ServiceResponse> Handle(
@@ -33,8 +34,13 @@ public class AddReminderToContainerCommandHandler(
         var existingContainer = await containerRepository.GetById(containerId, cancellationToken);
         var reminderId = Guid.NewGuid();
 
+        if ((await reminderTypeQueries.GetById(request.TypeId, cancellationToken)).ValueOrDefault() is null)
+        {
+            return ServiceResponse.NotFoundResponse("Reminder type not found");
+        }
+        
         return await existingContainer.Match(
-            async container =>
+            async _ =>
             {
                 try
                 {
