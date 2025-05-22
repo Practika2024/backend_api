@@ -1,10 +1,13 @@
-﻿using Api.Dtos.Users;
-using Api.Modules.Errors;
+﻿using Api.Dtos;
+using Api.Dtos.Users;
 using Application.Commands.Users.Commands;
+using Application.Common.Interfaces;
 using Application.Common.Interfaces.Queries;
 using Application.Services;
+using Application.Services.PaginationService;
 using Application.Settings;
 using AutoMapper;
+using Domain.Common.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -16,16 +19,26 @@ namespace Api.Controllers;
 [ApiController]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
-public class UsersController(ISender sender, IUserQueries userQueries, IMapper mapper) : BaseController(mapper)
+public class UsersController(
+    ISender sender,
+    IUserQueries userQueries,
+    IMapper mapper,
+    IUserProvider userProvider) : BaseController(mapper)
 {
     private readonly IMapper _mapper = mapper;
 
     [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpGet("get-all")]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll([FromQuery] PaginationDto pagination, CancellationToken cancellationToken)
     {
         var entities = await userQueries.GetAll(cancellationToken);
-        return GetResult(ServiceResponse.OkResponse("Users list", entities.Select(_mapper.Map<UserDto>)));
+        if (pagination.Page is null && pagination.PageSize is null)
+            return GetResult(ServiceResponse.OkResponse("Users list", entities.Select(_mapper.Map<UserDto>)));
+        
+        var response = PaginationService.GetEntitiesWithPagination(pagination.Page, pagination.PageSize,
+            entities.ToList());
+
+        return GetResult<EntitiesListModel<UserDto>>(response);
     }
 
     [Authorize(Roles = AuthSettings.AdminRole)]
@@ -38,20 +51,31 @@ public class UsersController(ISender sender, IUserQueries userQueries, IMapper m
 
     [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpPatch("approve/{userId:guid}")]
-    public async Task<IActionResult> ApproveUser([FromRoute] Guid userId,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> ApproveUser([FromRoute] Guid userId, [FromQuery] bool isUserApproved = true,
+        CancellationToken cancellationToken = default)
     {
-        var command = new ApproveUserCommand() { UserId = userId };
+        var command = new ApproveUserCommand() { UserId = userId, IsUserApproved = isUserApproved };
+
         var result = await sender.Send(command, cancellationToken);
 
         return GetResult(result);
     }
-    
+
     [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpGet("get-by-id/{userId:guid}")]
     public async Task<IActionResult> Get([FromRoute] Guid userId, CancellationToken cancellationToken)
     {
         var entity = await userQueries.GetById(userId, cancellationToken);
+
+        return entity.Match<IActionResult>(
+            p => GetResult(ServiceResponse.OkResponse("User", _mapper.Map<UserDto>(p))),
+            () => GetResult(ServiceResponse.NotFoundResponse("User not found")));
+    }
+    
+    [HttpGet("get-by-token")]
+    public async Task<IActionResult> GetUserByToken(CancellationToken cancellationToken)
+    {
+        var entity = await userQueries.GetById(userProvider.GetUserId(), cancellationToken);
 
         return entity.Match<IActionResult>(
             p => GetResult(ServiceResponse.OkResponse("User", _mapper.Map<UserDto>(p))),

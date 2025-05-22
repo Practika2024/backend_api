@@ -7,4 +7,5 @@ public class CreateReminderModel
     public DateTime DueDate { get; set; }
     public ReminderType Type { get; set; }
     public Guid CreatedBy { get; set; }
+    public string? HangfireJobId { get; set; }
 }

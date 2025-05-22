@@ -2,5 +2,6 @@
 
 public interface IReminderService
 {
-    void ScheduleReminder(string userEmail, string title, DateTime reminderTime);
+    string ScheduleReminder(string userEmail, string title, DateTime reminderTime);
+    void DeleteHangfireJob(string reminderHangfireJobId);
 }

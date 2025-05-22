@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+    postgres:
+        image: postgres:latest
+        ports:
+            - "5432:5432"
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: postgres
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        networks:
+            - dashboard_network
+
+    webapi:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - "5001:8080"
+        depends_on:
+            - postgres
+        environment:
+            ConnectionStrings__PostgreSqlUbuntu: "User ID=postgres;Password=postgres;Host=postgres;Port=5432;Database=postgres;"
+        volumes:
+            - /volumes/api/images/products:/app/data/images/products
+            - /volumes/api/images/containers:/app/data/images/containers
+        networks:
+            - dashboard_network
+
+networks:
+    dashboard_network:
+
+volumes:
+    postgres_data:

@@ -7,6 +7,7 @@ using Application.Services.EmailService;
 using Application.Services.EmailVerificationLinkFactory;
 using Application.Services.HashPasswordService;
 using Application.Services.ImageService;
+using Application.Services.PaginationService;
 using Application.Services.ReminderService;
 using Application.Services.TokenService;
 using FluentValidation;
@@ -42,13 +43,10 @@ public static class ConfigureApplication
     private static void AddHangfireReminder(this IServiceCollection services, WebApplicationBuilder builder)
     {
         var connectionString = builder.Configuration["ConnectionStrings:Default"];
-        
+
         services.AddHangfire(config =>
         {
-            config.UsePostgreSqlStorage(options =>
-            {
-                options.UseNpgsqlConnection(connectionString);
-            });
+            config.UsePostgreSqlStorage(options => { options.UseNpgsqlConnection(connectionString); });
         });
 
         services.AddHangfireServer();

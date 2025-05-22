@@ -71,7 +71,7 @@ public class UpdateUserCommandHandle(IUserRepository userRepository, IUserProvid
         }
         catch (Exception exception)
         {
-            return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
+            return ServiceResponse.InternalServerErrorResponse(exception.Message);
         }
     }
 }

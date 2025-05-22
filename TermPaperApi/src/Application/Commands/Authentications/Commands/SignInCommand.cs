@@ -32,8 +32,8 @@ public class SignInCommandHandler(
 
         return await existingUser.Match(
             async u => await SignIn(u, request.Password, cancellationToken),
-            () => Task.FromResult<ServiceResponse>(
-                ServiceResponse.BadRequestResponse("Email or password are incorrect", null)));
+            () => Task.FromResult(
+                ServiceResponse.BadRequestResponse("Email or password are incorrect")));
     }
 
     private async Task<ServiceResponse> SignIn(
@@ -41,15 +41,14 @@ public class SignInCommandHandler(
         string password,
         CancellationToken cancellationToken)
     {
-        if (!user.IsApprovedByAdmin)
+        if (!user.IsApprovedByAdmin.HasValue)
         {
-            // var noTokenAvailable = new JwtModel()
-            // {
-            //     AccessToken = "You don't have access token, please wait for admin approval",
-            //     RefreshToken = "You don't have refresh token, please wait for admin approval"
-            // };
-
             return ServiceResponse.GetResponse("You don't have access token, please wait for admin approval", false, null, HttpStatusCode.OK);
+        }
+
+        if (!user.IsApprovedByAdmin.Value)
+        {
+            return ServiceResponse.ForbiddenResponse("Your approval has been rejected");
         }
         
         string storedHash = user.PasswordHash;
@@ -66,7 +65,7 @@ public class SignInCommandHandler(
         }
         catch (Exception exception)
         {
-            return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
+            return ServiceResponse.InternalServerErrorResponse(exception.Message);
         }
     }
 }

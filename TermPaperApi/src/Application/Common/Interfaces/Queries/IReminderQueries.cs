@@ -7,6 +7,7 @@ namespace Application.Common.Interfaces.Queries
     {
         Task<IReadOnlyList<Reminder>> GetAll(CancellationToken cancellationToken);
         Task<Option<Reminder>> GetById(Guid id, CancellationToken cancellationToken);
+        Task<Option<IReadOnlyList<Reminder>>> GetByUser(Guid userId, CancellationToken cancellationToken);
         Task<IReadOnlyList<Reminder>> GetByContainerId(Guid containerId, CancellationToken cancellationToken);
     }
 }

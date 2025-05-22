@@ -15,7 +15,6 @@ namespace Application.Commands.ContainersType.Commands;
 public record AddContainerTypeCommand : IRequest<ServiceResponse>
 {
     public required string Name { get; init; }
-    public Guid CreatedBy { get; set; }
 }
 
 public class AddContainerTypeCommandHandler(IContainerTypeRepository containerTypeRepository, IUserProvider userProvider)
@@ -25,7 +24,7 @@ public class AddContainerTypeCommandHandler(IContainerTypeRepository containerTy
         AddContainerTypeCommand request,
         CancellationToken cancellationToken)
     {
-        request.CreatedBy = userProvider.GetUserId();
+        var userId = userProvider.GetUserId();
         
         var existingContainerType = await containerTypeRepository.SearchByName(request.Name, cancellationToken);
 
@@ -33,7 +32,7 @@ public class AddContainerTypeCommandHandler(IContainerTypeRepository containerTy
             c => Task.FromResult<ServiceResponse>(ServiceResponse.GetResponse("Container type with this name already exists", false, null, HttpStatusCode.Conflict)),
             async () =>
             {
-                return await CreateEntity(request.Name, request.CreatedBy, cancellationToken);
+                return await CreateEntity(request.Name, userId, cancellationToken);
             });
     }
 
@@ -57,7 +56,7 @@ public class AddContainerTypeCommandHandler(IContainerTypeRepository containerTy
         }
         catch (ContainerTypeException exception)
         {
-            return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
+            return ServiceResponse.InternalServerErrorResponse(exception.Message);
         }
     }
 }

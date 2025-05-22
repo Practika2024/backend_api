@@ -25,11 +25,11 @@ namespace Application.Services.TokenService
 
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim("id", user.Id.ToString()),
-                new Claim("email", user.Email!),
-                new Claim("name", user.Name ?? "N/A"),
-                new Claim("role", user.RoleId)
+                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new("id", user.Id.ToString()),
+                new("email", user.Email!),
+                new("name", user.Name ?? "N/A"),
+                new("role", user.RoleId)
             };
             
             var token = new JwtSecurityToken(
@@ -124,7 +124,7 @@ namespace Application.Services.TokenService
         
         public async Task<GoogleJsonWebSignature.Payload> VerifyGoogleToken(ExternalLoginModel model)
         {
-            string clientId = configuration["GoogleAuthSettings:ClientId"];
+            string clientId = configuration["GoogleAuthSettings:ClientId"]!;
             var settings = new GoogleJsonWebSignature.ValidationSettings()
             {
                 Audience = new List<string> { clientId }

@@ -10,5 +10,6 @@ namespace Application.Common.Interfaces.Queries
         Task<Option<User>> GetById(Guid id, CancellationToken cancellationToken);
         Task<Option<User>> SearchByEmail(string email, CancellationToken cancellationToken);
         Task<string> GetEmailByUserId(Guid userId, CancellationToken cancellationToken);
+        Task<Option<User>> GetByIdAsQuery(Guid id, CancellationToken cancellationToken);
     }
 }

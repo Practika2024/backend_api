@@ -17,7 +17,7 @@ public class IntegrationTestWebFactory : WebApplicationFactory<Program>, IAsyncL
 {
     private readonly PostgreSqlContainer _dbContainer = new PostgreSqlBuilder()
         .WithImage("postgres:latest")
-        .WithDatabase("project_softstream")
+        .WithDatabase("postgres")
         .WithUsername("postgres")
         .WithPassword("postgres")
         .Build();

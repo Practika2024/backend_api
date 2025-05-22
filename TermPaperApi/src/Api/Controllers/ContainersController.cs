@@ -1,10 +1,12 @@
-﻿using Api.Dtos.Containers;
-using Api.Modules.Errors;
+﻿using Api.Dtos;
+using Api.Dtos.Containers;
 using Application.Commands.Containers.Commands;
 using Application.Common.Interfaces.Queries;
 using Application.Services;
+using Application.Services.PaginationService;
 using Application.Settings;
 using AutoMapper;
+using Domain.Common.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -16,15 +18,24 @@ namespace Api.Controllers;
 [ApiController]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
-public class ContainersController(ISender sender, IContainerQueries containerQueries, IMapper mapper) : BaseController(mapper)
+public class ContainersController(
+    ISender sender,
+    IContainerQueries containerQueries,
+    IMapper mapper) : BaseController(mapper)
 {
     private readonly IMapper _mapper = mapper;
 
     [HttpGet("get-all")]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll([FromQuery] PaginationDto pagination, CancellationToken cancellationToken)
     {
         var entities = await containerQueries.GetAll(cancellationToken);
-        return GetResult(ServiceResponse.OkResponse("Containers list", entities.Select(_mapper.Map<ContainerDto>)));
+        if (pagination.Page is null && pagination.PageSize is null)
+            return GetResult(ServiceResponse.OkResponse("Containers list", entities.Select(_mapper.Map<ContainerDto>)));
+
+        var response = PaginationService.GetEntitiesWithPagination(pagination.Page, pagination.PageSize,
+            entities.ToList());
+
+        return GetResult<EntitiesListModel<ContainerDto>>(response);
     }
 
     [HttpGet("get-by-id/{containerId:guid}")]
@@ -37,7 +48,7 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
             p => GetResult(ServiceResponse.OkResponse("Container", _mapper.Map<ContainerDto>(p))),
             () => GetResult(ServiceResponse.NotFoundResponse("Container not found")));
     }
-    
+
     [HttpGet("get-by-fill-status/{isEmpty:bool}")]
     public async Task<IActionResult> GetContainersByFillStatus(
         [FromRoute] bool isEmpty,
@@ -139,7 +150,7 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
 
         return GetResult(result);
     }
-    
+
     [HttpPut("set-content/{containerId:guid}")]
     public async Task<IActionResult> SetContainerContent(
         [FromRoute] Guid containerId,
@@ -156,7 +167,7 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
 
         return GetResult(result);
     }
-    
+
     [HttpPut("clear-content/{containerId:guid}")]
     public async Task<IActionResult> ClearContainerContent(
         [FromRoute] Guid containerId,
@@ -165,6 +176,23 @@ public class ContainersController(ISender sender, IContainerQueries containerQue
         var command = new ClearContainerContentCommand
         {
             ContainerId = containerId
+        };
+
+        var result = await sender.Send(command, cancellationToken);
+
+        return GetResult(result);
+    }
+
+    [HttpPut("update-image/{containerId:guid}")]
+    public async Task<IActionResult> UpdateContainerImage(
+        [FromRoute] Guid containerId,
+        IFormFile file,
+        CancellationToken cancellationToken)
+    {
+        var command = new UpdateContainerImageCommand
+        {
+            ContainerId = containerId,
+            File = file
         };
 
         var result = await sender.Send(command, cancellationToken);

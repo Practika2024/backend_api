@@ -11,6 +11,7 @@ public class Reminder : AuditableEntity
     public string Title { get; set; }
     public DateTime DueDate { get; set; }
     public ReminderType Type { get; set; }
+    public string? HangfireJobId { get; set; }
 }
 
 public enum ReminderType

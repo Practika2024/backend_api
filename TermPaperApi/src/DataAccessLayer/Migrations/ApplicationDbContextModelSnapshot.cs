@@ -94,9 +94,9 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
-                    b.Property<string>("FileName")
+                    b.Property<string>("FilePath")
                         .HasColumnType("text")
-                        .HasColumnName("file_name");
+                        .HasColumnName("file_path");
 
                     b.Property<DateTime>("ModifiedAt")
                         .HasColumnType("timestamp with time zone")
@@ -423,6 +423,11 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("due_date");
 
+                    b.Property<string>("HangfireJobId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("hangfire_job_id");
+
                     b.Property<DateTime>("ModifiedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("modified_at");
@@ -520,7 +525,7 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("text")
                         .HasColumnName("external_provider_key");
 
-                    b.Property<bool>("IsApprovedByAdmin")
+                    b.Property<bool?>("IsApprovedByAdmin")
                         .HasColumnType("boolean")
                         .HasColumnName("is_approved_by_admin");
 

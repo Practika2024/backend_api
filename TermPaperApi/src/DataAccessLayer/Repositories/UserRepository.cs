@@ -20,9 +20,9 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper) : IUse
         var userEntity = mapper.Map<UserEntity>(model);
 
         await context.Users.AddAuditableAsync(userEntity, cancellationToken);
-        
+
         await context.SaveChangesAsync(cancellationToken);
-       
+
         return mapper.Map<User>(userEntity);
     }
 
@@ -60,6 +60,7 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper) : IUse
     public async Task<IReadOnlyList<User>> GetAll(CancellationToken cancellationToken)
     {
         var userEntities = await context.Users
+            .Where(u=>u.IsApprovedByAdmin == true)
             .AsNoTracking()
             .AsSplitQuery()
             .ToListAsync(cancellationToken);
@@ -72,7 +73,7 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper) : IUse
         var userEntities = await context.Users
             .AsNoTracking()
             .AsSplitQuery()
-            .Where(u=> !u.IsApprovedByAdmin)
+            .Where(u => !u.IsApprovedByAdmin.HasValue)
             .ToListAsync(cancellationToken);
 
         return mapper.Map<IReadOnlyList<User>>(userEntities);
@@ -103,11 +104,11 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper) : IUse
         return entity!.Email;
     }
 
-    public async Task<User> ApproveUser(Guid userId, CancellationToken cancellationToken)
+    public async Task<User> ApproveUser(Guid userId, bool isUserApproved, CancellationToken cancellationToken)
     {
         var entity = await GetUserAsync(x => x.Id == userId, cancellationToken);
 
-        entity!.IsApprovedByAdmin = true;
+        entity!.IsApprovedByAdmin = isUserApproved;
 
         await context.SaveChangesAsync(cancellationToken);
 
@@ -125,7 +126,8 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper) : IUse
         return mapper.Map<User>(entity);
     }
 
-    public async Task<Option<User>> SearchByEmailForUpdate(Guid userId, string email, CancellationToken cancellationToken)
+    public async Task<Option<User>> SearchByEmailForUpdate(Guid userId, string email,
+        CancellationToken cancellationToken)
     {
         var entity = await GetUserAsync(x => x.Email == email && x.Id != userId, cancellationToken);
 
@@ -136,12 +138,12 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper) : IUse
 
     public async Task<User> UpdateRole(UpdateRoleModel model, CancellationToken cancellationToken)
     {
-        var userEntity = await context.Users.FirstOrDefaultAsync(u=> u.Id == model.UserId, cancellationToken);
-        
+        var userEntity = await context.Users.FirstOrDefaultAsync(u => u.Id == model.UserId, cancellationToken);
+
         userEntity!.RoleId = model.RoleId;
-        
+
         await context.SaveChangesAsync(cancellationToken);
-    
+
         return mapper.Map<User>(userEntity);
     }
 
@@ -159,14 +161,33 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper) : IUse
         return await context.Users
             .FirstOrDefaultAsync(predicate, cancellationToken);
     }
-    
-    
-    public async Task<User?> FindByLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken)
-    {
-        var userEntity = await context.Users
-            .FirstOrDefaultAsync(u => u.ExternalProvider == loginProvider && u.ExternalProviderKey == providerKey, cancellationToken);
 
-        return mapper.Map<User>(userEntity);
+
+    public async Task<User?> FindByLoginAsync(string loginProvider, string providerKey,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var user = await context.Users
+                .FirstOrDefaultAsync(
+                    u => u.ExternalProvider == loginProvider &&
+                         u.ExternalProviderKey == providerKey,
+                    cancellationToken);
+            
+            return mapper.Map<User>(user);
+        }
+        catch (OperationCanceledException ex) when (ex.CancellationToken == cancellationToken)
+        {
+            // Запит було скасовано через CancellationToken
+            Console.WriteLine("Request canceled by user or timeout.");
+            return null;
+        }
+        catch (Exception ex)
+        {
+            // Логування реальної помилки
+            Console.WriteLine($"Error while finding user: {ex}");
+            throw;
+        }
     }
 
     public async Task<User?> FindByEmailAsync(string email, CancellationToken cancellationToken)
@@ -176,7 +197,8 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper) : IUse
         return mapper.Map<User>(userEntity);
     }
 
-    public async Task<IdentityResult> AddLoginAsync(User user, UserLoginInfo loginInfo, CancellationToken cancellationToken)
+    public async Task<IdentityResult> AddLoginAsync(User user, UserLoginInfo loginInfo,
+        CancellationToken cancellationToken)
     {
         var userEntity = await GetUserAsync(x => x.Id == user.Id, cancellationToken);
 
@@ -184,6 +206,7 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper) : IUse
         {
             return IdentityResult.Failed(new IdentityError { Code = "NotFound", Description = "User not found." });
         }
+
         userEntity.ExternalProvider = loginInfo.LoginProvider;
         userEntity.ExternalProviderKey = loginInfo.ProviderKey;
 
@@ -193,10 +216,20 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper) : IUse
 
     public async Task<User?> FindUserByEmailVerificationToken(Guid tokenId, CancellationToken cancellationToken)
     {
-        var emailVerificationToken = await context.EmailVerificationTokens.FirstOrDefaultAsync(e=> e.Id == tokenId, cancellationToken);
-        
+        var emailVerificationToken =
+            await context.EmailVerificationTokens.FirstOrDefaultAsync(e => e.Id == tokenId, cancellationToken);
+
         var userEntity = await GetUserAsync(x => x.Id == emailVerificationToken!.UserId, cancellationToken);
 
         return mapper.Map<User>(userEntity);
+    }
+    
+    public async Task<Option<User>> GetByIdAsQuery(Guid id, CancellationToken cancellationToken)
+    {
+        var entity = await GetUserAsync(x => x.Id == id, cancellationToken, true);
+
+        var user = mapper.Map<User>(entity);
+
+        return user == null ? Option.None<User>() : Option.Some(user);
     }
 }

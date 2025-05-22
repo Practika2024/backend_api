@@ -28,16 +28,9 @@ public class ContainerRepository(ApplicationDbContext context, IMapper mapper)
     {
         var containerEntity = await GetContainerAsync(x => x.Id == model.Id, cancellationToken);
 
-        if (containerEntity == null)
-        {
-            throw new InvalidOperationException("Container not found.");
-        }
+        mapper.Map(model, containerEntity);
 
-        containerEntity.Name = model.Name;
-        containerEntity.Notes = model.Notes;
-        containerEntity.Volume = model.Volume;
-
-        context.Containers.UpdateAuditable(containerEntity);
+        context.Containers.UpdateAuditable(containerEntity!);
         await context.SaveChangesAsync(cancellationToken);
 
         return mapper.Map<Container>(containerEntity);

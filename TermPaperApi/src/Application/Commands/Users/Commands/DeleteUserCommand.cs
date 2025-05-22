@@ -37,7 +37,7 @@ public class DeleteUserCommandHandler(
                 }
                 catch (Exception exception)
                 {
-                    return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
+                    return ServiceResponse.InternalServerErrorResponse(exception.Message);
                 }
             },
             () => Task.FromResult<ServiceResponse>(

@@ -2,7 +2,6 @@ using Application.Common.Interfaces.Queries;
 using Application.Common.Interfaces.Repositories;
 using DataAccessLayer.Data;
 using DataAccessLayer.Repositories;
-using Domain.EmailVerificationToken;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;

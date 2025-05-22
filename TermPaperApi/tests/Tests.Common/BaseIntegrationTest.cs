@@ -25,7 +25,7 @@ public abstract class BaseIntegrationTest : IClassFixture<IntegrationTestWebFact
     protected readonly HttpClient Client;
     protected readonly Guid UserId=Guid.NewGuid();
 
-    protected BaseIntegrationTest(IntegrationTestWebFactory factory)
+    protected BaseIntegrationTest(IntegrationTestWebFactory factory, bool useJwtToken = true)
     {
         var scope = factory.Services.CreateScope();
         Context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -43,7 +43,8 @@ public abstract class BaseIntegrationTest : IClassFixture<IntegrationTestWebFact
                 AllowAutoRedirect = false,
             });
 
-        SetAuthorizationHeader();
+        if (useJwtToken)
+            SetAuthorizationHeader();
     }
 
     private void SetAuthorizationHeader()

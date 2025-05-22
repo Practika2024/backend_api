@@ -1,10 +1,12 @@
-﻿using Api.Dtos.ProductsType;
-using Api.Modules.Errors;
+﻿using Api.Dtos;
+using Api.Dtos.ProductsType;
 using Application.Commands.ProductsType.Commands;
 using Application.Common.Interfaces.Queries;
 using Application.Services;
+using Application.Services.PaginationService;
 using Application.Settings;
 using AutoMapper;
+using Domain.Common.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -16,17 +18,26 @@ namespace Api.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Authorize(Roles = $"{AuthSettings.AdminRole}, {AuthSettings.OperatorRole}")]
 [ApiController]
-public class ProductsTypeController(ISender sender, IProductTypeQueries productTypeQueries, IMapper mapper)
+public class ProductsTypeController(
+    ISender sender,
+    IProductTypeQueries productTypeQueries,
+    IMapper mapper)
     : BaseController(mapper)
 {
     private readonly IMapper _mapper = mapper;
 
     [HttpGet("get-all")]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll([FromQuery] PaginationDto pagination, CancellationToken cancellationToken)
     {
         var entities = await productTypeQueries.GetAll(cancellationToken);
-        return GetResult(ServiceResponse
-            .OkResponse("Products types list", entities.Select(_mapper.Map<ProductTypeDto>).ToList()));
+        if (pagination.Page is null && pagination.PageSize is null)
+            return GetResult(ServiceResponse
+                .OkResponse("Products types list", entities.Select(_mapper.Map<ProductTypeDto>).ToList()));
+        
+        var response = PaginationService.GetEntitiesWithPagination(pagination.Page, pagination.PageSize,
+            entities.ToList());
+
+        return GetResult<EntitiesListModel<ProductTypeDto>>(response);
     }
 
     [HttpGet("get-by-id/{productTypeId:guid}")]

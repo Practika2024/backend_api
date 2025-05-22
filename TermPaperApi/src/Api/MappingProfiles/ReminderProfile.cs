@@ -1,6 +1,7 @@
 ﻿using Api.Dtos.Reminders;
 using AutoMapper;
 using DataAccessLayer.Entities.Reminders;
+using Domain.Common.Models;
 using Domain.Reminders;
 using Domain.Reminders.Models;
 
@@ -13,5 +14,6 @@ public class ReminderProfile : Profile
         CreateMap<Reminder, ReminderDto>();
         CreateMap<UpdateReminderDto, UpdateReminderModel>();
         CreateMap<DeleteReminderDto, DeleteReminderModel>();
+        CreateMap<EntitiesListModel<ReminderDto>, EntitiesListModel<Reminder>>().ReverseMap();
     }
 }

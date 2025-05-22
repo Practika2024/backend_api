@@ -6,4 +6,6 @@ public class UpdateReminderModel
     public DateTime DueDate { get; set; }
     public ReminderType Type { get; set; }
     public Guid ModifiedBy { get; set; }
+    public Guid ContainerId { get; set; }
+    public string HangfireJobId { get; set; }
 }

@@ -49,25 +49,30 @@ public class AddReminderToContainerCommandHandler(
                         Title = request.Title,
                         DueDate = request.DueDate,
                         Type = request.Type,
-                        CreatedBy = userId
+                        CreatedBy = userId,
+                        HangfireJobId = null
                     };
-
-                    var createdReminder = await reminderRepository.Create(createReminderModel, cancellationToken);
+                    
+                    string jobId = string.Empty;
 
                     if ((await userQueries.GetById(userId, cancellationToken)).ValueOrDefault().EmailConfirmed)
                     {
                         // Плануємо нагадування через Hangfire
                         // var reminderTime = createdReminder.DueDate.AddMinutes(-30);
-                        var reminderTime = createdReminder.DueDate.AddSeconds(-30);
-                        reminderService.ScheduleReminder(await userQueries.GetEmailByUserId(userId, cancellationToken),
-                            createdReminder.Title, reminderTime);
+                        var reminderTime = createReminderModel.DueDate.AddSeconds(-30);
+                        jobId = reminderService.ScheduleReminder(await userQueries.GetEmailByUserId(userId, cancellationToken),
+                            createReminderModel.Title, reminderTime);
+                        
+                        createReminderModel.HangfireJobId = jobId;
                     }
+                    
+                    var createdReminder = await reminderRepository.Create(createReminderModel, cancellationToken);
 
                     return ServiceResponse.OkResponse("Reminder", createdReminder);
                 }
                 catch (ReminderException exception)
                 {
-                    return ServiceResponse.InternalServerErrorResponse(exception.Message, exception);
+                    return ServiceResponse.InternalServerErrorResponse(exception.Message);
                 }
             },
             () => Task.FromResult(
