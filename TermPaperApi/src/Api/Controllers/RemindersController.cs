@@ -24,6 +24,7 @@ public class RemindersController(
 {
     private readonly IMapper _mapper = mapper;
 
+    [Authorize(Roles = AuthSettings.AdminRole)]
     [HttpGet("get-all")]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
@@ -41,12 +42,45 @@ public class RemindersController(
             () => GetResult(ServiceResponse.NotFoundResponse("Reminder not found")));
     }
 
-    [HttpGet("get-by-user")]
+    [HttpGet("get-all-by-user")]
     public async Task<IActionResult> GetByUser(CancellationToken cancellationToken)
     {
-        var entity = await reminderQueries.GetByUser(userProvider.GetUserId(), cancellationToken);
+        var entity = await reminderQueries.GetAllByUser(userProvider.GetUserId(), cancellationToken);
         return entity.Match<IActionResult>(
-            p => GetResult(ServiceResponse.OkResponse("Reminder", _mapper.Map<IReadOnlyList<ReminderDto>>(p))),
+            p => GetResult(ServiceResponse.OkResponse("All reminders", _mapper.Map<IReadOnlyList<ReminderDto>>(p))),
+            () => GetResult(ServiceResponse.NotFoundResponse("Reminder not found")));
+    }
+
+    [HttpGet("get-not-completed-by-user")]
+    public async Task<IActionResult> GetNotCompletedByUser(CancellationToken cancellationToken)
+    {
+        var allEntities = await reminderQueries.GetAllByUser(userProvider.GetUserId(), cancellationToken);
+        
+        return allEntities.Match<IActionResult>(
+            p => GetResult(ServiceResponse.OkResponse("Not completed reminders",
+                _mapper.Map<IReadOnlyList<ReminderDto>>(p.Where(r => r.DueDate > DateTime.UtcNow)))),
+            () => GetResult(ServiceResponse.NotFoundResponse("Reminder not found")));
+    }
+    
+    [HttpGet("get-all-completed-by-user")]
+    public async Task<IActionResult> GetAllCompletedByUser(CancellationToken cancellationToken)
+    {
+        var allEntities = await reminderQueries.GetAllCompletedByUser(userProvider.GetUserId(), cancellationToken);
+        
+        return allEntities.Match<IActionResult>(
+            p => GetResult(ServiceResponse.OkResponse("Not completed reminders",
+                _mapper.Map<IReadOnlyList<ReminderDto>>(p))),
+            () => GetResult(ServiceResponse.NotFoundResponse("Reminder not found")));
+    }
+    
+    [HttpGet("get-not-viewed-by-user")]
+    public async Task<IActionResult> GetNotViewedByUser(CancellationToken cancellationToken)
+    {
+        var allEntities = await reminderQueries.GetAllByUser(userProvider.GetUserId(), cancellationToken);
+        
+        return allEntities.Match<IActionResult>(
+            p => GetResult(ServiceResponse.OkResponse("Not completed reminders",
+                _mapper.Map<IReadOnlyList<ReminderDto>>(p.Where(r => r.DueDate < DateTime.UtcNow && !r.IsViewed)))),
             () => GetResult(ServiceResponse.NotFoundResponse("Reminder not found")));
     }
 
@@ -61,7 +95,7 @@ public class RemindersController(
             ContainerId = containerId,
             Title = model.Title,
             DueDate = model.DueDate,
-            Type = model.Type
+            TypeId = model.Type
         };
 
         var result = await sender.Send(command, cancellationToken);
@@ -80,12 +114,12 @@ public class RemindersController(
             Id = reminderId,
             Title = model.Title,
             DueDate = model.DueDate,
-            Type = model.Type,
+            TypeId = model.Type,
             ContainerId = model.ContainerId
         };
-    
+
         var result = await sender.Send(command, cancellationToken);
-    
+
         return GetResult(result);
     }
 

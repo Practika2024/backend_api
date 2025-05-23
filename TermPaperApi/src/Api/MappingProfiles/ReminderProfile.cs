@@ -11,7 +11,8 @@ public class ReminderProfile : Profile
 {
     public ReminderProfile()
     {
-        CreateMap<Reminder, ReminderDto>();
+        CreateMap<Reminder, ReminderDto>().ReverseMap();
+        
         CreateMap<UpdateReminderDto, UpdateReminderModel>();
         CreateMap<DeleteReminderDto, DeleteReminderModel>();
         CreateMap<EntitiesListModel<ReminderDto>, EntitiesListModel<Reminder>>().ReverseMap();

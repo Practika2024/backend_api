@@ -9,12 +9,8 @@ public class ReminderProfile : Profile
 {
     public ReminderProfile()
     {
-        CreateMap<CreateReminderModel, ReminderEntity>();
-        CreateMap<UpdateReminderModel, ReminderEntity>();
-        CreateMap<ReminderEntity, Reminder>();
-        CreateMap<Reminder, UpdateReminderModel>()
-            .ForMember(dest => dest.Title, opt => opt.Condition(src => src.Title != null))
-            .ForMember(dest => dest.DueDate, opt => opt.Condition(src => src.DueDate != null))
-            .ForMember(dest => dest.Type, opt => opt.Condition(src => src.Type != null));
+        CreateMap<CreateReminderModel, ReminderEntity>().ReverseMap();
+        CreateMap<UpdateReminderModel, ReminderEntity>().ReverseMap();
+        CreateMap<ReminderEntity, Reminder>().ReverseMap();
     }
 }

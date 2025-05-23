@@ -48,7 +48,7 @@ public class AddProductTypeCommandHandler(IProductTypeRepository productTypeRepo
             var createdProduct = await productTypeRepository.Create(createProductModel, cancellationToken);
             return ServiceResponse.OkResponse("Product type", createdProduct);
         }
-        catch (ProductTypeException exception)
+        catch (Exception exception)
         {
             return ServiceResponse.InternalServerErrorResponse(exception.Message);
         }
