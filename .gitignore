@@ -3,6 +3,7 @@ obj/
 bin/
 .idea/
 
-PracticaApi/src/Api/data/images/
+TermPaperApi/src/Api/data/images/containers
+TermPaperApi/src/Api/data/images/products
 
-Migrations/
+TermPaperApi/TermPaperApi.sln.DotSettings.user
