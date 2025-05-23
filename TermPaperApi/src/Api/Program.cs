@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Api.Modules;
 using Api.Services.UserProvider;
 using Application;
@@ -29,11 +30,10 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 builder.Host.UseSerilog();
-    
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-
 app.UseSwagger();
 app.UseSwaggerUI();
 
