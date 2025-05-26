@@ -15,7 +15,7 @@ public class BaseController(IMapper mapper) : ControllerBase
     {
         try
         {
-            if (serviceResponse.Payload is not null)
+            if (serviceResponse.Payload is not null && serviceResponse.Success)
             {
                 serviceResponse.Payload = mapper.Map<T>(serviceResponse.Payload);
             }

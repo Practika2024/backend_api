@@ -1,12 +1,9 @@
 using System.Net;
 using System.Security.Claims;
-using Application.Commands.Authentications.Exceptions;
-using Application.Common;
 using Application.Common.Interfaces.Repositories;
 using Application.Services;
 using Application.Services.TokenService;
 using Domain.RefreshTokens;
-using Domain.Users.Models;
 using MediatR;
 using Microsoft.IdentityModel.JsonWebTokens;
 
@@ -83,7 +80,7 @@ public class RefreshTokenCommandHandler(
                 var tokens = await jwtTokenService.GenerateTokensAsync(u, cancellationToken);
                 return ServiceResponse.OkResponse("Users tokens", tokens);
             },
-            () => Task.FromResult<ServiceResponse>(
+            () => Task.FromResult(
                 ServiceResponse.NotFoundResponse($"User under id: {storedToken.UserId} was not found!")
                 ));
     }
