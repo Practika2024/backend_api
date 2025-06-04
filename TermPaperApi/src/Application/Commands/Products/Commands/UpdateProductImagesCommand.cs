@@ -38,7 +38,7 @@ public class UpdateProductImagesCommandHandler(
                     var image = p.Images.FirstOrDefault(x => x.Id == id);
                     if (image != null)
                     {
-                        imageService.DeleteImageAsync(ImagePaths.ProductImagesPath, image.FileName!);
+                        imageService.DeleteImage(ImagePaths.ProductImagesPath, image.FileName!);
                         p.Images.Remove(image);
                     }
                 }

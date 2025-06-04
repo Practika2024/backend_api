@@ -74,7 +74,7 @@ namespace Application.Services.ImageService
             }
         }
 
-        public Result<bool, string> DeleteImageAsync(string path, string imageName)
+        public Result<bool, string> DeleteImage(string path, string imageName)
         {
             try
             {

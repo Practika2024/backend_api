@@ -62,7 +62,7 @@ public class DeleteProductCommandHandler(
     {
         foreach (var productImage in productImages)
         {
-            imageService.DeleteImageAsync(ImagePaths.ProductImagesPath, productImage.FileName);
+            imageService.DeleteImage(ImagePaths.ProductImagesPath, productImage.FileName);
         }
     }
 }

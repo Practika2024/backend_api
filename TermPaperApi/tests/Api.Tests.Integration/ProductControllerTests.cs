@@ -25,6 +25,28 @@ public class ProductsControllerTests : BaseIntegrationTest, IAsyncLifetime
     }
 
     [Fact]
+    public async Task ShouldAddProduct()
+    {
+        // Arrange
+        var newProduct = new CreateProductDto
+        {
+            Name = "New Test Product",
+            Description = "Test description",
+            ManufactureDate = DateTime.UtcNow,
+            TypeId = _mainProductType.Id,
+        };
+
+        // Act
+        var response = await Client.PostAsJsonAsync("products/add", newProduct);
+
+        // Assert
+        response.IsSuccessStatusCode.Should().BeTrue();
+        var createdProduct = await JsonHelper.GetPayloadAsync<Product>(response);
+        createdProduct.Should().NotBeNull();
+        createdProduct!.Name.Should().Be(newProduct.Name);
+    }
+
+    [Fact]
     public async Task ShouldGetAllProducts()
     {
         // Act
@@ -41,7 +63,7 @@ public class ProductsControllerTests : BaseIntegrationTest, IAsyncLifetime
     {
         // Arrange
         var productId = _mainProduct.Id;
-        
+
         // Act
         var response = await Client.GetAsync($"products/get-by-id/{productId}");
 
@@ -66,34 +88,12 @@ public class ProductsControllerTests : BaseIntegrationTest, IAsyncLifetime
     }
 
     [Fact]
-    public async Task ShouldAddProduct()
-    {
-        // Arrange
-        var newProduct = new CreateProductDto
-        {
-            Name = "New Test Product",
-            Description = "Test description",
-            ManufactureDate = DateTime.UtcNow,
-            TypeId = _mainProductType.Id,
-        };
-
-        // Act
-        var response = await Client.PostAsJsonAsync("products/add", newProduct);
-
-        // Assert
-        response.IsSuccessStatusCode.Should().BeTrue();
-        var createdProduct = await JsonHelper.GetPayloadAsync<Product>(response);
-        createdProduct.Should().NotBeNull();
-        createdProduct!.Name.Should().Be(newProduct.Name);
-    }
-    
-    [Fact]
     public async Task ShouldUpdateProduct()
     {
         // Arrange
         var newName = "New Test Product Updated";
         var newDescription = "Test description Updated";
-        
+
         var updateProductDto = new UpdateProductDto
         {
             Name = newName,
@@ -108,23 +108,23 @@ public class ProductsControllerTests : BaseIntegrationTest, IAsyncLifetime
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
         var updatedProduct = await JsonHelper.GetPayloadAsync<ProductDto>(response);
-        
+
         var manufacturerFromDataBase = await Context.Products
             .FirstOrDefaultAsync(x => x.Id == updatedProduct!.Id);
-        
+
         manufacturerFromDataBase.Should().NotBeNull();
-        
+
         manufacturerFromDataBase!.Name.Should().Be(newName);
         manufacturerFromDataBase!.Description.Should().Be(newDescription);
     }
-    
+
 
     [Fact]
     public async Task ShouldDeleteProduct()
     {
         // Arrange
         var productId = _mainProduct.Id;
-        
+
         // Act
         var response = await Client.DeleteAsync($"products/delete/{productId}");
 
@@ -150,7 +150,7 @@ public class ProductsControllerTests : BaseIntegrationTest, IAsyncLifetime
             Name = _mainProductType.Name,
             CreatedBy = UserId
         };
-        
+
         await Context.Users.AddAsync(new UserEntity
             { Id = UserId, Email = "qwerty@gmail.com", PasswordHash = "fdsafdsafsad", RoleId = "Administrator" });
         await Context.ProductTypes.AddAuditableAsync(productTypeEntity);

@@ -2,6 +2,8 @@
 using Application.Common;
 using Application.Common.Interfaces.Repositories;
 using Application.Services;
+using Application.Services.ImageService;
+using Application.Settings;
 using Domain.Containers;
 using Domain.Containers.Models;
 using MediatR;
@@ -14,7 +16,8 @@ public record DeleteContainerCommand : IRequest<ServiceResponse>
 }
 
 public class DeleteContainerCommandHandler(
-    IContainerRepository containerRepository)
+    IContainerRepository containerRepository,
+    IImageService imageService)
     : IRequestHandler<DeleteContainerCommand, ServiceResponse>
 {
     public async Task<ServiceResponse> Handle(
@@ -33,6 +36,13 @@ public class DeleteContainerCommandHandler(
                         Id = container.Id
                     };
                     var deletedContainer = await containerRepository.Delete(model, cancellationToken);
+
+                    if (container.FilePath != null)
+                    {
+                        var imageName = container.FilePath.Split('/').LastOrDefault();
+                        imageService.DeleteImage(ImagePaths.ContainerImagesPath, imageName!);    
+                    }
+                    
                     return ServiceResponse.OkResponse("Container deleted", deletedContainer);
                 }
                 catch (ContainerException exception)

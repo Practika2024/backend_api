@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using Api.Modules;
 using Api.Services.UserProvider;
 using Application;

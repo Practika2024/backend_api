@@ -8,6 +8,6 @@ namespace Application.Services.ImageService
     {
         Task<string?> SaveImageFromFileAsync(string path, IFormFile image, string? oldImagePath = null);
         Task<List<string?>> SaveImagesFromFilesAsync(string path, IFormFileCollection images);
-        Result<bool, string> DeleteImageAsync(string path, string imageName);
+        Result<bool, string> DeleteImage(string path, string imageName);
     }
 }

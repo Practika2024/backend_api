@@ -1,5 +1,4 @@
 ﻿using Api.Dtos.Authentications;
-using Api.Modules.Errors;
 using Application.Commands.Authentications.Commands;
 using AutoMapper;
 using Domain.Users.Models;
