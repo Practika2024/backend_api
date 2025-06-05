@@ -22,7 +22,7 @@ public class AddReminderTypeCommandHandler(IReminderTypeRepository reminderTypeR
         var existingReminderType = await reminderTypeRepository.SearchByName(request.Name, cancellationToken);
 
         return await existingReminderType.Match<Task<ServiceResponse>>(
-            c => Task.FromResult<ServiceResponse>(
+            c => Task.FromResult(
                 ServiceResponse.GetResponse("Reminder type with this name already exists", false, null, HttpStatusCode.Conflict)),
             async () => { return await CreateEntity(request.Name, userProvider.GetUserId(), cancellationToken); });
     }
