@@ -1,6 +1,4 @@
-﻿using Domain.Reminders;
-
-namespace Api.Dtos.Reminders;
+﻿namespace Api.Dtos.Reminders;
 
 public class AddReminderToContainerDto
 {

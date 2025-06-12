@@ -2,6 +2,7 @@
 
 namespace Api.Controllers;
 
+[ApiExplorerSettings(IgnoreApi = true)]
 [Route("")]
 [ApiController]
 public class DefaultController : ControllerBase

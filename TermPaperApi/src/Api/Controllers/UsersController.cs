@@ -164,6 +164,7 @@ public class UsersController(
         return GetResult(result);
     }
 
+    [ApiExplorerSettings(IgnoreApi = true)]
     [HttpGet("verify-email", Name = "VerifyEmail")]
     [AllowAnonymous]
     public async Task<IActionResult> VerifyEmail(

@@ -9,4 +9,10 @@ public class ReminderTypeData
     {
         Name = "Main Test Reminder Type"
     };
+    
+    public static ReminderType SecondReminderType => new()
+    {
+        Id = 9999,
+        Name = "Second Test Reminder Type"
+    };
 }
